@@ -39,7 +39,6 @@
 Locality-Sensitive Hashing</h3>
 
   <p align="center">
-    This is a LSH project from UFUG2106(L01)
     <br />
     <a href="https://github.com/MoliaiELS/Group10_Project"><strong>Explore the docs »</strong></a>
     <br />
