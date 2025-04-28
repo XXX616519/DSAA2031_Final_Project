@@ -41,6 +41,31 @@ let projects = [
     }
   ];
 
+// 模拟 MySQL 中 student_projects 表
+let studentProjects = [
+  {
+      projectId: 'SP001',
+      projectName: 'Student Project A',
+      leadingProfessor: 'Prof. Green',
+      description: 'A research project on AI applications.',
+      startDate: '2025-01-15'
+  },
+  {
+      projectId: 'SP002',
+      projectName: 'Student Project B',
+      leadingProfessor: 'Prof. White',
+      description: 'A collaborative project on renewable energy.',
+      startDate: '2025-02-01'
+  },
+  {
+      projectId: 'SP003',
+      projectName: 'Student Project C',
+      leadingProfessor: 'Prof. Black',
+      description: 'A study on blockchain technology.',
+      startDate: '2025-03-10'
+  }
+];
+
 // 统一登录接口，根据 role 判断验证哪一类用户
 app.post('/api/login', (req, res) => {
     const { role } = req.body;
@@ -133,6 +158,11 @@ app.get('/api/projects', (req, res) => {
     }
     projects.splice(index, 1);
     res.json({ success: true });
+  });
+
+  // API: 返回学生参与的项目
+  app.get('/api/student-projects', (req, res) => {
+    res.json({ success: true, projects: studentProjects });
   });
   
 const PORT = 3000;
