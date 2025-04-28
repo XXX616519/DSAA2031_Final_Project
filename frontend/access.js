@@ -132,6 +132,134 @@ function fetchProjects() {
     teacherProjects.style.display = 'block';
     // 教师登录，显示教师信息
     userInfoDiv.textContent = `Logged in as Teacher: ${userName} (ID: ${userId})`;
+
+    function fetchTeacherProjects() {
+      fetch('http://localhost:3000/api/teacher-projects')
+        .then(response => response.json())
+        .then(data => {
+          const teacherProjectList = document.getElementById('teacherProjectList'); // 容器
+          teacherProjectList.innerHTML = ''; // 清空内容
+    
+          if (data.success && data.projects.length > 0) {
+            data.projects.forEach(project => {
+              const projectDiv = document.createElement('div');
+              projectDiv.className = 'project-box'; // 添加样式类
+              projectDiv.style.border = "1px solid #ddd";
+              projectDiv.style.padding = "10px";
+              projectDiv.style.marginBottom = "10px";
+    
+              projectDiv.innerHTML = `
+                <strong>Project ID:</strong> ${project.projectId}<br>
+                <strong>Name:</strong> ${project.projectName}<br>
+                <strong>Budget:</strong> $${project.budget}<br>
+                <strong>Participants:</strong> ${project.participants.join(', ')}<br>
+                <button class=".button" onclick="fetchProjectDetails('${project.projectId}')">View Details</button>
+              `;
+    
+              teacherProjectList.appendChild(projectDiv);
+            });
+          } else {
+            teacherProjectList.textContent = "No projects found.";
+          }
+        })
+        .catch(error => console.error("Error fetching teacher projects:", error));
+    }
+    fetchTeacherProjects();
+
+    function fetchProjectDetails(projectId) {
+      let currentMonth = new Date().toISOString().slice(0, 7); // 当前月份（格式：YYYY-MM）
+    
+      const projectDetailsDiv = document.getElementById('projectDetails');
+      projectDetailsDiv.innerHTML = ''; // 清空内容
+    
+      // 创建月份导航
+      const monthNav = document.createElement('div');
+      monthNav.style.marginBottom = '10px';
+      monthNav.innerHTML = `
+        <button onclick="changeMonth('${projectId}', -1)">Previous Month</button>
+        <span id="currentMonth">${currentMonth}</span>
+        <button onclick="changeMonth('${projectId}', 1)">Next Month</button>
+      `;
+      projectDetailsDiv.appendChild(monthNav);
+    
+      // 加载当前月份的数据
+      loadProjectDetailsByMonth(projectId, currentMonth);
+    }
+    
+    function changeMonth(projectId, offset) {
+      const currentMonthSpan = document.getElementById('currentMonth');
+      let currentMonth = currentMonthSpan.textContent;
+    
+      // 计算新的月份
+      const date = new Date(currentMonth + '-01');
+      date.setMonth(date.getMonth() + offset);
+      const newMonth = date.toISOString().slice(0, 7);
+    
+      // 更新月份显示
+      currentMonthSpan.textContent = newMonth;
+    
+      // 加载新的月份数据
+      loadProjectDetailsByMonth(projectId, newMonth);
+    }
+    
+    function loadProjectDetailsByMonth(projectId, month) {
+      fetch(`http://localhost:3000/api/project-students/${projectId}?month=${month}`)
+        .then(response => response.json())
+        .then(data => {
+          const projectDetailsDiv = document.getElementById('projectDetails');
+          const studentListDiv = document.createElement('div');
+          studentListDiv.innerHTML = ''; // 清空学生列表
+    
+          if (data.success && data.students.length > 0) {
+            data.students.forEach(student => {
+              const studentDiv = document.createElement('div');
+              studentDiv.className = 'project-box'; // 使用相同的样式类
+              studentDiv.style.marginBottom = '10px';
+    
+              studentDiv.innerHTML = `
+                <strong>Student ID:</strong> ${student.studentId}<br>
+                <strong>Name:</strong> ${student.studentName}<br>
+                <strong>Performance Score:</strong> 
+                <input type="number" id="score-${student.studentId}" value="${student.performanceScore || ''}" placeholder="Enter score">
+                <button onclick="updatePerformanceScore('${projectId}', '${student.studentId}', '${month}')">Update</button>
+              `;
+    
+              studentListDiv.appendChild(studentDiv);
+            });
+          } else {
+            studentListDiv.textContent = "You cannot give the student performance score in this month.";
+          }
+    
+          // 替换旧的学生列表
+          const oldStudentList = projectDetailsDiv.querySelector('.student-list');
+          if (oldStudentList) {
+            projectDetailsDiv.removeChild(oldStudentList);
+          }
+          studentListDiv.className = 'student-list';
+          projectDetailsDiv.appendChild(studentListDiv);
+        })
+        .catch(error => console.error("Error fetching project details:", error));
+    }
+    
+    function updatePerformanceScore(projectId, studentId, month) {
+      const scoreInput = document.getElementById(`score-${studentId}`);
+      const newScore = Number(scoreInput.value);
+    
+      fetch(`http://localhost:3000/api/project-students/${projectId}/${studentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ performanceScore: newScore, date: month })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert("Performance score updated successfully!");
+          } else {
+            alert("Failed to update performance score: " + data.message);
+          }
+        })
+        .catch(error => console.error("Error updating performance score:", error));
+    }
  }
  else if(role ==='student') {
     // 学生登录，显示学生信息
@@ -144,16 +272,20 @@ function fetchProjects() {
 // 获取学生项目数据并显示在页面上
 function fetchStudentProjects() {
   fetch('http://localhost:3000/api/student-projects')
-      .then(response => response.json())
-      .then(data => {
-          const studentProjectsDiv = document.getElementById('studentProjects');
-          studentProjectsDiv.innerHTML = '';
+      .then(response => response.json()) // 解析JSON响应
+      .then(data => { // data是解析后的JSON对象
+          const studentProjectList = document.getElementById('studentProjectList');// 子容器
+          studentProjectList.innerHTML = ''; // 清空子容器
           if (data.success && data.projects.length > 0) {
+            // 使用data.projects来访问项目数据
+              // 遍历每个项目数据并创建HTML元素显示在页面上
               data.projects.forEach(project => {
                   const projectDiv = document.createElement('div');
+                  projectDiv.className = 'project-box'; // 添加样式类
                   projectDiv.style.border = "1px solid #ddd";
                   projectDiv.style.padding = "10px";
                   projectDiv.style.marginBottom = "10px";
+                  projectDiv.style.cursor = "pointer"; // 鼠标悬停时显示手型
 
                   projectDiv.innerHTML = `
                       <strong>Project ID:</strong> ${project.projectId}<br>
@@ -162,15 +294,55 @@ function fetchStudentProjects() {
                       <strong>Description:</strong> ${project.description}<br>
                       <strong>Start Date:</strong> ${project.startDate}<br>
                   `;
-                  studentProjectsDiv.appendChild(projectDiv);
+
+                  // 添加点击事件，显示对应项目的 Wage History
+                  projectDiv.addEventListener('click', () => {
+                    fetchWageHistory(project.projectId);
+                  });
+
+                  studentProjectList.appendChild(projectDiv);
               });
           } else {
-              studentProjectsDiv.textContent = "No projects found.";
+              studentProjectList.textContent = "No projects found.";
           }
       })
       .catch(error => console.error("Error fetching student projects:", error));
     }
  fetchStudentProjects();
+
+ // 获取并显示 Wage History
+  function fetchWageHistory(projectId) {
+    const wageHistoryList = document.getElementById('wageHistoryList'); // Wage History 容器
+    wageHistoryList.innerHTML = '<p>Loading wage history...</p>'; // 显示加载提示
+
+    fetch(`http://localhost:3000/api/student-wage-history/${projectId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.history.length > 0) {
+          wageHistoryList.innerHTML = ''; // 清空 Wage History 容器
+          data.history.forEach(entry => {
+            const entryDiv = document.createElement('div');
+            entryDiv.style.borderTop = "1px solid #ddd";
+            entryDiv.style.padding = "5px 0";
+
+            entryDiv.innerHTML = `
+              <strong>Date:</strong> ${entry.date}<br>
+              <strong>Project ID:</strong> ${entry.projectId}<br>
+              <strong>Project Name:</strong> ${entry.projectName}<br>
+              <strong>Wage:</strong> $${entry.wage}<br>
+              <strong>Performance Score:</strong> ${entry.performanceScore}<br>
+            `;
+            wageHistoryList.appendChild(entryDiv);
+          });
+        } else {
+          wageHistoryList.innerHTML = '<p>No wage history found for this project.</p>';
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching wage history:", error);
+        wageHistoryList.innerHTML = '<p>Error loading wage history.</p>';
+      });
  }
+}
  // 调用项目API获取数据
- 
+

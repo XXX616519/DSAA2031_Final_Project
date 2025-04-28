@@ -33,3 +33,46 @@ body {
     text-align: left;
     white-space: pre-wrap;
   }
+  /* 教师与学生端项目 */
+  .project-box {
+    width: 80%; /* 限制项目框的宽度 */
+    margin: 10px auto; /* 居中显示 */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center; /* 项目框内部文字左对齐 */
+  }
+  
+  .project-box:hover {
+    transform: scale(1.02); /* 略微放大 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影 */
+  }
+
+  #studentProjects, #teacherProjects {
+    text-align: center;
+  }
+
+  /* 为 Project Details 标题添加上边距 */
+  #studentProjects, #teacherProjects h1 {
+  margin-top: 50px; /* 添加 20px 的上边距 */
+  }
+
+  
+  /* 教师月份导航样式 */
+#projectDetails div {
+  margin-bottom: 10px;
+}
+
+#projectDetails button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #967338;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#projectDetails button:hover {
+  background-color: #b35100;
+}
