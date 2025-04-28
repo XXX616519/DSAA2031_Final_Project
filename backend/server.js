@@ -21,15 +21,25 @@ const allowedAdmins = [
     { adminId: '002', adminName: 'Frank', adminPassword: 'admin456' }
 ];
 
-// 模拟项目数据集，模拟 MySQL 中一个表的数据
-const projectData = [
-    { userId: '001', projectName: 'Project A', description: "Alice's first project" },
-    { userId: '001', projectName: 'Project C', description: "Alice's second project" },
-    { userId: '002', projectName: 'Project B', description: "Bob's project" },
-    { userId: '001', projectName: 'Project D', description: "Alice extra project" },
-    { userId: '002', projectName: 'Project E', description: "Bob extra project" }
-];
-
+// 新建的项目数据集，模拟 MySQL 中 project 表
+let projects = [
+    {
+      projectId: 'P001',
+      projectName: 'Project A',
+      hourPayment: 50,
+      budget: 10000,
+      participants: ['001', '002'], // 存 userId 数组
+      leadingProfessor: 'Prof. Smith'
+    },
+    {
+      projectId: 'P002',
+      projectName: 'Project B',
+      hourPayment: 60,
+      budget: 15000,
+      participants: ['002'],
+      leadingProfessor: 'Prof. Johnson'
+    }
+  ];
 
 // 统一登录接口，根据 role 判断验证哪一类用户
 app.post('/api/login', (req, res) => {
@@ -76,16 +86,55 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-// 新增 API 端点：返回指定用户参与的项目信息
+// API: 返回所有项目（admin接口）
 app.get('/api/projects', (req, res) => {
-    const { userId } = req.query;
-    if (!userId) {
-        return res.status(400).json({ success: false, message: "Missing userId" });
+    res.json({ success: true, projects });
+  });
+  
+  // API: 更新指定项目（仅允许修改 hourPayment, participants, budget）
+  app.put('/api/projects/:projectId', (req, res) => {
+    const { projectId } = req.params;
+    const { hourPayment, participants, budget } = req.body;
+    const project = projects.find(p => p.projectId === projectId);
+    if (!project) {
+      return res.status(404).json({ success: false, message: "Project not found" });
     }
-    const userProjects = projectData.filter(project => project.userId === userId);
-    res.json({ success: true, projects: userProjects });
-});
+    // 更新字段（你可以增加权限校验，确保请求者是admin）
+    if (hourPayment !== undefined) project.hourPayment = hourPayment;
+    if (budget !== undefined) project.budget = budget;
+    if (participants !== undefined) project.participants = participants;
+    
+    res.json({ success: true, project });
+  });
+  
+  // API: 添加新项目
+  app.post('/api/projects', (req, res) => {
+    const { projectId, projectName, hourPayment, budget, participants, leadingProfessor } = req.body;
+    // 检查必填字段
+    if (!projectId || !projectName) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+    // 判断是否已存在
+    if (projects.find(p => p.projectId === projectId)) {
+      return res.status(400).json({ success: false, message: "Project ID already exists" });
+    }
+    
+    const newProject = { projectId, projectName, hourPayment, budget, participants, leadingProfessor };
+    projects.push(newProject);
+    res.json({ success: true, project: newProject });
+  });
 
+    // API: 删除指定项目
+    app.delete('/api/projects/:projectId', (req, res) => {
+        const { projectId } = req.params;
+    const index = projects.findIndex(p => p.projectId === projectId);
+    if (index === -1) {
+        return res.status(404).json({ success: false, message: "Project not found" });
+    }
+    projects.splice(index, 1);
+    res.json({ success: true });
+  });
+  
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`服务器已启动：http://localhost:${PORT}`);
