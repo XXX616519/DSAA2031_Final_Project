@@ -139,6 +139,38 @@ function fetchProjects() {
     studentProjects.style.display = 'block';
     teacherProjects.style.display = 'none';
     userInfoDiv.textContent = `Logged in as Student: ${userName} (ID: ${userId})`;
+
+  // 学生使用的function:
+// 获取学生项目数据并显示在页面上
+function fetchStudentProjects() {
+  fetch('http://localhost:3000/api/student-projects')
+      .then(response => response.json())
+      .then(data => {
+          const studentProjectsDiv = document.getElementById('studentProjects');
+          studentProjectsDiv.innerHTML = '';
+          if (data.success && data.projects.length > 0) {
+              data.projects.forEach(project => {
+                  const projectDiv = document.createElement('div');
+                  projectDiv.style.border = "1px solid #ddd";
+                  projectDiv.style.padding = "10px";
+                  projectDiv.style.marginBottom = "10px";
+
+                  projectDiv.innerHTML = `
+                      <strong>Project ID:</strong> ${project.projectId}<br>
+                      <strong>Name:</strong> ${project.projectName}<br>
+                      <strong>Leading Professor:</strong> ${project.leadingProfessor}<br>
+                      <strong>Description:</strong> ${project.description}<br>
+                      <strong>Start Date:</strong> ${project.startDate}<br>
+                  `;
+                  studentProjectsDiv.appendChild(projectDiv);
+              });
+          } else {
+              studentProjectsDiv.textContent = "No projects found.";
+          }
+      })
+      .catch(error => console.error("Error fetching student projects:", error));
+    }
+ fetchStudentProjects();
  }
  // 调用项目API获取数据
  
