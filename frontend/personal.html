@@ -12,11 +12,9 @@
     <h2>Projects</h2>
     <div id="projects"></div>
   </div>
-  
-  <script src="access.js"></script>
-   
 
-  <div class="container">
+
+  <div id="adminProjects" style="display: none;">
     <h1>Admin Projects Management</h1>
     <!-- 用于显示项目数据 -->
     <div id="projects"></div>
@@ -32,7 +30,19 @@
       <button id="addProjectBtn">Add Project</button>
     </div>
   </div>
+
+  <div id="studentProjects" style="display: none;">
+    <h1>Student Projects</h1>
+    <p>Here are the projects you are participating in:</p>
+    <div id="studentProjectList"></div>
+  </div>
   
-  <script src="admin.js"></script>
+  <div id="teacherProjects" style="display: none;">
+    <h1>Teacher Projects</h1>
+    <p>Here are the projects you are managing:</p>
+    <div id="teacherProjectList"></div>
+  </div>
+
+  <script src="access.js"></script>
 </body>
 </html>
