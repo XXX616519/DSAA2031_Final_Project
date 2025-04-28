@@ -111,11 +111,27 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-// API: 返回所有项目（admin接口）
+// 修改 GET /api/projects 接口，返回每个项目时，将 participants 映射为“ID (姓名)”的形式
 app.get('/api/projects', (req, res) => {
-    res.json({ success: true, projects });
+    // 对每个项目进行转换
+    const projectsWithParticipantsName = projects.map(project => {
+      // 将每个参与者id映射为 "ID (姓名)" 格式
+      const detailedParticipants = project.participants.map(pId => {
+        // 从 allowedStudents 数组中查找该学生（你也可以扩展允许教师、管理员等）
+        const student = allowedStudents.find(s => s.studentId === pId);
+        if (student) {
+          return `${pId} (${student.studentName})`;
+        } else {
+          return pId;
+        }
+      });
+      
+      // 返回新项目对象，将 participants 替换掉
+      return { ...project, participants: detailedParticipants };
+    });
+    
+    res.json({ success: true, projects: projectsWithParticipantsName });
   });
-  
   // API: 更新指定项目（仅允许修改 hourPayment, participants, budget）
   app.put('/api/projects/:projectId', (req, res) => {
     const { projectId } = req.params;
