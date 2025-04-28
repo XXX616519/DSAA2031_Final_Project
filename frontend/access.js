@@ -2,11 +2,19 @@
  const userId = localStorage.getItem('userId');
  const userName = localStorage.getItem('userName');
  const role = localStorage.getItem('role');
- 
+
+// 获取各个身份的内容容器
+const adminProjects = document.getElementById('adminProjects');
+const studentProjects = document.getElementById('studentProjects');
+const teacherProjects = document.getElementById('teacherProjects');
+
  const userInfoDiv = document.getElementById('userInfo');
  
  
  if(role === 'admin') {
+    adminProjects.style.display = 'block';
+    studentProjects.style.display = 'none';
+    teacherProjects.style.display = 'none';
     // 管理员登录，显示管理员信息
     userInfoDiv.textContent = `Logged in as Admin: ${userName} (ID: ${userId})`;
     // 获取项目数据，并显示到页面中
@@ -119,11 +127,17 @@ function fetchProjects() {
   fetchProjects();
      }
  else if(role === 'teacher') {
+    adminProjects.style.display = 'none';
+    studentProjects.style.display = 'none';
+    teacherProjects.style.display = 'block';
     // 教师登录，显示教师信息
     userInfoDiv.textContent = `Logged in as Teacher: ${userName} (ID: ${userId})`;
  }
  else if(role ==='student') {
     // 学生登录，显示学生信息
+    adminProjects.style.display = 'none';
+    studentProjects.style.display = 'block';
+    teacherProjects.style.display = 'none';
     userInfoDiv.textContent = `Logged in as Student: ${userName} (ID: ${userId})`;
  }
  // 调用项目API获取数据
