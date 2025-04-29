@@ -33,6 +33,7 @@ body {
     text-align: left;
     white-space: pre-wrap;
   }
+  
   /* 教师与学生端项目 */
   .project-box {
     width: 80%; /* 限制项目框的宽度 */
@@ -48,6 +49,12 @@ body {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影 */
   }
 
+  .project-header {
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+  }
+
   #studentProjects, #teacherProjects {
     text-align: center;
   }
@@ -57,7 +64,6 @@ body {
   margin-top: 50px; /* 添加 20px 的上边距 */
   }
 
-  
   /* 教师月份导航样式 */
 #projectDetails div {
   margin-bottom: 10px;
