@@ -46,6 +46,8 @@ function fetchProjects() {
                 <input type="number" id="editBd-${project.projectId}" placeholder="Budget" value="${project.budget}"><br>
                 <input type="text" id="editPt-${project.projectId}" placeholder="Participants (comma separated)" value="${project.participants.join(', ')}"><br>
                 <button onclick="updateProject('${project.projectId}')">Update</button>
+                <button onclick="deleteProject('${project.projectId}')">Delete</button>
+                <div id="edit-${project.projectId}" style="display: none;">
               </div>
             `;
             projectsDiv.appendChild(projectDiv);
@@ -56,6 +58,24 @@ function fetchProjects() {
       })
       .catch(error => console.error("Error fetching projects:", error));
   }
+    // 新增 deleteProject() 函数
+function deleteProject(projectId) {
+  if(confirm("Are you sure to delete project " + projectId + "?")){
+    fetch(`http://localhost:3000/api/projects/${projectId}`, {
+      method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert("Project deleted successfully!");
+        fetchProjects();
+      } else {
+        alert("Deletion failed: " + data.message);
+      }
+    })
+    .catch(error => console.error("Error deleting project:", error));
+  }
+}
   
   // 点击编辑，显示编辑表单
   function editProject(projectId) {
@@ -122,6 +142,7 @@ function fetchProjects() {
     })
     .catch(error => console.error("Error adding project:", error));
   });
+
   
   // 初始化加载项目数据
   fetchProjects();
