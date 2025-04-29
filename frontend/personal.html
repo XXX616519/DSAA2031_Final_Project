@@ -15,20 +15,27 @@
 
 
   <div id="adminProjects" style="display: none;">
-    <h1>Admin Projects Management</h1>
+    <!-- <h1>Admin Projects Management</h1> -->
     <!-- 用于显示项目数据 -->
     <div id="projects"></div>
     
     <h2>Add New Project</h2>
     <div id="newProjectForm">
       <input type="text" id="newProjectId" placeholder="Project ID">
-      <input type="text" id="newProjectName" placeholder="Project Name">
+      <input type="text" id="newProjectName" placeholder="Project Name">       
+      <input type="text" id="newDescription" placeholder="Project Description">
       <input type="number" id="newHourPayment" placeholder="Hour Payment">
       <input type="number" id="newBudget" placeholder="Budget">
       <input type="text" id="newParticipants" placeholder="Participants (comma separated)">
       <input type="text" id="newLeadingProfessor" placeholder="Leading Professor">
       <button id="addProjectBtn">Add Project</button>
     </div>
+    <h1>Annual Report</h1>
+    <!-- 新增输入年份的输入框 -->
+    <label for="reportYear">Enter Year:</label>
+    <input type="number" id="reportYear" placeholder="e.g., 2025">
+    <button id="showAnnualReportBtn">Show Annual Report</button>
+    <div id="annualReport"></div>
   </div>
 
   <div id="studentProjects" style="display: none;">

@@ -76,3 +76,57 @@ body {
 #projectDetails button:hover {
   background-color: #b35100;
 }
+
+/* admin 端样式 */
+#adminProjects {
+  width: 80%;
+  margin: 0 auto;    /* 居中容器 */
+  text-align: center; /* 容器内文本居中 */
+}
+
+  /* admin 新建项目表单样式 */
+#newProjectForm {
+  width: 80%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+#newProjectForm input {
+  display: block;
+  margin: 10px auto; /* 根据需要调整间距 */
+}
+
+ /* admin 查看年份报告样式 */
+/* 设置与 reportYear 输入框关联的 label 居中 */
+label[for="reportYear"] {
+  display: block;
+  text-align: center;
+  margin: 10px auto;
+}
+
+#reportYear {
+  display: block;       /* 使其成为块级元素 */
+  width: 200px;         /* 设置宽度 */
+  margin: 10px auto;    /* 上下间距10px，左右自动居中 */
+  padding: 8px;         
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+}
+
+#showAnnualReportBtn {
+  display: block;       /* 使其成为块级元素 */
+  width: 200px;         /* 设置宽度 */
+  margin: 10px auto;    /* 上下间距10px，左右自动居中 */
+  padding: 8px;         
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* admin 年度报告样式 */
+#annualReport table {
+  margin: 0 auto;
+}

@@ -25,31 +25,46 @@ function fetchProjects() {
         const projectsDiv = document.getElementById('projects');
         projectsDiv.innerHTML = '';
         if (data.success && data.projects.length > 0) {
+          // 示例：在 fetchProjects() 中生成项目列表
           data.projects.forEach(project => {
             // 为每个项目创建一个显示区域
             const projectDiv = document.createElement('div');
             projectDiv.style.border = "1px solid #ddd";
             projectDiv.style.padding = "10px";
             projectDiv.style.marginBottom = "10px";
-            
-            // 显示项目信息
-            projectDiv.innerHTML = `
-              <strong>Project ID:</strong> ${project.projectId}<br>
-              <strong>Name:</strong> ${project.projectName}<br>
-              <strong>Hour Payment:</strong> <span id="hp-${project.projectId}">${project.hourPayment}</span><br>
-              <strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span><br>
-              <strong>Participants:</strong> <span id="pt-${project.projectId}">${project.participants.join(', ')}</span><br>
-              <strong>Leading Professor:</strong> ${project.leadingProfessor}<br>
-              <button onclick="editProject('${project.projectId}')">Edit</button>
-              <div id="edit-${project.projectId}" style="display: none;">
-                <input type="number" id="editHp-${project.projectId}" placeholder="Hour Payment" value="${project.hourPayment}"><br>
-                <input type="number" id="editBd-${project.projectId}" placeholder="Budget" value="${project.budget}"><br>
-                <input type="text" id="editPt-${project.projectId}" placeholder="Participants (comma separated)" value="${project.participants.join(', ')}"><br>
-                <button onclick="updateProject('${project.projectId}')">Update</button>
+
+            // 将项目信息放到一个段落中
+            const infoHTML = `
+              <p><strong>Project ID:</strong> ${project.projectId}</p>
+              <p><strong>Name:</strong> ${project.projectName}</p>
+              <p><strong>Description:</strong> ${project.description}</p>
+              <p><strong>Hour Payment:</strong> <span id="hp-${project.projectId}">${project.hourPayment}</span></p>
+              <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
+              <p><strong>Participants:</strong> <span id="pt-${project.projectId}">${project.participants.join(', ')}</span></p>
+              <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
+            `;
+
+            // 将编辑和删除按钮放到一个单独的动作容器中
+            const actionsHTML = `
+              <div class="project-actions" style="margin-top:10px;">
+                <button onclick="editProject('${project.projectId}')">Edit</button>
                 <button onclick="deleteProject('${project.projectId}')">Delete</button>
-                <div id="edit-${project.projectId}" style="display: none;">
+              </div>
+              <div id="edit-${project.projectId}" style="display: none; margin-top:10px;">
+                <label for="editHp-${project.projectId}">Hour Payment:</label>
+                <input type="number" id="editHp-${project.projectId}" placeholder="Hour Payment" value="${project.hourPayment}"><br>
+                
+                <label for="editBd-${project.projectId}">Budget:</label>
+                <input type="number" id="editBd-${project.projectId}" placeholder="Budget" value="${project.budget}"><br>
+                
+                <label for="editPt-${project.projectId}">Participants:</label>
+                <input type="text" id="editPt-${project.projectId}" placeholder="Participants (comma separated)" value="${project.participants.join(', ')}"><br>
+                
+                <button onclick="updateProject('${project.projectId}')">Update</button>
               </div>
             `;
+
+            projectDiv.innerHTML = infoHTML + actionsHTML;
             projectsDiv.appendChild(projectDiv);
           });
         } else {
@@ -114,6 +129,7 @@ function deleteProject(projectId) {
   document.getElementById('addProjectBtn').addEventListener('click', () => {
     const projectId = document.getElementById('newProjectId').value;
     const projectName = document.getElementById('newProjectName').value;
+    const description = document.getElementById('newDescription').value;
     const hourPayment = Number(document.getElementById('newHourPayment').value);
     const budget = Number(document.getElementById('newBudget').value);
     const participants = document.getElementById('newParticipants').value.split(',').map(item => item.trim());
@@ -125,6 +141,7 @@ function deleteProject(projectId) {
       body: JSON.stringify({
         projectId,
         projectName,
+        description,
         hourPayment,
         budget,
         participants,
@@ -136,13 +153,59 @@ function deleteProject(projectId) {
       if (data.success) {
         alert("New project added!");
         fetchProjects();
+        // 清除输入框内容
+        document.getElementById('newProjectId').value = '';
+        document.getElementById('newProjectName').value = '';
+        document.getElementById('newDescription').value = '';
+        document.getElementById('newHourPayment').value = '';
+        document.getElementById('newBudget').value = '';
+        document.getElementById('newParticipants').value = '';
+        document.getElementById('newLeadingProfessor').value = '';
       } else {
         alert("Failed to add project: " + data.message);
       }
     })
     .catch(error => console.error("Error adding project:", error));
   });
-
+   // 新增年度报告相关
+document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
+  // 尝试从输入框获取年份
+  const yearInput = document.getElementById('reportYear').value;
+  const year = yearInput ? yearInput : new Date().getFullYear();
+  
+  fetch(`http://localhost:3000/api/annual-report?year=${year}`)
+    .then(response => response.json())
+    .then(data => {
+      const reportDiv = document.getElementById('annualReport');
+      if (data.success) {
+        // 构造一个简单的表格显示年度报告数据
+        let html = `<h3>Annual Report for ${data.year}</h3>`;
+        html += `<table border="1" cellpadding="5" cellspacing="0">
+                   <tr>
+                      <th>Student ID</th>
+                      <th>Student Name</th>
+                      <th>Total Wage</th>
+                      <th>Average Score</th>
+                   </tr>`;
+        data.report.forEach(item => {
+          html += `<tr>
+                     <td>${item.studentId}</td>
+                     <td>${item.studentName}</td>
+                     <td>${item.totalWage}</td>
+                     <td>${item.averageScore}</td>
+                   </tr>`;
+        });
+        html += `</table>`;
+        reportDiv.innerHTML = html;
+      } else {
+        reportDiv.textContent = "Failed to load annual report: " + data.message;
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching annual report:", error);
+      document.getElementById('annualReport').textContent = "Error loading annual report.";
+    });
+});
   
   // 初始化加载项目数据
   fetchProjects();
