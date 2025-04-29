@@ -155,6 +155,7 @@ function deleteProject(projectId) {
     userInfoDiv.textContent = `Logged in as Teacher: ${userName} (ID: ${userId})`;
 
     function fetchTeacherProjects() {
+      // 通过api/teacher-projects获取教师项目数据
       fetch('http://localhost:3000/api/teacher-projects')
         .then(response => response.json())
         .then(data => {
@@ -165,9 +166,6 @@ function deleteProject(projectId) {
             data.projects.forEach(project => {
               const projectDiv = document.createElement('div');
               projectDiv.className = 'project-box'; // 添加样式类
-              projectDiv.style.border = "1px solid #ddd";
-              projectDiv.style.padding = "10px";
-              projectDiv.style.marginBottom = "10px";
     
               projectDiv.innerHTML = `
                 <strong>Project ID:</strong> ${project.projectId}<br>
@@ -185,15 +183,16 @@ function deleteProject(projectId) {
         })
         .catch(error => console.error("Error fetching teacher projects:", error));
     }
+    // 调用函数以获取教师项目数据并显示在页面上
     fetchTeacherProjects();
 
     function fetchProjectDetails(projectId) {
-      let currentMonth = new Date().toISOString().slice(0, 7); // 当前月份（格式：YYYY-MM）
+      let currentMonth = new Date().toISOString().slice(0, 7); // 获取当前月份（格式：YYYY-MM）
     
       const projectDetailsDiv = document.getElementById('projectDetails');
       projectDetailsDiv.innerHTML = ''; // 清空内容
     
-      // 创建月份导航
+      // 创建月份导航monthNav
       const monthNav = document.createElement('div');
       monthNav.style.marginBottom = '10px';
       monthNav.innerHTML = `
@@ -224,6 +223,7 @@ function deleteProject(projectId) {
     }
     
     function loadProjectDetailsByMonth(projectId, month) {
+      // 通过api/project-students/${projectId}?month=${month}获取项目学生数据
       fetch(`http://localhost:3000/api/project-students/${projectId}?month=${month}`)
         .then(response => response.json())
         .then(data => {
@@ -234,8 +234,7 @@ function deleteProject(projectId) {
           if (data.success && data.students.length > 0) {
             data.students.forEach(student => {
               const studentDiv = document.createElement('div');
-              studentDiv.className = 'project-box'; // 使用相同的样式类
-              studentDiv.style.marginBottom = '10px';
+              studentDiv.className = 'project-box'; // 添加样式类，已在style.css中定义
     
               studentDiv.innerHTML = `
                 <strong>Student ID:</strong> ${student.studentId}<br>
@@ -253,9 +252,11 @@ function deleteProject(projectId) {
     
           // 替换旧的学生列表
           const oldStudentList = projectDetailsDiv.querySelector('.student-list');
+          // 如果存在旧的学生列表，则移除它
           if (oldStudentList) {
             projectDetailsDiv.removeChild(oldStudentList);
           }
+          // 添加新的学生列表，确保页面显示的是最新的内容
           studentListDiv.className = 'student-list';
           projectDetailsDiv.appendChild(studentListDiv);
         })
@@ -266,6 +267,7 @@ function deleteProject(projectId) {
       const scoreInput = document.getElementById(`score-${studentId}`);
       const newScore = Number(scoreInput.value);
     
+      // 通过api/project-students/${projectId}/${studentId}更新学生的performance score
       fetch(`http://localhost:3000/api/project-students/${projectId}/${studentId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -292,6 +294,7 @@ function deleteProject(projectId) {
   // 学生使用的function:
 // 获取学生项目数据并显示在页面上
 function fetchStudentProjects() {
+  // 通过api/student-projects获取学生项目数据
   fetch('http://localhost:3000/api/student-projects')
       .then(response => response.json()) // 解析JSON响应
       .then(data => { // data是解析后的JSON对象
@@ -301,12 +304,8 @@ function fetchStudentProjects() {
             // 使用data.projects来访问项目数据
               // 遍历每个项目数据并创建HTML元素显示在页面上
               data.projects.forEach(project => {
-                  const projectDiv = document.createElement('div');
-                  projectDiv.className = 'project-box'; // 添加样式类
-                  projectDiv.style.border = "1px solid #ddd";
-                  projectDiv.style.padding = "10px";
-                  projectDiv.style.marginBottom = "10px";
-                  projectDiv.style.cursor = "pointer"; // 鼠标悬停时显示手型
+                  const projectDiv = document.createElement('div'); // projectDiv是一个新的div元素，用于显示项目
+                  projectDiv.className = 'project-box'; // 添加样式类，已在style.css中定义
 
                   projectDiv.innerHTML = `
                       <strong>Project ID:</strong> ${project.projectId}<br>
@@ -316,8 +315,9 @@ function fetchStudentProjects() {
                       <strong>Start Date:</strong> ${project.startDate}<br>
                   `;
 
-                  // 添加点击事件，显示对应项目的 Wage History
+                  // 点击事件，显示对应项目的 Wage History
                   projectDiv.addEventListener('click', () => {
+                    // 获得的结果project.projectId作为参数传入方程，同时也作为api/student-wage-history/${projectId}的参数
                     fetchWageHistory(project.projectId);
                   });
 
@@ -336,15 +336,27 @@ function fetchStudentProjects() {
     const wageHistoryList = document.getElementById('wageHistoryList'); // Wage History 容器
     wageHistoryList.innerHTML = '<p>Loading wage history...</p>'; // 显示加载提示
 
+    // 通过api/student-wage-history/${projectId}获取学生项目的Wage History数据
     fetch(`http://localhost:3000/api/student-wage-history/${projectId}`)
       .then(response => response.json())
       .then(data => {
         if (data.success && data.history.length > 0) {
           wageHistoryList.innerHTML = ''; // 清空 Wage History 容器
+
+          // 添加项目 ID 和名称的标题（在展示该project的wage history之前）
+          const projectHeader = document.createElement('div');
+          projectHeader.className = 'project-header'; // 添加样式类，已在style.css中定义
+
+          projectHeader.innerHTML = `
+            <strong>Project ID:</strong> ${data.history[0].projectId} &nbsp;&nbsp;
+            <strong>Project Name:</strong> ${data.history[0].projectName}
+          `;
+          wageHistoryList.appendChild(projectHeader);
+
+          //遍历wage history数据并创建HTML元素显示在页面上
           data.history.forEach(entry => {
             const entryDiv = document.createElement('div');
-            entryDiv.style.borderTop = "1px solid #ddd";
-            entryDiv.style.padding = "5px 0";
+            entryDiv.className = 'project-box'; // 添加样式类，已在style.css中定义
 
             entryDiv.innerHTML = `
               <strong>Date:</strong> ${entry.date}<br>
@@ -365,5 +377,3 @@ function fetchStudentProjects() {
       });
  }
 }
- // 调用项目API获取数据
-
