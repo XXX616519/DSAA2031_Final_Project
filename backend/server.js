@@ -27,6 +27,7 @@ let projects = [
     {
       projectId: 'P001',
       projectName: 'Project A',
+      description: 'A research project on AI applications.',
       hourPayment: 50,
       budget: 10000,
       participants: ['001', '002'], // 存 userId 数组
@@ -35,6 +36,7 @@ let projects = [
     {
       projectId: 'P002',
       projectName: 'Project B',
+      description: 'A research project on blockchain technology.',
       hourPayment: 60,
       budget: 15000,
       participants: ['002'],
@@ -187,7 +189,7 @@ app.post('/api/login', (req, res) => {
         res.status(400).json({ success: false, message: "Unknown role" });
     }
 });
-
+//管理员端口
 // 修改 GET /api/projects 接口，返回每个项目时，将 participants 映射为“ID (姓名)”的形式
 app.get('/api/projects', (req, res) => {
     // 对每个项目进行转换
@@ -224,10 +226,10 @@ app.get('/api/projects', (req, res) => {
     
     res.json({ success: true, project });
   });
-  
+ 
   // API: 添加新项目
   app.post('/api/projects', (req, res) => {
-    const { projectId, projectName, hourPayment, budget, participants, leadingProfessor } = req.body;
+    const { projectId, projectName, description,hourPayment, budget, participants, leadingProfessor } = req.body;
     // 检查必填字段
     if (!projectId || !projectName) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -237,7 +239,7 @@ app.get('/api/projects', (req, res) => {
       return res.status(400).json({ success: false, message: "Project ID already exists" });
     }
     
-    const newProject = { projectId, projectName, hourPayment, budget, participants, leadingProfessor };
+    const newProject = { projectId, projectName, description,hourPayment, budget, participants, leadingProfessor };
     projects.push(newProject);
     res.json({ success: true, project: newProject });
   });
@@ -331,7 +333,43 @@ app.get('/api/project-students/:projectId', (req, res) => {
 
     res.json({ success: true, message: "Performance score updated successfully" });
   });
+  // 管理员数据接口
+// 新增 API: 获取年度报告数据（模拟数据，根据年份返回不同内容）
+app.get('/api/annual-report', (req, res) => {
+  const { year } = req.query;
+  if (!year) {
+    return res.status(400).json({ success: false, message: "Missing year parameter" });
+  }
   
+  let report;
+  
+  // 模拟不同年份的报告数据
+  if (year === "2025") {
+    report = [
+      { studentId: '001', studentName: 'Alice', totalWage: 1100, averageScore: 87.7 },
+      { studentId: '002', studentName: 'Bob', totalWage: 1500, averageScore: 85.0 }
+    ];
+  } else if (year === "2024") {
+    report = [
+      { studentId: '001', studentName: 'Alice', totalWage: 900, averageScore: 80.2 },
+      { studentId: '002', studentName: 'Bob', totalWage: 1200, averageScore: 82.5 }
+    ];
+  } else if (year === "2023") {
+    report = [
+      { studentId: '001', studentName: 'Alice', totalWage: 800, averageScore: 79.0 },
+      { studentId: '002', studentName: 'Bob', totalWage: 1100, averageScore: 83.3 }
+    ];
+  } else {
+    // 默认报告数据
+    report = [
+      { studentId: '001', studentName: 'Alice', totalWage: 1000, averageScore: 84.0 },
+      { studentId: '002', studentName: 'Bob', totalWage: 1300, averageScore: 83.0 }
+    ];
+  }
+  
+  res.json({ success: true, year, report });
+});
+
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`服务器已启动：http://localhost:${PORT}`);
