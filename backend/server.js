@@ -359,13 +359,16 @@ app.get('/api/annual-report', (req, res) => {
       { studentId: '001', studentName: 'Alice', totalWage: 800, averageScore: 79.0 },
       { studentId: '002', studentName: 'Bob', totalWage: 1100, averageScore: 83.3 }
     ];
-  } else {
+  } else if (year === "2022") {
     // 默认报告数据
     report = [
       { studentId: '001', studentName: 'Alice', totalWage: 1000, averageScore: 84.0 },
       { studentId: '002', studentName: 'Bob', totalWage: 1300, averageScore: 83.0 }
     ];
   }
+    else {
+      return res.status(400).json({ success: false, message: "Invalid year parameter" });
+    }
   
   res.json({ success: true, year, report });
 });
