@@ -43,11 +43,6 @@ body {
     border-radius: 5px;
     text-align: center; /* 项目框内部文字左对齐 */
   }
-  
-  .project-box:hover {
-    transform: scale(1.02); /* 略微放大 */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影 */
-  }
 
   .project-header {
     border-bottom: 2px solid #ddd;
