@@ -8,7 +8,8 @@ app.use(express.json()); // 解析 JSON 请求体
 // 模拟允许登录的各角色列表
 const allowedStudents = [
     { studentId: '001', studentName: 'Alice', studentPassword: 'pass123' },
-    { studentId: '002', studentName: 'Bob', studentPassword: 'pass456' }
+    { studentId: '002', studentName: 'Bob', studentPassword: 'pass456' },
+    { studentId: '003', studentName: 'pyw', studentPassword: 'passstu' }
 ];
 
 const allowedTeachers = [
@@ -41,6 +42,7 @@ let projects = [
     }
   ];
 
+// 学生部分
 // 模拟 MySQL 中 student_projects 表
 let studentProjects = [
   {
@@ -64,6 +66,81 @@ let studentProjects = [
       description: 'A study on blockchain technology.',
       startDate: '2025-03-10'
   }
+];
+// 模拟 MySQL 中的 monthly_wage_history 表
+let monthlyWageHistory = [
+  {
+    studentId: '001',
+    history: [
+      {
+        date: '2025-03-01',
+        projectId: 'SP001',
+        projectName: 'Student Project A',
+        wage: 500,
+        performanceScore: 85
+      },
+      {
+        date: '2025-04-01',
+        projectId: 'SP001',
+        projectName: 'Student Project B',
+        wage: 600,
+        performanceScore: 90
+      }
+    ]
+  },
+  {
+    studentId: '002',
+    history: [
+      {
+        date: '2025-03-01',
+        projectId: 'SP002',
+        projectName: 'Student Project B',
+        wage: 400,
+        performanceScore: 80
+      },
+      {
+        date: '2025-04-01',
+        projectId: 'SP003',
+        projectName: 'Student Project C',
+        wage: 700,
+        performanceScore: 95
+      }
+    ]
+  }
+];
+
+// 老师部分
+// 模拟 MySQL 中的 teacher_project 表
+let teacherProjects = [
+  {
+    projectId: 'TP001',
+    projectName: 'Teacher Project A',
+    budget: 20000,
+    participants: ['001', '002']
+  },
+  {
+    projectId: 'TP002',
+    projectName: 'Teacher Project B',
+    budget: 30000,
+    participants: ['002', '003']
+  },
+  {
+    projectId: 'TP003',
+    projectName: 'Teacher Project C',
+    budget: 25000,
+    participants: ['001', '003']
+  }
+];
+// 模拟 MySQL 中的 performance_scores 表
+let performanceScores = [
+  { projectId: 'TP001', studentId: '001', performanceScore: 85, date: '2025-03' },
+  { projectId: 'TP001', studentId: '002', performanceScore: 90, date: '2025-03' },
+  { projectId: 'TP001', studentId: '001', performanceScore: 88, date: '2025-04' },
+  { projectId: 'TP001', studentId: '002', performanceScore: 92, date: '2025-04' },
+  { projectId: 'TP002', studentId: '002', performanceScore: 80, date: '2025-03' },
+  { projectId: 'TP002', studentId: '003', performanceScore: null, date: '2025-03' },
+  { projectId: 'TP002', studentId: '002', performanceScore: 85, date: '2025-04' },
+  { projectId: 'TP002', studentId: '003', performanceScore: 90, date: '2025-04' }
 ];
 
 // 统一登录接口，根据 role 判断验证哪一类用户
@@ -176,9 +253,83 @@ app.get('/api/projects', (req, res) => {
     res.json({ success: true });
   });
 
+  // 学生项目数据接口
   // API: 返回学生参与的项目
   app.get('/api/student-projects', (req, res) => {
     res.json({ success: true, projects: studentProjects });
+  });
+
+  // API: 获取学生的 monthly wage history
+  app.get('/api/student-wage-history/:projectId', (req, res) => {
+    const { projectId } = req.params;
+  
+    // 模拟从 monthlyWageHistory 中获取数据
+    const wageHistory = monthlyWageHistory.flatMap(student => student.history)
+      .filter(entry => entry.projectId === projectId);
+  
+    if (wageHistory.length > 0) {
+      res.json({ success: true, history: wageHistory });
+    } else {
+      res.json({ success: false, message: "No wage history found for this project." });
+    }
+  });
+
+  // 教师项目数据接口
+  // API: 返回教师管理的项目
+  app.get('/api/teacher-projects', (req, res) => {
+    res.json({ success: true, projects: teacherProjects });
+  });
+
+// API: 获取指定项目的学生信息及 performance score（按月份筛选）
+app.get('/api/project-students/:projectId', (req, res) => {
+  const { projectId } = req.params;
+  const { month } = req.query; // 从查询参数中获取月份（格式：YYYY-MM）
+
+  // 获取项目的参与学生
+  const project = teacherProjects.find(p => p.projectId === projectId);
+  if (!project) {
+    return res.status(404).json({ success: false, message: "Project not found" });
+  }
+
+  // 获取学生的详细信息及 performance score
+  const students = performanceScores
+    .filter(ps => ps.projectId === projectId && (!month || ps.date === month)) // 按月份筛选
+    .map(ps => {
+      const student = allowedStudents.find(s => s.studentId === ps.studentId);
+      return {
+        studentId: ps.studentId,
+        studentName: student ? student.studentName : "Unknown",
+        performanceScore: ps.performanceScore,
+        date: ps.date
+      };
+    });
+
+  res.json({ success: true, students });
+});
+
+  // API: 更新学生的 performance score
+  app.put('/api/project-students/:projectId/:studentId', (req, res) => {
+    const { projectId, studentId } = req.params;// 获取项目ID和学生ID到请求路径参数中
+    const { performanceScore } = req.body; // 请求体中传入的 performance score
+
+    // 检查项目和学生是否存在
+    const project = teacherProjects.find(p => p.projectId === projectId);
+    const student = allowedStudents.find(s => s.studentId === studentId);
+    if (!project || !student) {
+      return res.status(404).json({ success: false, message: "Project or student not found" });
+    }
+
+    // 更新或新增 performance score
+    const performance = performanceScores.find(
+      ps => ps.projectId === projectId && ps.studentId === studentId
+    );
+    if (performance) {
+      performance.performanceScore = performanceScore;
+    } else {
+      performanceScores.push({ projectId, studentId, performanceScore });
+    }
+
+    res.json({ success: true, message: "Performance score updated successfully" });
   });
   
 const PORT = 3000;
