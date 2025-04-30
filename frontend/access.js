@@ -250,6 +250,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     // 调用函数以获取教师项目数据并显示在页面上
     fetchTeacherProjects();
 
+    // 点击View Details按钮后，显示项目详情
     function fetchProjectDetails(projectId) {
       let currentMonth = new Date().toISOString().slice(0, 7); // 获取当前月份（格式：YYYY-MM）
     
@@ -270,6 +271,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
       loadProjectDetailsByMonth(projectId, currentMonth);
     }
     
+    // 点击月份导航按钮时，调用该函数以更改月份
     function changeMonth(projectId, offset) {
       const currentMonthSpan = document.getElementById('currentMonth');
       let currentMonth = currentMonthSpan.textContent;
@@ -286,6 +288,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
       loadProjectDetailsByMonth(projectId, newMonth);
     }
     
+    // 在fetchProjectDetails函数中，创建MonthNav、获取当前月份后，调用loadProjectDetailsByMonth函数加载当月详情
     function loadProjectDetailsByMonth(projectId, month) {
       // 获取 performance_scores 和 working_hours 数据
       Promise.all([
@@ -446,23 +449,18 @@ function fetchStudentProjects() {
           const studentProjectList = document.getElementById('studentProjectList');// 子容器
           studentProjectList.innerHTML = ''; // 清空子容器
           if (data.success && data.projects.length > 0) {
-            // 获取学生已提交的工作时长
+
+            // 通过api/student-working-hours/${userId}获取学生已提交的工作时长
             fetch(`http://localhost:3000/api/student-working-hours/${userId}`)
             .then(response => response.json())
             .then(hoursData => {
               const submittedHours = hoursData.success ? hoursData.workingHours : [];
-            // 使用data.projects来访问项目数据
+
+              // 使用data.projects来访问项目数据
               // 遍历每个项目数据并创建HTML元素显示在页面上
               data.projects.forEach(project => {
                   const projectDiv = document.createElement('div'); // projectDiv是一个新的div元素，用于显示项目
                   projectDiv.className = 'project-box'; // 添加样式类，已在style.css中定义
-
-                  // 查找该项目的已提交工作时长 不管老师是否审核
-                  const projectHours = submittedHours.find(entry => entry.projectId === project.projectId);
-                  const submittedHoursText = projectHours
-                    ? `Submitted working hours for ${projectHours.uploadDate}: ${projectHours.workingHours}`
-                    : 'No hours submitted yet.';
-
                   projectDiv.innerHTML = `
                       <strong>Project ID:</strong> ${project.projectId}<br>
                       <strong>Name:</strong> ${project.projectName}<br>
@@ -472,7 +470,13 @@ function fetchStudentProjects() {
                       <strong>Start Date:</strong> ${project.startDate}<br>
                   `;
 
-                  // 创建用于显示已提交工作时长的容器
+                  // 查找该项目的已提交工作时长 不管老师是否审核
+                  const projectHours = submittedHours.find(entry => entry.projectId === project.projectId);
+                  const submittedHoursText = projectHours
+                    ? `Submitted working hours for ${projectHours.uploadDate}: ${projectHours.workingHours}`
+                    : 'No hours submitted yet.';
+
+                  // 创建用于显示已提交的工作时长的容器
                   const submittedHoursDiv = document.createElement('div');
                   submittedHoursDiv.id = `submittedHours-${project.projectId}`;
                   submittedHoursDiv.style.marginTop = '10px';
@@ -494,7 +498,6 @@ function fetchStudentProjects() {
                       <button onclick="uploadWorkingHours('${project.projectId}')">Upload</button>
                   `;
                   
-
                   uploadButton.addEventListener('click', () => {
                       // 切换显示/隐藏状态
                       uploadDiv.style.display = uploadDiv.style.display === 'none' ? 'block' : 'none';
@@ -511,6 +514,7 @@ function fetchStudentProjects() {
                         // 显示工资历史并加载数据
                         wageHistoryList.style.display = 'block';
                         wageHistoryList.dataset.projectId = project.projectId; // 记录当前项目 ID
+                        //call fetchWageHistory function to fetch and display wage history
                         fetchWageHistory(project.projectId);
                     } else {
                         // 隐藏工资历史
