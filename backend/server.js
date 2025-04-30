@@ -306,6 +306,19 @@ app.get('/api/projects', (req, res) => {
       res.json({ success: false, message: "No wage history found for this project." });
     }
   });
+  // API: 获取学生的工作时长记录
+  app.get('/api/student-working-hours/:studentId', (req, res) => {
+    const { studentId } = req.params;
+  
+    // 筛选出该学生的工作时长记录
+    const studentHours = uploadWorkingHoursApproval.filter(entry => entry.studentId === studentId);
+  
+    if (studentHours.length > 0) {
+      res.json({ success: true, workingHours: studentHours });
+    } else {
+      res.json({ success: false, message: "No working hours found for this student." });
+    }
+  });
   // API: 上传工作时长（学生端）
   app.post('/api/upload-working-hours', (req, res) => {
     const { projectId, studentId, workingHours, yearMonth } = req.body;
@@ -332,21 +345,7 @@ app.get('/api/projects', (req, res) => {
         approvalStatus: 0
       });
     }
-  // API: 获取学生的工作时长记录
-  app.get('/api/student-working-hours/:studentId', (req, res) => {
-    const { studentId } = req.params;
-  
-    // 筛选出该学生的工作时长记录
-    const studentHours = uploadWorkingHoursApproval.filter(entry => entry.studentId === studentId);
-  
-    if (studentHours.length > 0) {
-      res.json({ success: true, workingHours: studentHours });
-    } else {
-      res.json({ success: false, message: "No working hours found for this student." });
-    }
-  });
-  
-    res.json({ success: true, workingHours, message: "Working hours uploaded successfully" });
+    res.json({ success: true, message: "Working hours uploaded successfully" });
   });
 
 
