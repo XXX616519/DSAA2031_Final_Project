@@ -161,7 +161,7 @@ let uploadWorkingHoursApproval = [
     studentId: '001',
     workingHours: 10,
     uploadDate: '2025-04-01',
-    approvalStatus: 1 // 0: 未审核, 1: 已批准, 2: 已拒绝
+    approvalStatus: 0 // 0: 未审核, 1: 已批准, 2: 已拒绝
   },
   {
     projectId: 'P002',

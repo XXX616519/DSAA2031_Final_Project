@@ -399,7 +399,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
             alert("Update status successfully!");
             loadProjectDetailsByMonth(projectId, document.getElementById('currentMonth').textContent);
           } else {
-            // 处理错误情况：比如后端判断计算出来的wage超过了budget，则无法更新Status
+            // 处理错误情况：比如后端判断计算出来的wage超过了budget，则无法更新Status，同时也无法发工资
             alert("Failed to update approval status: " + data.message);
           }
         })
