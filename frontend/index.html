@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Indentity Verification System</h1>
+    <button id="getDataBtn">Student Login</button>
+    <button id="getDataBtn1">Teacher Login</button>
+    <button id="getDataBtn2">Admin Login</button>
+    
+    <!-- Student Login Form -->
+    <div id="loginForm" style="display: none; margin-top: 20px;">
+      <div>
+        <label for="studentId">ID:</label>
+        <input type="text" id="studentId">
+      </div>
+      <div>
+        <label for="studentName">Name:</label>
+        <input type="text" id="studentName">
+      </div>
+      <div>
+        <label for="studentPassword">Password:</label>
+        <input type="password" id="studentPassword">
+      </div>
+      <button id="loginBtn">Login</button>
+    </div>
+
+    <!-- Teacher Login Form -->
+    <div id="loginFor" style="display: none; margin-top: 20px;">
+      <div>
+        <label for="teacherId">ID:</label>
+        <input type="text" id="teacherId">
+      </div>
+      <div>
+        <label for="teacherName">Name:</label>
+        <input type="text" id="teacherName">
+      </div>
+      <div>
+        <label for="teacherPassword">Password:</label>
+        <input type="password" id="teacherPassword">
+      </div>
+      <button id="loginBtn1">Login</button>
+    </div>
+
+    <!-- Admin Login Form -->
+    <div id="loginAdmin" style="display: none; margin-top: 20px;">
+      <div>
+        <label for="adminId">ID:</label>
+        <input type="text" id="adminId">
+      </div>
+      <div>
+        <label for="adminName">Name:</label>
+        <input type="text" id="adminName">
+      </div>
+      <div>
+        <label for="adminPassword">Password:</label>
+        <input type="password" id="adminPassword">
+      </div>
+      <button id="loginBtn2">Login</button>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
