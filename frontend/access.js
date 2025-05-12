@@ -166,7 +166,6 @@ function deleteProject(projectId) {
     const hourPayment = Number(document.getElementById('newHourPayment').value);
     const performanceRatio = Number(document.getElementById('newPerformanceRatio').value);
     const budget = Number(document.getElementById('newBudget').value);
-    const balance = Number(document.getElementById('newBalance').value);
     const participantsInput = document.getElementById('newParticipants').value;
     const participantsArr = participantsInput.split(',').map(item => item.trim());
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
@@ -182,10 +181,6 @@ function deleteProject(projectId) {
     }
     if(budget <= 0 || !Number.isInteger(budget)){
       alert("Budget must be a positive integer!");
-      return;
-    }
-    if(balance <= 0 || !Number.isInteger(balance)){
-      alert("Balance must be a positive integer!");
       return;
     }
     const participantRegex = /^\S+\(\S+\)$/;
@@ -206,7 +201,6 @@ function deleteProject(projectId) {
         hourPayment,
         performanceRatio,
         budget,
-        balance,
         participants: participantsArr,
         leadingProfessor
       })
@@ -222,7 +216,6 @@ function deleteProject(projectId) {
         document.getElementById('newDescription').value = '';
         document.getElementById('newHourPayment').value = '';
         document.getElementById('newBudget').value = '';
-        document.getElementById('newBalance').value = '';
         document.getElementById('newPerformanceRatio').value = '';
         document.getElementById('newParticipants').value = '';
         document.getElementById('newLeadingProfessor').value = '';

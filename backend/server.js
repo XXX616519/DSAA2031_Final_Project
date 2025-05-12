@@ -263,7 +263,7 @@ app.get('/api/projects', (req, res) => {
  
   // API: 添加新项目
   app.post('/api/projects', (req, res) => {
-    const { projectId, projectName, description, hourPayment, performanceRatio, budget, balance, participants, leadingProfessor } = req.body;
+    const { projectId, projectName, description, hourPayment, performanceRatio, budget, participants, leadingProfessor } = req.body;
     // 检查必填字段
     if (!projectId || !projectName) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -272,8 +272,10 @@ app.get('/api/projects', (req, res) => {
     if (projects.find(p => p.projectId === projectId)) {
       return res.status(400).json({ success: false, message: "Project ID already exists" });
     }
-    
-    const newProject = { projectId, projectName, description, hourPayment, performanceRatio, budget, balance, participants, leadingProfessor };
+    // 计算初始余额
+    const initialBalance = budget;
+    // 新建项目对象
+    const newProject = { projectId, projectName, description, hourPayment, performanceRatio, budget, participants, leadingProfessor, balance: initialBalance };
     projects.push(newProject);
     res.json({ success: true, project: newProject });
   });
