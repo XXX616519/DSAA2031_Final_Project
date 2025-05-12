@@ -59,24 +59,9 @@ body {
   margin-top: 50px; /* 添加 20px 的上边距 */
   }
 
-  /* 教师月份导航样式 */
-#projectDetails div {
-  margin-bottom: 10px;
-}
-
-#projectDetails button {
-  margin: 0 5px;
-  padding: 5px 10px;
-  background-color: #967338;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 #projectDetails button:hover {
   background-color: #b35100;
-}
+} */
 
 /* admin 端样式 */
 #adminProjects {

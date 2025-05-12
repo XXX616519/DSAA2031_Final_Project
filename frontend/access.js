@@ -446,6 +446,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     function fetchWagePaymentSituation(projectId) {
     let currentYear = new Date().getFullYear(); // 获取当前年份
     let currentMonth = new Date().toISOString().slice(0, 7); // 获取当前月份（格式：YYYY-MM）
+    
 
     const WagePaymentDetailsDiv = document.getElementById('WagePaymentDetails');
     WagePaymentDetailsDiv.innerHTML = ''; // 清空内容
@@ -468,7 +469,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                 return `<option value="${month}" ${month === currentMonth.slice(5) ? 'selected' : ''}>${month}</option>`;
             }).join('')}
         </select>
-        <button class="button" id="confirmButton" class="button" style="margin-left: 10px;">Confirm</button>
+        <button class="button" id="confirmButton" style="margin-left: 10px;">Confirm</button>
     `;
     WagePaymentDetailsDiv.appendChild(dateNav);
 
@@ -476,9 +477,9 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     const resultDiv = document.createElement('div');
     resultDiv.id = 'resultDiv';
     WagePaymentDetailsDiv.appendChild(resultDiv);
+    
 
-    // 确保事件监听器在按钮渲染后绑定
-    setTimeout(() => {
+            
         const confirmButton = document.getElementById('confirmButton');
         if (!confirmButton) {
             console.error('Confirm button not found in DOM.');
@@ -488,6 +489,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
         confirmButton.addEventListener('click', () => {
             const selectedYear = document.getElementById('yearSelect').value;
             const selectedMonth = document.getElementById('monthSelect').value;
+            
             const yearMonth = `${selectedYear}-${selectedMonth}`;
 
             const apiUrl = `http://localhost:3000/api/wage-payment-status/${projectId}?yearMonth=${yearMonth}`;
@@ -549,126 +551,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                 })
                 .catch(error => console.error('Error fetching wage payment status:', error));
         });
-    }, 0);
-}
-    // // 在fetchProjectDetails函数中，创建MonthNav、获取当前月份后，调用loadProjectDetailsByMonth函数加载当月详情
-    // // function loadProjectDetailsByMonth(projectId, month) {
-    // //   // 获取 performance_scores 和 working_hours 数据
-    // //   Promise.all([
-    // //     fetch(`http://localhost:3000/api/project-students/${projectId}?month=${month}`).then(res => res.json()),
-    // //     fetch(`http://localhost:3000/api/project-working-hours/${projectId}`).then(res => res.json())
-    // //   ])
-    // //     .then(([performanceData, workingHoursData]) => {
-    // //       const projectDetailsDiv = document.getElementById('projectDetails');
-    // //       const studentListDiv = document.createElement('div');
-    // //       studentListDiv.innerHTML = ''; // 清空学生列表
-    
-    // //       if (performanceData.success && performanceData.students.length > 0) {
-    // //         performanceData.students.forEach(student => {
-    // //           const studentDiv = document.createElement('div');
-    // //           studentDiv.className = 'project-box'; // 添加样式类
-    
-    // //           // 查找该学生的工作时长审核数据
-    // //           const workingHoursEntry = workingHoursData.workingHours.find(
-    // //             entry => entry.studentId === student.studentId && entry.uploadDate.startsWith(month)
-    // //           );
-    
-    // //           // 构建工作时长审核状态的展示
-    // //           let workingHoursHTML = '';
-    // //           if (workingHoursEntry) {
-    // //             const { workingHours, approvalStatus } = workingHoursEntry;
-    // //             let statusText = '';
-    // //             let buttons = '';
-    
-    // //             if (approvalStatus === 0) {
-    // //               statusText = 'Pending Approval';
-    // //               buttons = `
-    // //                 <button onclick="updateApprovalStatus('${projectId}', '${student.studentId}', 1)">Approve</button>
-    // //                 <button onclick="updateApprovalStatus('${projectId}', '${student.studentId}', 2)">Reject</button>
-    // //               `;
-    // //             } else if (approvalStatus === 1) {
-    // //               statusText = 'Approved';
-    // //               buttons = `<button disabled style="background-color: lightgreen;">Approved</button>`;
-    // //             } else if (approvalStatus === 2) {
-    // //               statusText = 'Rejected';
-    // //               buttons = `<button disabled style="background-color: lightcoral;">Rejected</button>`;
-    // //             }
-    
-    // //             workingHoursHTML = `
-    // //               <strong>Working Hours:</strong> ${workingHours}<br>
-    // //               <strong>Status:</strong> ${statusText}<br>
-    // //               ${buttons}
-    // //             `;
-    // //           } else {
-    // //             workingHoursHTML = '<strong>Working Hours:</strong> Not Uploaded<br>';
-    // //           }
-    
-    // //           // 构建学生信息和 performance score 的展示
-    // //           studentDiv.innerHTML = `
-    // //             <strong>Student ID:</strong> ${student.studentId}<br>
-    // //             <strong>Name:</strong> ${student.studentName}<br>
-    // //             <strong>Performance Score:</strong> 
-    // //             <input type="number" id="score-${student.studentId}" value="${student.performanceScore || ''}" placeholder="Enter score">
-    // //             <button onclick="updatePerformanceScore('${projectId}', '${student.studentId}', '${month}')">Update</button><br>
-    // //             ${workingHoursHTML}
-    // //           `;
-    
-    // //           studentListDiv.appendChild(studentDiv);
-    // //         });
-    // //       } else {
-    // //         studentListDiv.textContent = "No students found for this project in the selected month.";
-    // //       }
-    
-    // //       // 替换旧的学生列表
-    // //       const oldStudentList = projectDetailsDiv.querySelector('.student-list');
-    // //       if (oldStudentList) {
-    // //         projectDetailsDiv.removeChild(oldStudentList);
-    // //       }
-    // //       studentListDiv.className = 'student-list';
-    // //       projectDetailsDiv.appendChild(studentListDiv);
-    // //     })
-    // //     .catch(error => console.error("Error fetching project details:", error));
-    // // }
-    
-    // function updatePerformanceScore(projectId, studentId, month) {
-    //   const scoreInput = document.getElementById(`score-${studentId}`);
-    //   const newScore = Number(scoreInput.value);
-    
-    //   // 通过api/project-students/${projectId}/${studentId}更新学生的performance score
-    //   fetch(`http://localhost:3000/api/project-students/${projectId}/${studentId}`, {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ performanceScore: newScore, date: month })
-    //   })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       if (data.success) {
-    //         alert("Performance score updated successfully!");
-    //       } else {
-    //         alert("Failed to update performance score: " + data.message);
-    //       }
-    //     })
-    //     .catch(error => console.error("Error updating performance score:", error));
-    // }
-    // function updateApprovalStatus(projectId, studentId, status) {
-    //   fetch(`http://localhost:3000/api/project-working-hours/${projectId}/${studentId}`, {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ approvalStatus: status })
-    //   })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //       if (data.success) {
-    //         alert("Update status successfully!");
-    //         loadProjectDetailsByMonth(projectId, document.getElementById('currentMonth').textContent);
-    //       } else {
-    //         // 处理错误情况：比如后端判断计算出来的wage超过了budget，则无法更新Status，同时也无法发工资
-    //         alert("Failed to update approval status: " + data.message);
-    //       }
-    //     })
-    //     .catch(error => console.error("Error updating approval status:", error));
-    // }
-
+  }
  }
  else if(role ==='student') {
     // 学生登录，显示学生信息
@@ -705,103 +588,231 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
 
 // 获取学生项目数据并显示在页面上
 function fetchStudentProjects() {
-  // 通过api/student-projects获取学生项目数据
   fetch('http://localhost:3000/api/student-projects')
-      .then(response => response.json()) // 解析JSON响应
-      .then(data => { // data是解析后的JSON对象
-          const studentProjectList = document.getElementById('studentProjectList');// 子容器
-          studentProjectList.innerHTML = ''; // 清空子容器
-          if (data.success && data.projects.length > 0) {
+    .then(response => response.json())
+    .then(data => {
+      const studentProjectList = document.getElementById('studentProjectList');
+      studentProjectList.innerHTML = '';
+      if (data.success && data.projects.length > 0) {
+        fetch(`http://localhost:3000/api/student-working-hours/${userId}`)
+          .then(response => response.json())
+          .then(hoursData => {
+            const submittedHours = hoursData.success ? hoursData.workingHours : [];
 
-            // 通过api/student-working-hours/${userId}获取学生已提交的工作时长
-            fetch(`http://localhost:3000/api/student-working-hours/${userId}`)
-            .then(response => response.json())
-            .then(hoursData => {
-              const submittedHours = hoursData.success ? hoursData.workingHours : [];
+            data.projects.forEach(project => {
+              const projectDiv = document.createElement('div');
+              projectDiv.className = 'project-box';
+              projectDiv.innerHTML = `
+                <strong>Project ID:</strong> ${project.projectId}<br>
+                <strong>Name:</strong> ${project.projectName}<br>
+                <strong>Leading Professor:</strong> ${project.leadingProfessor}<br>
+                <strong>Description:</strong> ${project.description}<br>
+                <strong>Hourly Payment:</strong> $${project.hourPayment}<br>
+                <strong>Start Date:</strong> ${project.startDate}<br>
+              `;
 
-              // 使用data.projects来访问项目数据
-              // 遍历每个项目数据并创建HTML元素显示在页面上
-              data.projects.forEach(project => {
-                  const projectDiv = document.createElement('div'); // projectDiv是一个新的div元素，用于显示项目
-                  projectDiv.className = 'project-box'; // 添加样式类，已在style.css中定义
-                  projectDiv.innerHTML = `
-                      <strong>Project ID:</strong> ${project.projectId}<br>
-                      <strong>Name:</strong> ${project.projectName}<br>
-                      <strong>Leading Professor:</strong> ${project.leadingProfessor}<br>
-                      <strong>Description:</strong> ${project.description}<br>
-                      <strong>Hourly Payment:</strong> $${project.hourPayment}<br>
-                      <strong>Start Date:</strong> ${project.startDate}<br>
-                  `;
+              const uploadedHoursButton = document.createElement('button');
+              uploadedHoursButton.textContent = 'Uploaded Working Hours';
+              uploadedHoursButton.style.marginTop = '10px';
 
-                  // 查找该项目的已提交工作时长 不管老师是否审核
-                  const projectHours = submittedHours.find(entry => entry.projectId === project.projectId);
-                  const submittedHoursText = projectHours
-                    ? `Submitted working hours for ${projectHours.uploadDate}: ${projectHours.workingHours}`
-                    : 'No hours submitted yet.';
+              const uploadedHoursDiv = document.createElement('div');
+              uploadedHoursDiv.id = `Uploadedwh-${project.projectId}`;
+              uploadedHoursDiv.style.display = 'none';
+              uploadedHoursDiv.style.marginTop = '10px';
 
-                  // 创建用于显示已提交的工作时长的容器
-                  const submittedHoursDiv = document.createElement('div');
-                  submittedHoursDiv.id = `submittedHours-${project.projectId}`;
-                  submittedHoursDiv.style.marginTop = '10px';
-                  submittedHoursDiv.textContent = submittedHoursText; // 动态设置内容
+              uploadedHoursButton.addEventListener('click', () => {
+  uploadedHoursDiv.style.display = uploadedHoursDiv.style.display === 'none' ? 'block' : 'none';
 
-                  // 添加 Upload Working Hours 按钮
-                  const uploadButton = document.createElement('button');
-                  uploadButton.textContent = 'Upload Working Hours';
-                  uploadButton.style.marginTop = '10px';
+  if (uploadedHoursDiv.style.display === 'block') {
+    const yearMonth = new Date().toISOString().slice(0, 7); // 获取当前年月，格式为 YYYY-MM
 
-                  // 创建用于显示上传工作时间的容器
-                  const uploadDiv = document.createElement('div');
-                  uploadDiv.style.display = 'none'; // 初始隐藏
-                  uploadDiv.innerHTML = `
-                      <p><strong>Time:</strong> ${new Date().toISOString().slice(0, 7)}</p>
-                      <p>Please upload your working hours this month.</p>
-                      <p>The submitted working hours will first be verified by the teacher.</p>
-                      <input type="number" id="workingHours-${project.projectId}" placeholder="Enter working hours" style="margin-bottom: 10px;">
-                      <button onclick="uploadWorkingHours('${project.projectId}')">Upload</button>
-                  `;
-                  
-                  uploadButton.addEventListener('click', () => {
-                      // 切换显示/隐藏状态
-                      uploadDiv.style.display = uploadDiv.style.display === 'none' ? 'block' : 'none';
-                  });
+    // 调用 API 获取本月最新的工作时长记录
+    fetch(`http://localhost:3000/api/student-working-hours/${userId}?yearMonth=${yearMonth}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.workingHours.length > 0) {
+          // 找到最新的记录
+          const latestRecord = data.workingHours.reduce((latest, current) => {
+            return new Date(current.uploadDate) > new Date(latest.uploadDate) ? current : latest;
+          });
 
-                  // 添加 Wage History 按钮
-                  const wageHistoryButton = document.createElement('button');
-                  wageHistoryButton.textContent = 'Wage History';
-                  wageHistoryButton.style.marginLeft = '10px';
+          // 显示最新记录模块
+          uploadedHoursDiv.innerHTML = `
+            <div style="margin-bottom: 20px;">
+              <h4>Your last submission in this month:</h4>
+              <p><strong>Submitted Time:</strong> ${latestRecord.uploadDate}</p>
+              <p><strong>Uploaded Working Hour:</strong> ${latestRecord.workingHours} hour(s)</p>
+              <p><strong>Status:</strong> ${
+                latestRecord.approvalStatus === 0
+                  ? 'Pending'
+                  : latestRecord.approvalStatus === 1
+                  ? 'Approved'
+                  : 'Rejected'
+              }</p>
+              <button id="editButton-${project.projectId}" style="margin-top: 10px;" ${
+                latestRecord.approvalStatus === 0 ? 'disabled style="background-color: gray;"' : ''
+              }>Edit</button>
+              <div id="editDiv-${project.projectId}" style="display: none; margin-top: 10px;">
+                <label for="newWorkingHours-${project.projectId}">Upload Working Hours:</label>
+                <input type="number" id="newWorkingHours-${project.projectId}" placeholder="Enter new working hours" style="margin-left: 10px;">
+                <button id="updateButton-${project.projectId}" style="margin-top: 10px;">Update</button>
+              </div>
+            </div>
+          `;
 
-                  wageHistoryButton.addEventListener('click', () => {
-                    const wageHistoryList = document.getElementById('wageHistoryList');
-                    if (wageHistoryList.style.display === 'none' || wageHistoryList.dataset.projectId !== project.projectId) {
-                        // 显示工资历史并加载数据
-                        wageHistoryList.style.display = 'block';
-                        wageHistoryList.dataset.projectId = project.projectId; // 记录当前项目 ID
-                        //call fetchWageHistory function to fetch and display wage history
-                        fetchWageHistory(project.projectId);
-                    } else {
-                        // 隐藏工资历史
-                        wageHistoryList.style.display = 'none';
-                        wageHistoryList.dataset.projectId = ''; // 清空项目 ID
-                    }
-                });
-              
-
-                  // 确保按钮一直在upload working hour详情部分的上方
-                  projectDiv.appendChild(uploadButton);
-                  projectDiv.appendChild(wageHistoryButton);
-
-                  projectDiv.appendChild(uploadDiv);
-                  projectDiv.appendChild(submittedHoursDiv);
-                  studentProjectList.appendChild(projectDiv);
-              });
+          // 添加 Edit 按钮的事件监听器
+          const editButton = document.getElementById(`editButton-${project.projectId}`);
+          if (editButton) {
+            editButton.addEventListener('click', () => {
+              const editDiv = document.getElementById(`editDiv-${project.projectId}`);
+              editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
             });
-          } else {
-              studentProjectList.textContent = "No projects found.";
           }
+
+          // 添加 Update 按钮的事件监听器
+          const updateButton = document.getElementById(`updateButton-${project.projectId}`);
+          if (updateButton) {
+            updateButton.addEventListener('click', () => {
+              const newWorkingHours = document.getElementById(`newWorkingHours-${project.projectId}`).value;
+              if (!newWorkingHours || isNaN(newWorkingHours) || newWorkingHours <= 0) {
+                alert('Please enter a valid number of working hours.');
+                return;
+              }
+
+              const newUploadDate = new Date().toISOString().slice(0, 10); // 获取当前日期，格式为 YYYY-MM-DD
+
+              // 调用 API 上传新的工作时长
+              fetch('http://localhost:3000/api/upload-working-hours', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  projectId: project.projectId,
+                  studentId: userId,
+                  workingHours: Number(newWorkingHours),
+                  yearMonth: newUploadDate
+                })
+              })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.success) {
+                    alert('Working hours updated successfully!');
+                    uploadedHoursDiv.style.display = 'none'; // 隐藏编辑模块
+                  } else {
+                    alert('Failed to update working hours: ' + data.message);
+                  }
+                })
+                .catch(error => console.error('Error updating working hours:', error));
+            });
+          }
+        } else {
+          uploadedHoursDiv.innerHTML = `
+            <div style="margin-bottom: 20px;">
+              <h4>Your last submission in this month:</h4>
+              <p>No working hours submitted for this month.</p>
+            </div>
+          `;
+        }
+
+        // 添加时间导航模块
+        uploadedHoursDiv.innerHTML += `
+          <div>
+            <h4>View your uploaded history:</h4>
+            <label for="yearSelect-${project.projectId}">Year:</label>
+            <select id="yearSelect-${project.projectId}">
+              ${[...Array(5)].map((_, i) => {
+                const year = new Date().getFullYear() - i;
+                return `<option value="${year}">${year}</option>`;
+              }).join('')}
+            </select>
+            <label for="monthSelect-${project.projectId}">Month:</label>
+            <select id="monthSelect-${project.projectId}">
+              ${[...Array(12)].map((_, i) => {
+                const month = (i + 1).toString().padStart(2, '0');
+                return `<option value="${month}">${month}</option>`;
+              }).join('')}
+            </select>
+            <button id="confirmButton-${project.projectId}" style="margin-left: 10px;">Confirm</button>
+            <div id="resultDiv-${project.projectId}" style="margin-top: 10px;"></div>
+          </div>
+        `;
+
+        // 添加事件监听器到 Confirm 按钮
+        document.getElementById(`confirmButton-${project.projectId}`).addEventListener('click', () => {
+          const selectedYear = document.getElementById(`yearSelect-${project.projectId}`).value;
+          const selectedMonth = document.getElementById(`monthSelect-${project.projectId}`).value;
+          const yearMonth = `${selectedYear}-${selectedMonth}`;
+          const resultDiv = document.getElementById(`resultDiv-${project.projectId}`);
+
+          fetch(`http://localhost:3000/api/student-working-hours/${userId}?yearMonth=${yearMonth}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                resultDiv.innerHTML = '';
+                if (data.workingHours.length > 0) {
+                  data.workingHours.forEach(entry => {
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'project-box';
+                    entryDiv.innerHTML = `
+                      <strong>Upload Date:</strong> ${entry.uploadDate}<br>
+                      <strong>Working Hours:</strong> ${entry.workingHours}<br>
+                      <strong>Status:</strong> ${
+                        entry.approvalStatus === 0
+                          ? 'Pending'
+                          : entry.approvalStatus === 1
+                          ? 'Approved'
+                          : 'Rejected'
+                      }<br>
+                    `;
+                    resultDiv.appendChild(entryDiv);
+                  });
+                } else {
+                  resultDiv.textContent = 'No records found for the selected criteria.';
+                }
+              } else {
+                resultDiv.textContent = 'Failed to fetch data: ' + data.message;
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching working hours:', error);
+              resultDiv.textContent = 'Error loading working hours.';
+            });
+        });
       })
-      .catch(error => console.error("Error fetching student projects:", error));
-    }
+      .catch(error => {
+        console.error('Error fetching working hours:', error);
+        uploadedHoursDiv.innerHTML = '<p>Error loading working hours.</p>';
+      });
+  }
+});
+
+              const wageHistoryButton = document.createElement('button');
+              wageHistoryButton.textContent = 'Wage History';
+              wageHistoryButton.style.marginLeft = '10px';
+
+              wageHistoryButton.addEventListener('click', () => {
+                const wageHistoryList = document.getElementById('wageHistoryList');
+                if (wageHistoryList.style.display === 'none' || wageHistoryList.dataset.projectId !== project.projectId) {
+                  wageHistoryList.style.display = 'block';
+                  wageHistoryList.dataset.projectId = project.projectId;
+                  fetchWageHistory(project.projectId);
+                } else {
+                  wageHistoryList.style.display = 'none';
+                  wageHistoryList.dataset.projectId = '';
+                }
+              });
+
+              projectDiv.appendChild(uploadedHoursButton);
+              projectDiv.appendChild(wageHistoryButton);
+              projectDiv.appendChild(uploadedHoursDiv);
+              studentProjectList.appendChild(projectDiv);
+            });
+          });
+      } else {
+        studentProjectList.textContent = 'No projects found.';
+      }
+    })
+    .catch(error => console.error('Error fetching student projects:', error));
+}
  fetchStudentProjects();
 
  // 获取并显示 Wage History
