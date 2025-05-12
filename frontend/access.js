@@ -41,6 +41,7 @@ function fetchProjects() {
               <p><strong>Hour Payment:</strong> <span id="hp-${project.projectId}">${project.hourPayment}</span></p>
               <p><strong>Performance Ratio:</strong> <span id="hp-${project.performanceRatio}">${project.performanceRatio}</span></p>
               <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
+              <p><strong>Balance:</strong> <span id="hp-${project.balance}">${project.balance}</span></p>
               <p><strong>Participants:</strong> <span id="pt-${project.projectId}">${project.participants.join(', ')}</span></p>
               <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
             `;
@@ -58,8 +59,8 @@ function fetchProjects() {
                 <label for="editPr-${project.projectId}">Performance ratio:</label>
                 <input type="number" id="editPr-${project.projectId}" placeholder="Performance ratio" value="${project.performanceRatio}"><br>
                 
-                <label for="editBd-${project.projectId}">Budget:</label>
-                <input type="number" id="editBd-${project.projectId}" placeholder="Budget" value="${project.budget}"><br>
+                <label for="editBd-${project.projectId}">Balance:</label>
+                <input type="number" id="editBd-${project.projectId}" placeholder="Balance" value="${project.balance}"><br>
                 
                 <label for="editPt-${project.projectId}">Participants:</label>
                 <input type="text" id="editPt-${project.projectId}" placeholder="Participants (comma separated)" value="${project.participants.join(', ')}"><br>
@@ -114,7 +115,7 @@ function deleteProject(projectId) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         hourPayment: Number(newHp),
-        budget: Number(newBd),
+        balance: Number(newBd),
         performanceRatio: Number(newPr),
         participants: newPt
       })
@@ -139,6 +140,7 @@ function deleteProject(projectId) {
     const hourPayment = Number(document.getElementById('newHourPayment').value);
     const performanceRatio = Number(document.getElementById('newPerformanceRatio').value);
     const budget = Number(document.getElementById('newBudget').value);
+    const balance = Number(document.getElementById('newBalance').value);
     const participants = document.getElementById('newParticipants').value.split(',').map(item => item.trim());
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
     
@@ -152,6 +154,7 @@ function deleteProject(projectId) {
         hourPayment,
         performanceRatio,
         budget,
+        balance,
         participants,
         leadingProfessor
       })
@@ -167,6 +170,8 @@ function deleteProject(projectId) {
         document.getElementById('newDescription').value = '';
         document.getElementById('newHourPayment').value = '';
         document.getElementById('newBudget').value = '';
+        document.getElementById('newBalance').value = '';
+        document.getElementById('newPerformanceRatio').value = '';
         document.getElementById('newParticipants').value = '';
         document.getElementById('newLeadingProfessor').value = '';
       } else {

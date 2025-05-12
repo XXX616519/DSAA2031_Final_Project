@@ -31,6 +31,7 @@ let projects = [
       hourPayment: 50,
       performanceRatio:2,
       budget: 10000,
+      balance: 5000,
       participants: ['001', '002'], // 存 userId 数组
       leadingProfessor: 'Prof. Smith'
     },
@@ -41,6 +42,7 @@ let projects = [
       hourPayment: 60,
       performanceRatio:1,
       budget: 15000,
+      balance: 7000,
       participants: ['002'],
       leadingProfessor: 'Prof. Johnson'
     }
@@ -245,14 +247,14 @@ app.get('/api/projects', (req, res) => {
   // API: 更新指定项目（仅允许修改 hourPayment, participants,peformanceRatio, budget）
   app.put('/api/projects/:projectId', (req, res) => {
     const { projectId } = req.params;
-    const { hourPayment, participants, budget,performanceRatio } = req.body;
+    const { hourPayment, participants, balance,performanceRatio } = req.body;
     const project = projects.find(p => p.projectId === projectId);
     if (!project) {
       return res.status(404).json({ success: false, message: "Project not found" });
     }
     // 更新字段（你可以增加权限校验，确保请求者是admin）
     if (hourPayment !== undefined) project.hourPayment = hourPayment;
-    if (budget !== undefined) project.budget = budget;
+    if (balance !== undefined) project.balance = balance;
     if (participants !== undefined) project.participants = participants;
     if (performanceRatio !== undefined) project.performanceRatio = performanceRatio;
     
@@ -261,7 +263,7 @@ app.get('/api/projects', (req, res) => {
  
   // API: 添加新项目
   app.post('/api/projects', (req, res) => {
-    const { projectId, projectName, description,hourPayment, performanceRatio,budget, participants, leadingProfessor } = req.body;
+    const { projectId, projectName, description, hourPayment, performanceRatio, budget, balance, participants, leadingProfessor } = req.body;
     // 检查必填字段
     if (!projectId || !projectName) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -271,7 +273,7 @@ app.get('/api/projects', (req, res) => {
       return res.status(400).json({ success: false, message: "Project ID already exists" });
     }
     
-    const newProject = { projectId, projectName, description,hourPayment,performanceRatio, budget, participants, leadingProfessor };
+    const newProject = { projectId, projectName, description, hourPayment, performanceRatio, budget, balance, participants, leadingProfessor };
     projects.push(newProject);
     res.json({ success: true, project: newProject });
   });
