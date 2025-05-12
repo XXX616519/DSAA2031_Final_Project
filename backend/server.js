@@ -18,8 +18,8 @@ const allowedTeachers = [
 ];
 
 const allowedAdmins = [
-    { adminId: '001', adminName: 'Eve', adminPassword: 'adminpass' },
-    { adminId: '002', adminName: 'Frank', adminPassword: 'admin456' }
+    { adminId: '001', adminPassword: 'adminpass' },
+    
 ];
 
 // 新建的项目数据集，模拟 MySQL 中 project 表
@@ -29,7 +29,9 @@ let projects = [
       projectName: 'Project A',
       description: 'A research project on AI applications.',
       hourPayment: 50,
+      performanceRatio:2,
       budget: 10000,
+      balance: 5000,
       participants: ['001', '002'], // 存 userId 数组
       leadingProfessor: 'Prof. Smith'
     },
@@ -38,7 +40,9 @@ let projects = [
       projectName: 'Project B',
       description: 'A research project on blockchain technology.',
       hourPayment: 60,
+      performanceRatio:1,
       budget: 15000,
+      balance: 7000,
       participants: ['002'],
       leadingProfessor: 'Prof. Johnson'
     }
@@ -240,25 +244,26 @@ app.get('/api/projects', (req, res) => {
     
     res.json({ success: true, projects: projectsWithParticipantsName });
   });
-  // API: 更新指定项目（仅允许修改 hourPayment, participants, budget）
+  // API: 更新指定项目（仅允许修改 hourPayment, participants,peformanceRatio, budget）
   app.put('/api/projects/:projectId', (req, res) => {
     const { projectId } = req.params;
-    const { hourPayment, participants, budget } = req.body;
+    const { hourPayment, participants, balance,performanceRatio } = req.body;
     const project = projects.find(p => p.projectId === projectId);
     if (!project) {
       return res.status(404).json({ success: false, message: "Project not found" });
     }
     // 更新字段（你可以增加权限校验，确保请求者是admin）
     if (hourPayment !== undefined) project.hourPayment = hourPayment;
-    if (budget !== undefined) project.budget = budget;
+    if (balance !== undefined) project.balance = balance;
     if (participants !== undefined) project.participants = participants;
+    if (performanceRatio !== undefined) project.performanceRatio = performanceRatio;
     
     res.json({ success: true, project });
   });
  
   // API: 添加新项目
   app.post('/api/projects', (req, res) => {
-    const { projectId, projectName, description,hourPayment, budget, participants, leadingProfessor } = req.body;
+    const { projectId, projectName, description, hourPayment, performanceRatio, budget, participants, leadingProfessor } = req.body;
     // 检查必填字段
     if (!projectId || !projectName) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -267,8 +272,10 @@ app.get('/api/projects', (req, res) => {
     if (projects.find(p => p.projectId === projectId)) {
       return res.status(400).json({ success: false, message: "Project ID already exists" });
     }
-    
-    const newProject = { projectId, projectName, description,hourPayment, budget, participants, leadingProfessor };
+    // 计算初始余额
+    const initialBalance = budget;
+    // 新建项目对象
+    const newProject = { projectId, projectName, description, hourPayment, performanceRatio, budget, participants, leadingProfessor, balance: initialBalance };
     projects.push(newProject);
     res.json({ success: true, project: newProject });
   });

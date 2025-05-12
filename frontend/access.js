@@ -16,7 +16,7 @@ const teacherProjects = document.getElementById('teacherProjects');
     studentProjects.style.display = 'none';
     teacherProjects.style.display = 'none';
     // 管理员登录，显示管理员信息
-    userInfoDiv.textContent = `Logged in as Admin: ${userName} (ID: ${userId})`;
+    userInfoDiv.textContent = `Logged in as Admin: ID ${userId}`;
     // 获取项目数据，并显示到页面中
 function fetchProjects() {
     fetch('http://localhost:3000/api/projects')
@@ -39,7 +39,9 @@ function fetchProjects() {
               <p><strong>Name:</strong> ${project.projectName}</p>
               <p><strong>Description:</strong> ${project.description}</p>
               <p><strong>Hour Payment:</strong> <span id="hp-${project.projectId}">${project.hourPayment}</span></p>
+              <p><strong>Performance Ratio:</strong> <span id="hp-${project.performanceRatio}">${project.performanceRatio}</span></p>
               <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
+              <p><strong>Balance:</strong> <span id="hp-${project.balance}">${project.balance}</span></p>
               <p><strong>Participants:</strong> <span id="pt-${project.projectId}">${project.participants.join(', ')}</span></p>
               <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
             `;
@@ -53,9 +55,12 @@ function fetchProjects() {
               <div id="edit-${project.projectId}" style="display: none; margin-top:10px;">
                 <label for="editHp-${project.projectId}">Hour Payment:</label>
                 <input type="number" id="editHp-${project.projectId}" placeholder="Hour Payment" value="${project.hourPayment}"><br>
+
+                <label for="editPr-${project.projectId}">Performance ratio:</label>
+                <input type="number" id="editPr-${project.projectId}" placeholder="Performance ratio" value="${project.performanceRatio}"><br>
                 
-                <label for="editBd-${project.projectId}">Budget:</label>
-                <input type="number" id="editBd-${project.projectId}" placeholder="Budget" value="${project.budget}"><br>
+                <label for="editBd-${project.projectId}">Balance:</label>
+                <input type="number" id="editBd-${project.projectId}" placeholder="Balance" value="${project.balance}"><br>
                 
                 <label for="editPt-${project.projectId}">Participants:</label>
                 <input type="text" id="editPt-${project.projectId}" placeholder="Participants (comma separated)" value="${project.participants.join(', ')}"><br>
@@ -101,15 +106,43 @@ function deleteProject(projectId) {
   // 更新项目
   function updateProject(projectId) {
     const newHp = document.getElementById(`editHp-${projectId}`).value;
+    const newPr = document.getElementById(`editPr-${projectId}`).value;
     const newBd = document.getElementById(`editBd-${projectId}`).value;
-    const newPt = document.getElementById(`editPt-${projectId}`).value.split(',').map(item => item.trim());
+    const newPtInput = document.getElementById(`editPt-${projectId}`).value;
+    const newPt = newPtInput.split(',').map(item => item.trim());
     
+    const numHp = Number(newHp);
+    const numPr = Number(newPr);
+    const numBd = Number(newBd);
+
+    // 验证所有数字输入必须为正整数
+    if(numHp <= 0 || !Number.isInteger(numHp)) {
+      alert("Hour Payment must be a positive integer!");
+      return;
+    }
+    if(numPr <= 0 || !Number.isInteger(numPr)) {
+      alert("Performance Ratio must be a positive integer!");
+      return;
+    }
+    if(numBd <= 0 || !Number.isInteger(numBd)) {
+      alert("Balance must be a positive integer!");
+      return;
+    }
+    const participantRegex = /^\S+\(\S+\)$/;
+    for (let participant of newPt) {
+      if (!participantRegex.test(participant)) {
+        alert("Input error: Each participant must be in the format 'ID(name)'.");
+        return;
+      }
+    }
+      
     fetch(`http://localhost:3000/api/projects/${projectId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         hourPayment: Number(newHp),
-        budget: Number(newBd),
+        balance: Number(newBd),
+        performanceRatio: Number(newPr),
         participants: newPt
       })
     })
@@ -131,9 +164,32 @@ function deleteProject(projectId) {
     const projectName = document.getElementById('newProjectName').value;
     const description = document.getElementById('newDescription').value;
     const hourPayment = Number(document.getElementById('newHourPayment').value);
+    const performanceRatio = Number(document.getElementById('newPerformanceRatio').value);
     const budget = Number(document.getElementById('newBudget').value);
-    const participants = document.getElementById('newParticipants').value.split(',').map(item => item.trim());
+    const participantsInput = document.getElementById('newParticipants').value;
+    const participantsArr = participantsInput.split(',').map(item => item.trim());
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
+
+    // 验证所有数字输入必须为正整数
+    if(hourPayment <= 0 || !Number.isInteger(hourPayment)){
+      alert("Hour Payment must be a positive integer!");
+      return;
+    }
+    if(performanceRatio <= 0 || !Number.isInteger(performanceRatio)){
+      alert("Performance Ratio must be a positive integer!");
+      return;
+    }
+    if(budget <= 0 || !Number.isInteger(budget)){
+      alert("Budget must be a positive integer!");
+      return;
+    }
+    const participantRegex = /^\S+\(\S+\)$/;
+    for (let participant of participantsArr) {
+      if (!participantRegex.test(participant)) {
+        alert("Input error: Each participant must be in the format 'ID(name)'.");
+        return;
+      }
+    }
     
     fetch('http://localhost:3000/api/projects', {
       method: 'POST',
@@ -143,8 +199,9 @@ function deleteProject(projectId) {
         projectName,
         description,
         hourPayment,
+        performanceRatio,
         budget,
-        participants,
+        participants: participantsArr,
         leadingProfessor
       })
     })
@@ -159,6 +216,7 @@ function deleteProject(projectId) {
         document.getElementById('newDescription').value = '';
         document.getElementById('newHourPayment').value = '';
         document.getElementById('newBudget').value = '';
+        document.getElementById('newPerformanceRatio').value = '';
         document.getElementById('newParticipants').value = '';
         document.getElementById('newLeadingProfessor').value = '';
       } else {
