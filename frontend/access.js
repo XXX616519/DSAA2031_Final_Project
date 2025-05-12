@@ -108,8 +108,34 @@ function deleteProject(projectId) {
     const newHp = document.getElementById(`editHp-${projectId}`).value;
     const newPr = document.getElementById(`editPr-${projectId}`).value;
     const newBd = document.getElementById(`editBd-${projectId}`).value;
-    const newPt = document.getElementById(`editPt-${projectId}`).value.split(',').map(item => item.trim());
+    const newPtInput = document.getElementById(`editPt-${projectId}`).value;
+    const newPt = newPtInput.split(',').map(item => item.trim());
     
+    const numHp = Number(newHp);
+    const numPr = Number(newPr);
+    const numBd = Number(newBd);
+
+    // 验证所有数字输入必须为正整数
+    if(numHp <= 0 || !Number.isInteger(numHp)) {
+      alert("Hour Payment must be a positive integer!");
+      return;
+    }
+    if(numPr <= 0 || !Number.isInteger(numPr)) {
+      alert("Performance Ratio must be a positive integer!");
+      return;
+    }
+    if(numBd <= 0 || !Number.isInteger(numBd)) {
+      alert("Balance must be a positive integer!");
+      return;
+    }
+    const participantRegex = /^\S+\(\S+\)$/;
+    for (let participant of newPt) {
+      if (!participantRegex.test(participant)) {
+        alert("Input error: Each participant must be in the format 'ID(name)'.");
+        return;
+      }
+    }
+      
     fetch(`http://localhost:3000/api/projects/${projectId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -141,8 +167,34 @@ function deleteProject(projectId) {
     const performanceRatio = Number(document.getElementById('newPerformanceRatio').value);
     const budget = Number(document.getElementById('newBudget').value);
     const balance = Number(document.getElementById('newBalance').value);
-    const participants = document.getElementById('newParticipants').value.split(',').map(item => item.trim());
+    const participantsInput = document.getElementById('newParticipants').value;
+    const participantsArr = participantsInput.split(',').map(item => item.trim());
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
+
+    // 验证所有数字输入必须为正整数
+    if(hourPayment <= 0 || !Number.isInteger(hourPayment)){
+      alert("Hour Payment must be a positive integer!");
+      return;
+    }
+    if(performanceRatio <= 0 || !Number.isInteger(performanceRatio)){
+      alert("Performance Ratio must be a positive integer!");
+      return;
+    }
+    if(budget <= 0 || !Number.isInteger(budget)){
+      alert("Budget must be a positive integer!");
+      return;
+    }
+    if(balance <= 0 || !Number.isInteger(balance)){
+      alert("Balance must be a positive integer!");
+      return;
+    }
+    const participantRegex = /^\S+\(\S+\)$/;
+    for (let participant of participantsArr) {
+      if (!participantRegex.test(participant)) {
+        alert("Input error: Each participant must be in the format 'ID(name)'.");
+        return;
+      }
+    }
     
     fetch('http://localhost:3000/api/projects', {
       method: 'POST',
@@ -155,7 +207,7 @@ function deleteProject(projectId) {
         performanceRatio,
         budget,
         balance,
-        participants,
+        participants: participantsArr,
         leadingProfessor
       })
     })
