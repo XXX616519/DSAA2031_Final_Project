@@ -112,15 +112,14 @@ adminLoginBtn.addEventListener('click', () => {
 const loginBtn2 = document.getElementById('loginBtn2');
 loginBtn2.addEventListener('click', async () => {
   const adminId = document.getElementById('adminId').value;
-  const adminName = document.getElementById('adminName').value;
   const adminPassword = document.getElementById('adminPassword').value;
   
-  if (!adminId || !adminName || !adminPassword) {
+  if (!adminId  || !adminPassword) {
     alert('Please fill in all fields.');
     return;
   }
   
-  const payload = { adminId, adminName, adminPassword, role: 'admin' };
+  const payload = { adminId, adminPassword, role: 'admin' };
   
   try {
     const response = await fetch('http://localhost:3000/api/login', {
@@ -133,7 +132,6 @@ loginBtn2.addEventListener('click', async () => {
     if (result.success) {
       // 保存登录信息到 localStorage
       localStorage.setItem('userId', adminId);
-      localStorage.setItem('userName', adminName);
       localStorage.setItem('role', 'admin');
       // 跳转到个人信息页面
       window.location.href = 'personal.html';

@@ -18,8 +18,8 @@ const allowedTeachers = [
 ];
 
 const allowedAdmins = [
-    { adminId: '001', adminName: 'Eve', adminPassword: 'adminpass' },
-    { adminId: '002', adminName: 'Frank', adminPassword: 'admin456' }
+    { adminId: '001', adminPassword: 'adminpass' },
+    
 ];
 
 // 新建的项目数据集，模拟 MySQL 中 project 表
@@ -29,6 +29,7 @@ let projects = [
       projectName: 'Project A',
       description: 'A research project on AI applications.',
       hourPayment: 50,
+      performanceRatio:2,
       budget: 10000,
       participants: ['001', '002'], // 存 userId 数组
       leadingProfessor: 'Prof. Smith'
@@ -38,6 +39,7 @@ let projects = [
       projectName: 'Project B',
       description: 'A research project on blockchain technology.',
       hourPayment: 60,
+      performanceRatio:1,
       budget: 15000,
       participants: ['002'],
       leadingProfessor: 'Prof. Johnson'
@@ -240,10 +242,10 @@ app.get('/api/projects', (req, res) => {
     
     res.json({ success: true, projects: projectsWithParticipantsName });
   });
-  // API: 更新指定项目（仅允许修改 hourPayment, participants, budget）
+  // API: 更新指定项目（仅允许修改 hourPayment, participants,peformanceRatio, budget）
   app.put('/api/projects/:projectId', (req, res) => {
     const { projectId } = req.params;
-    const { hourPayment, participants, budget } = req.body;
+    const { hourPayment, participants, budget,performanceRatio } = req.body;
     const project = projects.find(p => p.projectId === projectId);
     if (!project) {
       return res.status(404).json({ success: false, message: "Project not found" });
@@ -252,13 +254,14 @@ app.get('/api/projects', (req, res) => {
     if (hourPayment !== undefined) project.hourPayment = hourPayment;
     if (budget !== undefined) project.budget = budget;
     if (participants !== undefined) project.participants = participants;
+    if (performanceRatio !== undefined) project.performanceRatio = performanceRatio;
     
     res.json({ success: true, project });
   });
  
   // API: 添加新项目
   app.post('/api/projects', (req, res) => {
-    const { projectId, projectName, description,hourPayment, budget, participants, leadingProfessor } = req.body;
+    const { projectId, projectName, description,hourPayment, performanceRatio,budget, participants, leadingProfessor } = req.body;
     // 检查必填字段
     if (!projectId || !projectName) {
       return res.status(400).json({ success: false, message: "Missing required fields" });
@@ -268,7 +271,7 @@ app.get('/api/projects', (req, res) => {
       return res.status(400).json({ success: false, message: "Project ID already exists" });
     }
     
-    const newProject = { projectId, projectName, description,hourPayment, budget, participants, leadingProfessor };
+    const newProject = { projectId, projectName, description,hourPayment,performanceRatio, budget, participants, leadingProfessor };
     projects.push(newProject);
     res.json({ success: true, project: newProject });
   });

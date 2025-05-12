@@ -16,7 +16,7 @@ const teacherProjects = document.getElementById('teacherProjects');
     studentProjects.style.display = 'none';
     teacherProjects.style.display = 'none';
     // 管理员登录，显示管理员信息
-    userInfoDiv.textContent = `Logged in as Admin: ${userName} (ID: ${userId})`;
+    userInfoDiv.textContent = `Logged in as Admin: ID ${userId}`;
     // 获取项目数据，并显示到页面中
 function fetchProjects() {
     fetch('http://localhost:3000/api/projects')
@@ -39,6 +39,7 @@ function fetchProjects() {
               <p><strong>Name:</strong> ${project.projectName}</p>
               <p><strong>Description:</strong> ${project.description}</p>
               <p><strong>Hour Payment:</strong> <span id="hp-${project.projectId}">${project.hourPayment}</span></p>
+              <p><strong>Performance Ratio:</strong> <span id="hp-${project.performanceRatio}">${project.performanceRatio}</span></p>
               <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
               <p><strong>Participants:</strong> <span id="pt-${project.projectId}">${project.participants.join(', ')}</span></p>
               <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
@@ -53,6 +54,9 @@ function fetchProjects() {
               <div id="edit-${project.projectId}" style="display: none; margin-top:10px;">
                 <label for="editHp-${project.projectId}">Hour Payment:</label>
                 <input type="number" id="editHp-${project.projectId}" placeholder="Hour Payment" value="${project.hourPayment}"><br>
+
+                <label for="editPr-${project.projectId}">Performance ratio:</label>
+                <input type="number" id="editPr-${project.projectId}" placeholder="Performance ratio" value="${project.performanceRatio}"><br>
                 
                 <label for="editBd-${project.projectId}">Budget:</label>
                 <input type="number" id="editBd-${project.projectId}" placeholder="Budget" value="${project.budget}"><br>
@@ -101,6 +105,7 @@ function deleteProject(projectId) {
   // 更新项目
   function updateProject(projectId) {
     const newHp = document.getElementById(`editHp-${projectId}`).value;
+    const newPr = document.getElementById(`editPr-${projectId}`).value;
     const newBd = document.getElementById(`editBd-${projectId}`).value;
     const newPt = document.getElementById(`editPt-${projectId}`).value.split(',').map(item => item.trim());
     
@@ -110,6 +115,7 @@ function deleteProject(projectId) {
       body: JSON.stringify({
         hourPayment: Number(newHp),
         budget: Number(newBd),
+        performanceRatio: Number(newPr),
         participants: newPt
       })
     })
@@ -131,6 +137,7 @@ function deleteProject(projectId) {
     const projectName = document.getElementById('newProjectName').value;
     const description = document.getElementById('newDescription').value;
     const hourPayment = Number(document.getElementById('newHourPayment').value);
+    const performanceRatio = Number(document.getElementById('newPerformanceRatio').value);
     const budget = Number(document.getElementById('newBudget').value);
     const participants = document.getElementById('newParticipants').value.split(',').map(item => item.trim());
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
@@ -143,6 +150,7 @@ function deleteProject(projectId) {
         projectName,
         description,
         hourPayment,
+        performanceRatio,
         budget,
         participants,
         leadingProfessor
