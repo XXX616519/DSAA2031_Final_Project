@@ -115,4 +115,5 @@ label[for="reportYear"] {
 /* admin 年度报告样式 */
 #annualReport table {
   margin: 0 auto;
+  text-align: center;
 }
