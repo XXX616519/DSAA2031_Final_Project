@@ -4,8 +4,9 @@ const pool = require('../config/db');
 
 // 教师项目数据接口
 // API: 返回教师管理的项目
-router.get('/teacher-projects', async (req, res) => {
-  const { teacherId } = req.query;
+router.get('/teacher-projects/:teacherId', async (req, res) => {
+  console.log("Fetching projects for teacher:", req.params.teacherId);
+  const { teacherId } = req.params;
   try {
     const [rows] = await pool.query('SELECT * FROM projects WHERE tid = ?', [teacherId]);
     console.log(rows);

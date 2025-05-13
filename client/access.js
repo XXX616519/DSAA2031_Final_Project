@@ -279,7 +279,7 @@ else if (role == 1) {
     // 获取教师ID从localStorage
     const teacherId = localStorage.getItem('userId');
     // 通过api/teacher-projects传入teacherId获取对应的教师项目数据
-    fetch(`http://localhost:3000/api/teacher-project/${teacherId}`)
+    fetch(`http://localhost:3000/api/teacher-projects/${teacherId}`)
       .then(response => response.json())
       .then(data => {
         const teacherProjectList = document.getElementById('teacherProjectList');
@@ -294,7 +294,7 @@ else if (role == 1) {
                 <strong>Project ID:</strong> ${project.projectId}<br>
                 <strong>Name:</strong> ${project.projectName}<br>
                 <strong>Budget:</strong> $${project.budget}<br>
-                <strong>Participants:</strong> ${project.participants.join(', ')}<br>
+                <strong>Participants:</strong> ${project.participants}<br>
                 <button class="button" onclick="fetchProjectDetails('${project.projectId}')">View Details</button>
                 <button class=".button" style="margin-left: 10px;" onclick="fetchWagePaymentSituation('${project.projectId}')">Wage payment</button>
               `;
