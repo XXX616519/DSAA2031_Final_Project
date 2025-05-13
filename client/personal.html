@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Personal Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Personal Information</h1>
+    <div id="userInfo"></div>
+    <h1>Projects</h1>
+    <div id="projects"></div>
+  </div>
+
+
+  <div id="adminProjects" style="display: none;">
+    <!-- <h1>Admin Projects Management</h1> -->
+    <!-- 用于显示项目数据 -->
+    <div id="projects"></div>
+    <div class="container">
+    <h2>Add New Project</h2>
+    <div id="newProjectForm">
+      <input type="text" id="newProjectId" placeholder="Project ID">
+      <input type="text" id="newProjectName" placeholder="Project Name">       
+      <input type="text" id="newDescription" placeholder="Project Description">
+      <input type="number" id="newHourPayment" placeholder="Hour Payment">
+      <input type="number" id="newPerformanceRatio" placeholder="Performance Ratio">
+      <input type="number" id="newBudget" placeholder="Budget">
+      <input type="text" id="newParticipants" placeholder="Participants (comma separated)">
+      <input type="text" id="newLeadingProfessor" placeholder="Leading Professor">
+      <button id="addProjectBtn">Add Project</button>
+    </div>
+    <h1>Annual Report</h1>
+    <!-- 新增输入年份的输入框 -->
+    <label for="reportYear">Enter Year:</label>
+    <input type="number" id="reportYear" placeholder="e.g., 2025">
+    <button id="showAnnualReportBtn">Show Annual Report</button>
+    <div id="annualReport"></div>
+    </div>
+  </div>
+
+  <div id="studentProjects" style="display: none;">
+    <!-- <h1>Student Projects</h1> -->
+    <p>Here are the projects you are participating in:</p>
+    <div id="studentProjectList"></div>
+    <h1>Wage History</h1>
+    <p>Here are your wage history in this project:</p>
+    <div id="wageHistoryList"></div>
+  </div>
+  
+  <div id="teacherProjects" style="display: none;">
+    <!-- <h1>Teacher Projects</h1> -->
+    <p>Here are the projects you are managing:</p>
+    <div id="teacherProjectList"></div>
+    <h1>Project Participant Details</h1>
+    <p>Here are the project's participant details:</p>
+    <div id="projectDetails"></div>
+  </div>
+
+  <script src="access.js"></script>
+</body>
+</html>
