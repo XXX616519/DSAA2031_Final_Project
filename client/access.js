@@ -312,7 +312,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     // 点击Participants detail按钮后，显示学生详情
     function fetchProjectDetails(projectId) {
     let currentYear = new Date().getFullYear(); // 获取当前年份
-    let currentMonth = new Date().toISOString().slice(0, 7); // 获取当前月份（格式：YYYY-MM）
+    let currentMonth = new Date().getMonth() + 1; // 获取当前月份（格式：YYYY-MM）
 
     const projectDetailsDiv = document.getElementById('projectDetails');
     projectDetailsDiv.innerHTML = ''; // 清空内容
@@ -332,10 +332,10 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
         <select id="monthSelect">
             ${[...Array(12)].map((_, i) => {
                 const month = (i + 1).toString().padStart(2, '0');
-                return `<option value="${month}" ${month === currentMonth.slice(5) ? 'selected' : ''}>${month}</option>`;
+                return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
             }).join('')}
         </select>
-        <button class="button" id="confirmButton" style="margin-left: 10px;">Confirm</button>
+        <button class="button" id="confirmButton1" style="margin-left: 10px;">Confirm</button>
     `;
     projectDetailsDiv.appendChild(dateNav);
 
@@ -345,10 +345,18 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     projectDetailsDiv.appendChild(resultDiv);
 
     // 添加事件监听器到 Confirm 按钮
-    document.getElementById('confirmButton').addEventListener('click', () => {
-        const selectedYear = document.getElementById('yearSelect').value;
-        const selectedMonth = document.getElementById('monthSelect').value;
-        const yearMonth = `${selectedYear}-${selectedMonth}`;
+    document.getElementById('confirmButton1').addEventListener('click', () => {
+        const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
+        const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
+
+        // 检查是否选择了未来的年月
+        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+            alert('Error: You cannot select a future date.');
+            return; // 阻止后续操作
+        }
+
+        // 格式化年月为 YYYY-MM
+        const yearMonth = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
 
         // 调用后端 API 获取数据
         fetch(`http://localhost:3000/api/project-student-details/${projectId}?yearMonth=${yearMonth}`)
@@ -423,7 +431,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                                     if (data.success) {
                                         alert('Student information updated successfully!');
                                         // 重新加载学生信息
-                                        document.getElementById('confirmButton').click();
+                                        document.getElementById('confirmButton1').click();
                                     } else {
                                         alert('Failed to update student information: ' + data.message);
                                     }
@@ -445,7 +453,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     // 点击Wage payment按钮后，显示工资支付情况
     function fetchWagePaymentSituation(projectId) {
     let currentYear = new Date().getFullYear(); // 获取当前年份
-    let currentMonth = new Date().toISOString().slice(0, 7); // 获取当前月份（格式：YYYY-MM）
+    let currentMonth = new Date().getMonth() + 1; // 获取当前月份（格式：YYYY-MM）
     
 
     const WagePaymentDetailsDiv = document.getElementById('WagePaymentDetails');
@@ -466,10 +474,10 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
         <select id="monthSelect">
             ${[...Array(12)].map((_, i) => {
                 const month = (i + 1).toString().padStart(2, '0');
-                return `<option value="${month}" ${month === currentMonth.slice(5) ? 'selected' : ''}>${month}</option>`;
+                return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
             }).join('')}
         </select>
-        <button class="button" id="confirmButton" style="margin-left: 10px;">Confirm</button>
+        <button class="button" id="confirmButton2" style="margin-left: 10px;">Confirm</button>
     `;
     WagePaymentDetailsDiv.appendChild(dateNav);
 
@@ -480,17 +488,24 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     
 
             
-        const confirmButton = document.getElementById('confirmButton');
-        if (!confirmButton) {
+        const confirmButton2 = document.getElementById('confirmButton2');
+        if (!confirmButton2) {
             console.error('Confirm button not found in DOM.');
             return;
         }
 
-        confirmButton.addEventListener('click', () => {
-            const selectedYear = document.getElementById('yearSelect').value;
-            const selectedMonth = document.getElementById('monthSelect').value;
-            
-            const yearMonth = `${selectedYear}-${selectedMonth}`;
+        confirmButton2.addEventListener('click', () => {
+        const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
+        const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
+
+        // 检查是否选择了未来的年月
+        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+            alert('Error: You cannot select a future date.');
+            return; // 阻止后续操作
+        }
+
+        // 格式化年月为 YYYY-MM
+        const yearMonth = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
 
             const apiUrl = `http://localhost:3000/api/wage-payment-status/${projectId}?yearMonth=${yearMonth}`;
             console.log('API URL:', apiUrl);
@@ -533,7 +548,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                                                     if (updateData.success) {
                                                         alert('Payment status updated to "Paied" successfully!');
                                                         // 重新加载页面
-                                                        document.getElementById('confirmButton').click();
+                                                        document.getElementById('confirmButton2').click();
                                                     } else {
                                                         alert('Failed to update payment status: ' + updateData.message);
                                                     }
