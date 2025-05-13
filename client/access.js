@@ -10,11 +10,13 @@ const teacherProjects = document.getElementById('teacherProjects');
 
 const userInfoDiv = document.getElementById('userInfo');
 
+adminProjects.style.display = 'none';
+studentProjects.style.display = 'none';
+teacherProjects.style.display = 'none';
+
 
 if (role == 2) {
   adminProjects.style.display = 'block';
-  studentProjects.style.display = 'none';
-  teacherProjects.style.display = 'none';
   // 管理员登录，显示管理员信息
   userInfoDiv.textContent = `Logged in as Admin: ID ${userId}`;
   // 获取项目数据，并显示到页面中
@@ -269,8 +271,6 @@ if (role == 2) {
   fetchProjects();
 }
 else if (role == 1) {
-  adminProjects.style.display = 'none';
-  studentProjects.style.display = 'none';
   teacherProjects.style.display = 'block';
   // 教师登录，显示教师信息
   userInfoDiv.textContent = `Logged in as Teacher: ${userName} (ID: ${userId})`;
@@ -567,10 +567,8 @@ else if (role == 1) {
   }
 }
 else if (role == 0) {
-  // 学生登录，显示学生信息
-  adminProjects.style.display = 'none';
   studentProjects.style.display = 'block';
-  teacherProjects.style.display = 'none';
+  // 学生登录，显示学生信息
   userInfoDiv.textContent = `Logged in as Student: ${userName} (ID: ${userId})`;
 
   // 学生使用的function:
