@@ -312,7 +312,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     // 点击Participants detail按钮后，显示学生详情
     function fetchProjectDetails(projectId) {
     let currentYear = new Date().getFullYear(); // 获取当前年份
-    let currentMonth = new Date().toISOString().slice(0, 7); // 获取当前月份（格式：YYYY-MM）
+    let currentMonth = new Date().getMonth() + 1; // 获取当前月份（格式：YYYY-MM）
 
     const projectDetailsDiv = document.getElementById('projectDetails');
     projectDetailsDiv.innerHTML = ''; // 清空内容
@@ -332,7 +332,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
         <select id="monthSelect">
             ${[...Array(12)].map((_, i) => {
                 const month = (i + 1).toString().padStart(2, '0');
-                return `<option value="${month}" ${month === currentMonth.slice(5) ? 'selected' : ''}>${month}</option>`;
+                return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
             }).join('')}
         </select>
         <button class="button" id="confirmButton1" style="margin-left: 10px;">Confirm</button>
@@ -346,9 +346,17 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
 
     // 添加事件监听器到 Confirm 按钮
     document.getElementById('confirmButton1').addEventListener('click', () => {
-        const selectedYear = document.getElementById('yearSelect').value;
-        const selectedMonth = document.getElementById('monthSelect').value;
-        const yearMonth = `${selectedYear}-${selectedMonth}`;
+        const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
+        const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
+
+        // 检查是否选择了未来的年月
+        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+            alert('Error: You cannot select a future date.');
+            return; // 阻止后续操作
+        }
+
+        // 格式化年月为 YYYY-MM
+        const yearMonth = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
 
         // 调用后端 API 获取数据
         fetch(`http://localhost:3000/api/project-student-details/${projectId}?yearMonth=${yearMonth}`)
@@ -445,7 +453,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     // 点击Wage payment按钮后，显示工资支付情况
     function fetchWagePaymentSituation(projectId) {
     let currentYear = new Date().getFullYear(); // 获取当前年份
-    let currentMonth = new Date().toISOString().slice(0, 7); // 获取当前月份（格式：YYYY-MM）
+    let currentMonth = new Date().getMonth() + 1; // 获取当前月份（格式：YYYY-MM）
     
 
     const WagePaymentDetailsDiv = document.getElementById('WagePaymentDetails');
@@ -466,7 +474,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
         <select id="monthSelect">
             ${[...Array(12)].map((_, i) => {
                 const month = (i + 1).toString().padStart(2, '0');
-                return `<option value="${month}" ${month === currentMonth.slice(5) ? 'selected' : ''}>${month}</option>`;
+                return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
             }).join('')}
         </select>
         <button class="button" id="confirmButton2" style="margin-left: 10px;">Confirm</button>
@@ -487,10 +495,17 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
         }
 
         confirmButton2.addEventListener('click', () => {
-            const selectedYear = document.getElementById('yearSelect').value;
-            const selectedMonth = document.getElementById('monthSelect').value;
-            
-            const yearMonth = `${selectedYear}-${selectedMonth}`;
+        const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
+        const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
+
+        // 检查是否选择了未来的年月
+        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+            alert('Error: You cannot select a future date.');
+            return; // 阻止后续操作
+        }
+
+        // 格式化年月为 YYYY-MM
+        const yearMonth = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
 
             const apiUrl = `http://localhost:3000/api/wage-payment-status/${projectId}?yearMonth=${yearMonth}`;
             console.log('API URL:', apiUrl);
