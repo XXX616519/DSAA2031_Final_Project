@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ProjectService = require('../services/projectService');
+const ROLENAME = ['students', 'teachers', 'admins'];
 
 router.get('/projects', async (req, res) => {
   try {
