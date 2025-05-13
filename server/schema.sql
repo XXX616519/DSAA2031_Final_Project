@@ -1,18 +1,18 @@
 -- 用户表
 CREATE TABLE students (
-  student_id VARCHAR(10) PRIMARY KEY,
+  id VARCHAR(10) PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
   password VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE teachers (
-  teacher_id VARCHAR(10) PRIMARY KEY,
+  id VARCHAR(10) PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
   password VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE admins (
-  admin_id VARCHAR(10) PRIMARY KEY,
+  id VARCHAR(10) PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
   password VARCHAR(100) NOT NULL
 );

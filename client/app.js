@@ -1,7 +1,7 @@
 // 该文件是前端的主要 JavaScript 文件，负责处理登录逻辑和与后端的交互
 
 // 合法身份名称
-const ROLENAME = ['students', 'teachers', 'admins'];
+const ROLENAME = ['student', 'teacher', 'admin'];
 
 
 // 学生登录相关控件
