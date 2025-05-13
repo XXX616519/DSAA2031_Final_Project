@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('..config/db'); // 假设你有一个数据库连接模块
+const pool = require('../config/db'); // 假设你有一个数据库连接模块
 
 // 新增表：年度报告表（用于存储年报数据）
 
