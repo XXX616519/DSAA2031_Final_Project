@@ -256,50 +256,74 @@ let uploadWorkingHoursApproval = [
 
 
 
-// 统一登录接口，根据 role 判断验证哪一类用户
-app.post('/api/login', (req, res) => {
-  const { role } = req.body;
+// // 统一登录接口，根据 role 判断验证哪一类用户
+// app.post('/api/login', (req, res) => {
+//   const { role } = req.body;
 
-  if (role === 'student') {
-    const { studentId, studentName, studentPassword } = req.body;
-    const student = allowedStudents.find(s =>
-      s.studentId === studentId &&
-      s.studentName === studentName &&
-      s.studentPassword === studentPassword
-    );
-    if (student) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  } else if (role === 'teacher') {
-    const { teacherId, teacherName, teacherPassword } = req.body;
-    const teacher = allowedTeachers.find(t =>
-      t.teacherId === teacherId &&
-      t.teacherName === teacherName &&
-      t.teacherPassword === teacherPassword
-    );
-    if (teacher) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
-  } else if (role === 'admin') {
-    const { adminId, adminName, adminPassword } = req.body;
-    const admin = allowedAdmins.find(a =>
-      a.adminId === adminId &&
-      a.adminName === adminName &&
-      a.adminPassword === adminPassword
-    );
-    if (admin) {
-      res.json({ success: true });
-    } else {
-      res.status(401).json({ success: false, message: "Invalid credentials" });
-    }
+//   if (role === 0) {
+//     const { studentId, studentName, studentPassword } = req.body;
+//     const student = allowedStudents.find(s =>
+//       s.studentId === studentId &&
+//       s.studentName === studentName &&
+//       s.studentPassword === studentPassword
+//     );
+//     if (student) {
+//       res.json({ success: true });
+//     } else {
+//       res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+//   } else if (role === 1) {
+//     const { teacherId, teacherName, teacherPassword } = req.body;
+//     const teacher = allowedTeachers.find(t =>
+//       t.teacherId === teacherId &&
+//       t.teacherName === teacherName &&
+//       t.teacherPassword === teacherPassword
+//     );
+//     if (teacher) {
+//       res.json({ success: true });
+//     } else {
+//       res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+//   } else if (role === 2) {
+//     const { id, password } = req.body;
+//     const admin = allowedAdmins.find(a =>
+//       a.adminId === id &&
+//       a.adminPassword === password
+//     );
+//     console.log("admin", admin);
+//     console.log("adminId", id);
+//     console.log("adminPassword", password);
+//     console.log("allowedAdmins", allowedAdmins);
+//     if (admin) {
+//       res.json({ success: true });
+//     } else {
+//       res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+//   } else {
+//     res.status(400).json({ success: false, message: "Unknown role" });
+//   }
+// });
+app.post('/api/login', (req, res) => {
+  const { role, id, password } = req.body;
+
+  let user;
+  if (role === 0) {
+    user = allowedStudents.find(student => student.studentId === id && student.studentPassword === password);
+  } else if (role === 1) {
+    user = allowedTeachers.find(teacher => teacher.teacherId === id && teacher.teacherPassword === password);
+  } else if (role === 2) {
+    user = allowedAdmins.find(admin => admin.adminId === id && admin.adminPassword === password);
+  }
+
+  if (user) {
+    res.json({ success: true, name: user.studentName || user.teacherName || "Admin" });
   } else {
-    res.status(400).json({ success: false, message: "Unknown role" });
+    res.status(401).json({ success: false, message: "Invalid credentials" });
   }
 });
+
+
+
 //管理员端口
 // 修改 GET /api/projects 接口，返回每个项目时，将 participants 映射为“ID (姓名)”的形式
 app.get('/api/projects', (req, res) => {
