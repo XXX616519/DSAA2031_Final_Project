@@ -335,7 +335,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                 return `<option value="${month}" ${month === currentMonth.slice(5) ? 'selected' : ''}>${month}</option>`;
             }).join('')}
         </select>
-        <button class="button" id="confirmButton" style="margin-left: 10px;">Confirm</button>
+        <button class="button" id="confirmButton1" style="margin-left: 10px;">Confirm</button>
     `;
     projectDetailsDiv.appendChild(dateNav);
 
@@ -345,7 +345,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     projectDetailsDiv.appendChild(resultDiv);
 
     // 添加事件监听器到 Confirm 按钮
-    document.getElementById('confirmButton').addEventListener('click', () => {
+    document.getElementById('confirmButton1').addEventListener('click', () => {
         const selectedYear = document.getElementById('yearSelect').value;
         const selectedMonth = document.getElementById('monthSelect').value;
         const yearMonth = `${selectedYear}-${selectedMonth}`;
@@ -423,7 +423,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                                     if (data.success) {
                                         alert('Student information updated successfully!');
                                         // 重新加载学生信息
-                                        document.getElementById('confirmButton').click();
+                                        document.getElementById('confirmButton1').click();
                                     } else {
                                         alert('Failed to update student information: ' + data.message);
                                     }
@@ -469,7 +469,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                 return `<option value="${month}" ${month === currentMonth.slice(5) ? 'selected' : ''}>${month}</option>`;
             }).join('')}
         </select>
-        <button class="button" id="confirmButton" style="margin-left: 10px;">Confirm</button>
+        <button class="button" id="confirmButton2" style="margin-left: 10px;">Confirm</button>
     `;
     WagePaymentDetailsDiv.appendChild(dateNav);
 
@@ -480,13 +480,13 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
     
 
             
-        const confirmButton = document.getElementById('confirmButton');
-        if (!confirmButton) {
+        const confirmButton2 = document.getElementById('confirmButton2');
+        if (!confirmButton2) {
             console.error('Confirm button not found in DOM.');
             return;
         }
 
-        confirmButton.addEventListener('click', () => {
+        confirmButton2.addEventListener('click', () => {
             const selectedYear = document.getElementById('yearSelect').value;
             const selectedMonth = document.getElementById('monthSelect').value;
             
@@ -533,7 +533,7 @@ document.getElementById('showAnnualReportBtn').addEventListener('click', () => {
                                                     if (updateData.success) {
                                                         alert('Payment status updated to "Paied" successfully!');
                                                         // 重新加载页面
-                                                        document.getElementById('confirmButton').click();
+                                                        document.getElementById('confirmButton2').click();
                                                     } else {
                                                         alert('Failed to update payment status: ' + updateData.message);
                                                     }
