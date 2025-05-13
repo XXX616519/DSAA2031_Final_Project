@@ -19,7 +19,7 @@ CREATE TABLE admins (
 
 -- 项目表
 CREATE TABLE projects (
-  project_id VARCHAR(10) PRIMARY KEY,
+  id VARCHAR(10) PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
   -- x系数
@@ -27,9 +27,10 @@ CREATE TABLE projects (
   hour_payment DECIMAL(10,2), -- admin决定
   budget DECIMAL(15,2), -- admin决定
   balance DECIMAL(15,2) DEFAULT 0.00, -- 自动计算
-  leading_teacher_id VARCHAR(10),
+  tid VARCHAR(10),
   start_date DATE,
-  FOREIGN KEY (leading_teacher_id) REFERENCES teachers(teacher_id),
+  FOREIGN KEY (tid) REFERENCES teachers(id),
+  CHECK (x_coefficient > 0),
   CHECK (hour_payment > 0),
   CHECK (budget > 0).
   CHECK (balance >= 0)
@@ -45,15 +46,15 @@ CREATE TABLE project_participants (
 );
 
 -- 工时提交历史表
-CREATE TABLE wage_history (
-  -- id INT AUTO_INCREMENT PRIMARY KEY,
-  student_id VARCHAR(10),
-  project_id VARCHAR(10),
+CREATE TABLE workload_declaration (
+  sid VARCHAR(10),
+  pid VARCHAR(10),
   date DATE NOT NULL,
-  hours_worked DECIMAL(5,2),
-  performance_score INT,
+  hours DECIMAL(5,2),
+  pscore INT,
   wage DECIMAL(10,2),
   status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAYED') DEFAULT 'PENDING',
+  PRIMARY KEY (student_id, project_id, date),
   FOREIGN KEY (student_id) REFERENCES students(student_id),
   FOREIGN KEY (project_id) REFERENCES projects(project_id)
 );
@@ -61,10 +62,24 @@ CREATE TABLE wage_history (
 -- 工资发放历史
 CREATE TABLE wage_payments (
   -- id INT AUTO_INCREMENT PRIMARY KEY,
-  student_id VARCHAR(10),
-  project_id VARCHAR(10),
+  sid VARCHAR(10),
+  pid VARCHAR(10),
   date DATE NOT NULL,
-  amount DECIMAL(10,2),
+  hours DECIMAL(5,2),
+  pscore INT,
+  hourp DECIMAL(10,2),
+  prate DECIMAL(10,2),
   FOREIGN KEY (student_id) REFERENCES students(student_id),
   FOREIGN KEY (project_id) REFERENCES projects(project_id)
+);
+
+-- 年报表
+CREATE TABLE annual_reports(
+  year INT NOT NULL,
+  studentId VARCHAR(10),
+  studentName VARCHAR(50),
+  totalWage DECIMAL(15, 2),
+  averageScore DECIMAL(5, 2),
+  PRIMARY KEY(year, studentId),
+  FOREIGN KEY(studentId) REFERENCES students(id)
 );
