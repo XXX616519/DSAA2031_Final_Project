@@ -37,7 +37,8 @@ router.get('/projects', async (req, res) => {
       SELECT p.id AS projectId, p.name AS projectName, p.description, p.hour_payment AS hourPayment, 
              p.budget, p.balance, p.x_coefficient AS performanceRatio, p.start_date AS startDate, 
              t.name AS leadingProfessor, 
-             GROUP_CONCAT(CONCAT(s.id, ' (', s.name, ')') SEPARATOR ', ') AS participants
+             GROUP_CONCAT(CONCAT(s.id, ' (', s.name, ')') SEPARATOR ', ') AS participants,
+             GROUP_CONCAT(s.id SEPARATOR ',') AS participantIds
       FROM projects p
       LEFT JOIN project_participants pp ON p.id = pp.pid
       LEFT JOIN students s ON pp.sid = s.id
@@ -79,7 +80,14 @@ router.put('/projects/:projectId', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Database error", error });
+    switch (error.errno) {
+      case 1062:
+        return res.status(400).json({ success: false, message: "Duplicate participants!" });
+      case 1452:
+        return res.status(400).json({ success: false, message: "Please ensure the students exist!" });
+      default:
+        return res.status(500).json({ success: false, message: "Database error", error });
+    }
   }
 });
 

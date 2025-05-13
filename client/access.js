@@ -45,6 +45,7 @@ if (role == 2) {
             <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
             <p><strong>Balance:</strong> <span id="hp-${project.balance}">${project.balance}</span></p>
             <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
+            <p><strong>Participants:</strong> ${project.participants}</p>
           `;
 
             // 将编辑和删除按钮放到一个单独的动作容器中
@@ -64,6 +65,7 @@ if (role == 2) {
               <input type="number" id="editBd-${project.projectId}" placeholder="Balance" value="${project.balance}"><br>
               
               <label for="editPt-${project.projectId}">Participants:</label>
+              <input type="text" id="editPt-${project.projectId}" placeholder="Participants" value="${project.participantIds}"><br>
               
               <button onclick="updateProject('${project.projectId}')">Update</button>
             </div>
@@ -120,18 +122,18 @@ if (role == 2) {
       alert("Hour Payment must be a positive integer!");
       return;
     }
-    if (numPr <= 0 || !Number.isInteger(numPr)) {
-      alert("Performance Ratio must be a positive integer!");
+    if (numPr < 0) {
+      alert("Performance Ratio must be a positive number!");
       return;
     }
-    if (numBd <= 0 || !Number.isInteger(numBd)) {
-      alert("Balance must be a positive integer!");
+    if (numBd < 0) {
+      alert("Balance must be non-negative!");
       return;
     }
-    const participantRegex = /^\S+\(\S+\)$/;
+    const participantRegex = /^\S+$/;
     for (let participant of newPt) {
       if (!participantRegex.test(participant)) {
-        alert("Input error: Each participant must be in the format 'ID(name)'.");
+        alert("Input error: Please input the participant IDs with seperator ','.");
         return;
       }
     }
@@ -274,21 +276,21 @@ else if (role == 1) {
   userInfoDiv.textContent = `Logged in as Teacher: ${userName} (ID: ${userId})`;
 
   function fetchTeacherProjects() {
-      // 获取教师ID从localStorage
-      const teacherId = localStorage.getItem('userId');
-      // 通过api/teacher-projects传入teacherId获取对应的教师项目数据
-      fetch(`http://localhost:3000/api/teacher-projects?teacherId=${teacherId}`)
-        .then(response => response.json())
-        .then(data => {
-          const teacherProjectList = document.getElementById('teacherProjectList');
-          teacherProjectList.innerHTML = ''; // 清空内容
-    
-          if (data.success && data.projects.length > 0) {
-            data.projects.forEach(project => {
-              const projectDiv = document.createElement('div');
-              projectDiv.className = 'project-box'; // 添加样式类
-    
-              projectDiv.innerHTML = `
+    // 获取教师ID从localStorage
+    const teacherId = localStorage.getItem('userId');
+    // 通过api/teacher-projects传入teacherId获取对应的教师项目数据
+    fetch(`http://localhost:3000/api/teacher-project/${teacherId}`)
+      .then(response => response.json())
+      .then(data => {
+        const teacherProjectList = document.getElementById('teacherProjectList');
+        teacherProjectList.innerHTML = ''; // 清空内容
+
+        if (data.success && data.projects.length > 0) {
+          data.projects.forEach(project => {
+            const projectDiv = document.createElement('div');
+            projectDiv.className = 'project-box'; // 添加样式类
+
+            projectDiv.innerHTML = `
                 <strong>Project ID:</strong> ${project.projectId}<br>
                 <strong>Name:</strong> ${project.projectName}<br>
                 <strong>Budget:</strong> $${project.budget}<br>
@@ -296,171 +298,171 @@ else if (role == 1) {
                 <button class="button" onclick="fetchProjectDetails('${project.projectId}')">View Details</button>
                 <button class=".button" style="margin-left: 10px;" onclick="fetchWagePaymentSituation('${project.projectId}')">Wage payment</button>
               `;
-    
-              teacherProjectList.appendChild(projectDiv);
-            });
-          } else {
-            teacherProjectList.textContent = "No projects found.";
-          }
-        })
-        .catch(error => console.error("Error fetching teacher projects:", error));
-}
-  
+
+            teacherProjectList.appendChild(projectDiv);
+          });
+        } else {
+          teacherProjectList.textContent = "No projects found.";
+        }
+      })
+      .catch(error => console.error("Error fetching teacher projects:", error));
+  }
+
   // 调用函数以获取教师项目数据并显示在页面上
   fetchTeacherProjects();
 
   // 创建日期导航区域，返回包含年份、月份选择与确认按钮的 DOM 节点
-function createDateNavigation(currentYear, currentMonth) {
+  function createDateNavigation(currentYear, currentMonth) {
     const dateNav = document.createElement('div');
     dateNav.style.marginBottom = '10px';
     dateNav.innerHTML = `
       <label for="yearSelect">Year:</label>
       <select id="yearSelect">
           ${[...Array(5)]
-            .map((_, i) => {
-              const year = currentYear - i;
-              return `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`;
-            })
-            .join('')}
+        .map((_, i) => {
+          const year = currentYear - i;
+          return `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`;
+        })
+        .join('')}
       </select>
       <label for="monthSelect">Month:</label>
       <select id="monthSelect">
           ${[...Array(12)]
-            .map((_, i) => {
-              const month = (i + 1).toString().padStart(2, '0');
-              return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
-            })
-            .join('')}
+        .map((_, i) => {
+          const month = (i + 1).toString().padStart(2, '0');
+          return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
+        })
+        .join('')}
       </select>
       <button class="button" id="confirmButton1" style="margin-left: 10px;">Confirm</button>
     `;
     return dateNav;
-}
-  
-// 根据学生数组构建结果区域
-function renderStudentDetails(students, projectId, resultDiv) {
+  }
+
+  // 根据学生数组构建结果区域
+  function renderStudentDetails(students, projectId, resultDiv) {
     resultDiv.innerHTML = ''; // 清空之前的内容
     if (students.length === 0) {
-        resultDiv.textContent = 'No records found for the selected criteria.';
-        return;
+      resultDiv.textContent = 'No records found for the selected criteria.';
+      return;
     }
     students.forEach(student => {
-    const entryDiv = document.createElement('div');
-    entryDiv.className = 'project-box';
-    entryDiv.innerHTML = `
+      const entryDiv = document.createElement('div');
+      entryDiv.className = 'project-box';
+      entryDiv.innerHTML = `
       <strong>Student ID:</strong> ${student.studentId}<br>
       <strong>Student Name:</strong> ${student.studentName}<br>
       <strong>Working Hours:</strong> ${student.workingHours !== null ? student.workingHours : 'Not Uploaded'}<br>
       <strong>Approval Status:</strong> ${student.approvalStatus === 0
-            ? 'Pending'
-            : student.approvalStatus === 1
-              ? 'Approved'
-              : student.approvalStatus === 2
-                ? 'Rejected'
-                : 'Not Available'}<br>
+          ? 'Pending'
+          : student.approvalStatus === 1
+            ? 'Approved'
+            : student.approvalStatus === 2
+              ? 'Rejected'
+              : 'Not Available'}<br>
       <strong>Performance Score:</strong> ${student.performanceScore !== null ? student.performanceScore : 'Not Assigned'}<br>
       <button class="button" id="edit-${student.studentId}">Edit</button>
       <div id="editDiv-${student.studentId}" style="display: none; margin-top: 10px;">
           <label for="performanceScore-${student.studentId}">Performance Score:</label>
           <input type="number" id="performanceScore-${student.studentId}" value="${student.performanceScore || ''}" min="0" placeholder="Enter score"><br>
           <label for="date-${student.studentId}">Date:</label>
-          <input type="date" id="date-${student.studentId}" value="${new Date().toISOString().slice(0,10)}"><br>
+          <input type="date" id="date-${student.studentId}" value="${new Date().toISOString().slice(0, 10)}"><br>
           <button class="button" id="update-${student.studentId}" style="margin-top: 10px;">Update</button>
       </div>
     `;
-    resultDiv.appendChild(entryDiv);
+      resultDiv.appendChild(entryDiv);
 
-    // 切换编辑区域显示
-    document.getElementById(`edit-${student.studentId}`).addEventListener('click', () => {
+      // 切换编辑区域显示
+      document.getElementById(`edit-${student.studentId}`).addEventListener('click', () => {
         const editDiv = document.getElementById(`editDiv-${student.studentId}`);
         editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
-    });
+      });
 
-    // 更新学生信息
-    document.getElementById(`update-${student.studentId}`).addEventListener('click', () => {
+      // 更新学生信息
+      document.getElementById(`update-${student.studentId}`).addEventListener('click', () => {
         const performanceScore = document.getElementById(`performanceScore-${student.studentId}`).value;
         const date = document.getElementById(`date-${student.studentId}`).value;
-     
+
         if (performanceScore === '' || performanceScore <= 0 || isNaN(performanceScore)) {
-            alert('Performance Score must be a positive integer.');
-            return;
+          alert('Performance Score must be a positive integer.');
+          return;
         }
         if (!date) {
-            alert('Please select a valid date.');
-            return;
+          alert('Please select a valid date.');
+          return;
         }
-     
+
         fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                performanceScore: Number(performanceScore),
-                date: date
-            })
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            performanceScore: Number(performanceScore),
+            date: date
+          })
         })
           .then(response => response.json())
           .then(data => {
-              if (data.success) {
-                  alert('Student information updated successfully!');
-                  // 重新触发查询，刷新学生信息
-                  document.getElementById('confirmButton1').click();
-              } else {
-                  alert('Failed to update student information: ' + data.message);
-              }
+            if (data.success) {
+              alert('Student information updated successfully!');
+              // 重新触发查询，刷新学生信息
+              document.getElementById('confirmButton1').click();
+            } else {
+              alert('Failed to update student information: ' + data.message);
+            }
           })
           .catch(error => console.error('Error updating student information:', error));
+      });
     });
-});
-}
-  
-// 给确认按钮添加点击事件，校验选择并获取学生数据
-function attachConfirmHandler(projectId, currentYear, currentMonth, resultDiv) {
+  }
+
+  // 给确认按钮添加点击事件，校验选择并获取学生数据
+  function attachConfirmHandler(projectId, currentYear, currentMonth, resultDiv) {
     const confirmButton = document.getElementById('confirmButton1');
     confirmButton.addEventListener('click', () => {
-        const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
-        const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
-  
-        // 校验不能选择未来日期
-        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
-            alert('Error: You cannot select a future date.');
-            return;
-        }
-  
-        const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-  
-        // 调用后端 API 获取对应年月的学生详情
-        fetch(`http://localhost:3000/api/project-student-details/${projectId}?month=${month}`)
-          .then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  renderStudentDetails(data.students, projectId, resultDiv);
-              } else {
-                  alert('Failed to fetch data: ' + data.message);
-              }
-          })
-          .catch(error => console.error('Error fetching project student details:', error));
+      const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
+      const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
+
+      // 校验不能选择未来日期
+      if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+        alert('Error: You cannot select a future date.');
+        return;
+      }
+
+      const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+
+      // 调用后端 API 获取对应年月的学生详情
+      fetch(`http://localhost:3000/api/project-student-details/${projectId}?month=${month}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            renderStudentDetails(data.students, projectId, resultDiv);
+          } else {
+            alert('Failed to fetch data: ' + data.message);
+          }
+        })
+        .catch(error => console.error('Error fetching project student details:', error));
     });
-}
-  
-// 主入口函数，构建整体页面结构并初始化事件绑定
-function fetchProjectDetails(projectId) {
+  }
+
+  // 主入口函数，构建整体页面结构并初始化事件绑定
+  function fetchProjectDetails(projectId) {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
     const projectDetailsDiv = document.getElementById('projectDetails');
     projectDetailsDiv.innerHTML = ''; // 清空原有内容
-  
+
     // 创建并添加日期导航模块
     const dateNav = createDateNavigation(currentYear, currentMonth);
     projectDetailsDiv.appendChild(dateNav);
-  
+
     // 添加显示结果的占位符
     const resultDiv = document.createElement('div');
     resultDiv.id = 'resultDiv';
     projectDetailsDiv.appendChild(resultDiv);
-  
+
     // 给确认按钮绑定处理函数
     attachConfirmHandler(projectId, currentYear, currentMonth, resultDiv);
-}
+  }
 
   // 点击Wage payment按钮后，显示工资支付情况
   function fetchWagePaymentSituation(projectId) {
