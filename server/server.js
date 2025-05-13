@@ -1,8 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const adminRoutes = require('./routes/admin');
-const studentRoutes = require('./routes/student');
-const teacherRoutes = require('./routes/teacher');
 require('dotenv').config();
 const pool = require('./config/db');
 
@@ -13,9 +10,9 @@ app.use(cors());
 app.use(express.json());
 
 // 路由配置
-app.use('/api', adminRoutes);
-app.use('/api', studentRoutes);
-app.use('/api', teacherRoutes);
+app.use('/api', require('./routes/admin'));
+app.use('/api', require('./routes/student'));
+app.use('/api', require('./routes/teacher'));
 app.use('/api', require('./routes/login'));
 
 // 数据库连接检查
