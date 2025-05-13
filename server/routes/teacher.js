@@ -5,8 +5,11 @@ const pool = require('../config/db');
 // 教师项目数据接口
 // API: 返回教师管理的项目
 router.get('/teacher-projects', async (req, res) => {
+  const { teacherId } = req.query;
   try {
     const [rows] = await pool.query('SELECT * FROM projects WHERE tid = ?', [teacherId]);
+    console.log(rows);
+    console.log('teacherId:', teacherId);
     res.json({ success: true, projects: rows });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

@@ -1,5 +1,6 @@
 // 从 localStorage 获取用户信息
 const userId = localStorage.getItem('userId');
+const userName = localStorage.getItem('userName');
 const role = localStorage.getItem('role');
 
 // 获取各个身份的内容容器
