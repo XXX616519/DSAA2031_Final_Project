@@ -44,7 +44,6 @@ if (role == 2) {
             <p><strong>Performance Ratio:</strong> <span id="hp-${project.performanceRatio}">${project.performanceRatio}</span></p>
             <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
             <p><strong>Balance:</strong> <span id="hp-${project.balance}">${project.balance}</span></p>
-            <p><strong>Participants:</strong> <span id="pt-${project.projectId}">${project.participants.join(', ')}</span></p>
             <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
           `;
 
@@ -65,7 +64,6 @@ if (role == 2) {
               <input type="number" id="editBd-${project.projectId}" placeholder="Balance" value="${project.balance}"><br>
               
               <label for="editPt-${project.projectId}">Participants:</label>
-              <input type="text" id="editPt-${project.projectId}" placeholder="Participants (comma separated)" value="${project.participants.join(', ')}"><br>
               
               <button onclick="updateProject('${project.projectId}')">Update</button>
             </div>

@@ -13,9 +13,10 @@ app.use(cors());
 app.use(express.json());
 
 // 路由配置
-app.use('/api/admin', adminRoutes);
-app.use('/api/student', studentRoutes);
-app.use('/api/teacher', teacherRoutes);
+app.use('/api', adminRoutes);
+app.use('/api', studentRoutes);
+app.use('/api', teacherRoutes);
+app.use('/api', require('./routes/login'));
 
 // 数据库连接检查
 app.get('/health', async (req, res) => {

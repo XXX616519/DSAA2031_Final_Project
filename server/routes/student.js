@@ -31,7 +31,7 @@ router.get('/projects/:studentId', async (req, res) => {
 });
 
 // API: 获取学生的项目详情
-router.get('/api/student-projects/:sid', async (req, res) => {
+router.get('/student-projects/:sid', async (req, res) => {
   const { sid } = req.params;
 
   const [projects] = await pool.query(`
@@ -55,7 +55,7 @@ router.get('/api/student-projects/:sid', async (req, res) => {
 });
 
 // API: 获取学生的 monthly wage history
-router.get('/api/student-wage-history/:projectId', async (req, res) => {
+router.get('/student-wage-history/:projectId', async (req, res) => {
   const { projectId } = req.params;
   try {
     const [wageHistory] = await pool.query(`
@@ -82,7 +82,7 @@ router.get('/api/student-wage-history/:projectId', async (req, res) => {
 });
 
 // API: 获取学生的工作时长记录
-router.get('/api/student-working-hours/:studentId', async (req, res) => {
+router.get('/student-working-hours/:studentId', async (req, res) => {
   const { studentId } = req.params;
 
   try {
@@ -110,7 +110,7 @@ router.get('/api/student-working-hours/:studentId', async (req, res) => {
 });
 
 // API: 上传工作时长（学生端）
-router.post('/api/upload-working-hours', async (req, res) => {
+router.post('/upload-working-hours', async (req, res) => {
   const { pid, sid, hours, date } = req.body;
 
   if (!pid || !sid || !hours || !date) {
