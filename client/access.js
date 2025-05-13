@@ -11,7 +11,7 @@ const teacherProjects = document.getElementById('teacherProjects');
 const userInfoDiv = document.getElementById('userInfo');
 
 
-if (role === 'admin') {
+if (role == 2) {
   adminProjects.style.display = 'block';
   studentProjects.style.display = 'none';
   teacherProjects.style.display = 'none';
@@ -268,7 +268,7 @@ if (role === 'admin') {
   // 初始化加载项目数据
   fetchProjects();
 }
-else if (role === 'teacher') {
+else if (role == 1) {
   adminProjects.style.display = 'none';
   studentProjects.style.display = 'none';
   teacherProjects.style.display = 'block';
@@ -566,7 +566,7 @@ else if (role === 'teacher') {
     });
   }
 }
-else if (role === 'student') {
+else if (role == 0) {
   // 学生登录，显示学生信息
   adminProjects.style.display = 'none';
   studentProjects.style.display = 'block';

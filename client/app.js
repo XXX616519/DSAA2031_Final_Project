@@ -44,8 +44,8 @@ const containers = [
 // 登录按钮事件处理函数
 function handleLogin(role) {
   return async () => {
-    const id = document.getElementById(`${role}Id`).value;
-    const password = document.getElementById(`${role}Password`).value;
+    const id = document.getElementById(`${ROLENAME[role]}Id`).value;
+    const password = document.getElementById(`${ROLENAME[role]}Password`).value;
     const payload = { role, id, password };
     const responseContainer = containers[role];
 
@@ -70,7 +70,7 @@ function handleLogin(role) {
           // 保存登录信息到 localStorage
           localStorage.setItem('userId', id);
           localStorage.setItem('userName', data.name);
-          localStorage.setItem('role', ROLENAME[role]);
+          localStorage.setItem('role', role);
           // 跳转到个人信息页面
           window.location.href = 'personal.html';
         }
