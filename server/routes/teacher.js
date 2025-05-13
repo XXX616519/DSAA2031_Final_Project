@@ -8,7 +8,21 @@ router.get('/teacher-projects/:teacherId', async (req, res) => {
   console.log("Fetching projects for teacher:", req.params.teacherId);
   const { teacherId } = req.params;
   try {
-    const [rows] = await pool.query('SELECT * FROM projects WHERE tid = ?', [teacherId]);
+    const [rows] = await pool.query(
+      `
+      SELECT 
+      p.id AS projectId, 
+      p.name AS projectName, 
+      p.budget, 
+      GROUP_CONCAT(CONCAT(s.id, ' (', s.name, ')') SEPARATOR ', ') AS participants
+      FROM projects p
+      LEFT JOIN project_participants pp ON p.id = pp.pid
+      LEFT JOIN students s ON pp.sid = s.id
+      WHERE p.tid = ?
+      GROUP BY p.id
+      `,
+      [teacherId]
+    );
     console.log(rows);
     console.log('teacherId:', teacherId);
     res.json({ success: true, projects: rows });
