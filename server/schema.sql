@@ -32,7 +32,7 @@ CREATE TABLE projects (
   FOREIGN KEY (tid) REFERENCES teachers(id),
   CHECK (x_coefficient > 0),
   CHECK (hour_payment > 0),
-  CHECK (budget > 0).
+  CHECK (budget > 0),
   CHECK (balance >= 0)
 );
 
@@ -41,7 +41,7 @@ CREATE TABLE project_participants (
   pid VARCHAR(10) NOT NULL,
   sid VARCHAR(10) NOT NULL,
   PRIMARY KEY (pid, sid),
-  FOREIGN KEY (pid) REFERENCES projects(project_id),
+  FOREIGN KEY (pid) REFERENCES projects(id),
   FOREIGN KEY (sid) REFERENCES students(id)
 );
 
@@ -54,9 +54,9 @@ CREATE TABLE workload_declaration (
   pscore INT,
   wage DECIMAL(10,2),
   status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAYED') DEFAULT 'PENDING',
-  PRIMARY KEY (student_id, project_id, date),
-  FOREIGN KEY (student_id) REFERENCES students(student_id),
-  FOREIGN KEY (project_id) REFERENCES projects(project_id)
+  PRIMARY KEY (sid, pid, date),
+  FOREIGN KEY (sid) REFERENCES students(id),
+  FOREIGN KEY (pid) REFERENCES projects(id)
 );
 
 -- 工资发放历史
@@ -69,8 +69,8 @@ CREATE TABLE wage_payments (
   pscore INT,
   hourp DECIMAL(10,2),
   prate DECIMAL(10,2),
-  FOREIGN KEY (student_id) REFERENCES students(student_id),
-  FOREIGN KEY (project_id) REFERENCES projects(project_id)
+  FOREIGN KEY (sid) REFERENCES students(id),
+  FOREIGN KEY (pid) REFERENCES projects(id)
 );
 
 -- 年报表

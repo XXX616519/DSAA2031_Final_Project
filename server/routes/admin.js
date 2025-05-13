@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('..config/db'); // 假设你有一个数据库连接模块
+const pool = require('../config/db'); // 假设你有一个数据库连接模块
 
 // 新增表：年度报告表（用于存储年报数据）
 
 
 // 新增 API: 获取年度报告数据（基于SQL查询）
-router.get('/api/annual-report', async (req, res) => {
+router.get('/annual-report', async (req, res) => {
   const { year } = req.query;
   if (!year) {
     return res.status(400).json({ success: false, message: "Missing year parameter" });
@@ -30,8 +30,8 @@ router.get('/api/annual-report', async (req, res) => {
   }
 });
 
-// 修改 GET /api/projects 接口，返回每个项目时，将 participants 映射为“ID (姓名)”的形式
-router.get('/api/projects', async (req, res) => {
+// 修改 GET /projects 接口，返回每个项目时，将 participants 映射为“ID (姓名)”的形式
+router.get('/projects', async (req, res) => {
   try {
     const [projects] = await pool.query(`
       SELECT p.id AS projectId, p.name AS projectName, p.description, p.hour_payment AS hourPayment, 
@@ -44,6 +44,7 @@ router.get('/api/projects', async (req, res) => {
       LEFT JOIN teachers t ON p.tid = t.id
       GROUP BY p.id
     `);
+    console.log("Projects fetched successfully:", projects);
 
     res.json({ success: true, projects });
   } catch (error) {
@@ -52,7 +53,7 @@ router.get('/api/projects', async (req, res) => {
 });
 
 // API: 更新指定项目（仅允许修改 hourPayment, participants, performanceRatio, budget）
-router.put('/api/projects/:projectId', async (req, res) => {
+router.put('/projects/:projectId', async (req, res) => {
   const { projectId } = req.params;
   const { hourPayment, participants, budget, performanceRatio } = req.body;
 
@@ -83,7 +84,7 @@ router.put('/api/projects/:projectId', async (req, res) => {
 });
 
 // API: 添加新项目
-router.post('/api/projects', async (req, res) => {
+router.post('/projects', async (req, res) => {
   const { projectId, projectName, description, hourPayment, performanceRatio, budget, participants, leadingProfessor } = req.body;
 
   if (!projectId || !projectName) {
@@ -118,7 +119,7 @@ router.post('/api/projects', async (req, res) => {
 });
 
 // API: 删除指定项目
-router.delete('/api/projects/:projectId', async (req, res) => {
+router.delete('/projects/:projectId', async (req, res) => {
   const { projectId } = req.params;
 
   try {

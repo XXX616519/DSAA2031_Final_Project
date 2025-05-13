@@ -4,9 +4,7 @@ const pool = require('../config/db');
 
 // 教师项目数据接口
 // API: 返回教师管理的项目
-router.get('/api/teacher-projects', async (req, res) => {
-  // Use teacherId from query if available, otherwise use req.user.id
-  const teacherId = req.query.teacherId || (req.user && req.user.id);
+router.get('/teacher-projects', async (req, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM projects WHERE tid = ?', [teacherId]);
     res.json({ success: true, projects: rows });
@@ -16,7 +14,7 @@ router.get('/api/teacher-projects', async (req, res) => {
 });
 
 // API: 获取指定项目的学生信息及 performance score（按月份筛选）
-router.get('/api/project-students/:projectId', async (req, res) => {
+router.get('/project-students/:projectId', async (req, res) => {
   const { projectId } = req.params;
   const { month } = req.query; // 从查询参数中获取月份（格式：YYYY-MM）
 
@@ -39,7 +37,7 @@ router.get('/api/project-students/:projectId', async (req, res) => {
 });
 
 // API: 更新学生的 performance score
-router.put('/api/project-students/:projectId/:studentId', async (req, res) => {
+router.put('/project-students/:projectId/:studentId', async (req, res) => {
   const { projectId, studentId } = req.params;
   const { performanceScore, date } = req.body;
 
@@ -60,7 +58,7 @@ router.put('/api/project-students/:projectId/:studentId', async (req, res) => {
 });
 
 // API: 老师获得指定项目的学生工作时长及审核状态
-router.get('/api/project-working-hours/:projectId', async (req, res) => {
+router.get('/project-working-hours/:projectId', async (req, res) => {
   const { projectId } = req.params;
 
   try {
@@ -82,7 +80,7 @@ router.get('/api/project-working-hours/:projectId', async (req, res) => {
 
 // API: 教师审核学生的工作时长
 // PENDING: 未审核, APPROVED: 已批准, REJECTED: 已拒绝
-router.put('/api/project-working-hours/:projectId/:studentId', async (req, res) => {
+router.put('/project-working-hours/:projectId/:studentId', async (req, res) => {
   const { projectId, studentId } = req.params;
   const { status, date } = req.body;
 

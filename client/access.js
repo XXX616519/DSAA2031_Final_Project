@@ -9,11 +9,13 @@ const teacherProjects = document.getElementById('teacherProjects');
 
 const userInfoDiv = document.getElementById('userInfo');
 
+adminProjects.style.display = 'none';
+studentProjects.style.display = 'none';
+teacherProjects.style.display = 'none';
+
 
 if (role == 2) {
   adminProjects.style.display = 'block';
-  studentProjects.style.display = 'none';
-  teacherProjects.style.display = 'none';
   // 管理员登录，显示管理员信息
   userInfoDiv.textContent = `Logged in as Admin: ID ${userId}`;
   // 获取项目数据，并显示到页面中
@@ -41,7 +43,6 @@ if (role == 2) {
             <p><strong>Performance Ratio:</strong> <span id="hp-${project.performanceRatio}">${project.performanceRatio}</span></p>
             <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
             <p><strong>Balance:</strong> <span id="hp-${project.balance}">${project.balance}</span></p>
-            <p><strong>Participants:</strong> <span id="pt-${project.projectId}">${project.participants.join(', ')}</span></p>
             <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
           `;
 
@@ -62,7 +63,6 @@ if (role == 2) {
               <input type="number" id="editBd-${project.projectId}" placeholder="Balance" value="${project.balance}"><br>
               
               <label for="editPt-${project.projectId}">Participants:</label>
-              <input type="text" id="editPt-${project.projectId}" placeholder="Participants (comma separated)" value="${project.participants.join(', ')}"><br>
               
               <button onclick="updateProject('${project.projectId}')">Update</button>
             </div>
@@ -268,8 +268,6 @@ if (role == 2) {
   fetchProjects();
 }
 else if (role == 1) {
-  adminProjects.style.display = 'none';
-  studentProjects.style.display = 'none';
   teacherProjects.style.display = 'block';
   // 教师登录，显示教师信息
   userInfoDiv.textContent = `Logged in as Teacher: ${userName} (ID: ${userId})`;
@@ -581,10 +579,8 @@ function fetchProjectDetails(projectId) {
   }
 }
 else if (role == 0) {
-  // 学生登录，显示学生信息
-  adminProjects.style.display = 'none';
   studentProjects.style.display = 'block';
-  teacherProjects.style.display = 'none';
+  // 学生登录，显示学生信息
   userInfoDiv.textContent = `Logged in as Student: ${userName} (ID: ${userId})`;
 
   // 学生使用的function:
