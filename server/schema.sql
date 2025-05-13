@@ -37,11 +37,11 @@ CREATE TABLE projects (
 
 -- 项目参与者关联表（学生）
 CREATE TABLE project_participants (
-  project_id VARCHAR(10),
-  user_id VARCHAR(10),
-  -- role ENUM('STUDENT', 'TEACHER') NOT NULL,
-  PRIMARY KEY (project_id, user_id),
-  FOREIGN KEY (project_id) REFERENCES projects(project_id)
+  pid VARCHAR(10) NOT NULL,
+  sid VARCHAR(10) NOT NULL,
+  PRIMARY KEY (pid, sid),
+  FOREIGN KEY (pid) REFERENCES projects(project_id),
+  FOREIGN KEY (sid) REFERENCES students(id)
 );
 
 -- 工时提交历史表
