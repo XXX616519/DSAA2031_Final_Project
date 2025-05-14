@@ -105,13 +105,12 @@ SELECT
   p.id,
   s.id
 FROM projects p
-CROSS JOIN (
-  SELECT 
-    id,
-    ROW_NUMBER() OVER (ORDER BY RAND()) AS rn 
-  FROM students
-) s
-WHERE s.rn <= 5 + FLOOR(RAND() * 11)  -- 生成5-15个随机学生
+JOIN students s ON s.id = CONCAT('S', LPAD(1 + FLOOR(RAND() * 100), 3, '0'))
+WHERE (
+  SELECT COUNT(*) 
+  FROM project_participants pp 
+  WHERE pp.sid = s.id
+) < 2
   AND NOT EXISTS (
     SELECT 1 
     FROM project_participants pp 

@@ -96,5 +96,26 @@ router.put('/project-students/:status', async (req, res) => {
   }
 });
 
+// API: 获取该项目的工资发放情况
+router.get('/wage-paid-condition/:projectId', async (req, res) => {
+  const {projectId} = req.params;
+  const {month} = req.query; // 从查询参数中获取月份（格式：YYYY-MM）
+  try {
+    const [wages] = await pool.query(
+      `
+      SELECT wd.sid AS studentId, s.name AS studentName, wd.date AS uploadDate,
+      wd.status AS approvalStatus, wd.hours AS workingHours
+      FROM workload_declaration wd
+      JOIN students s ON wd.sid = s.id
+      WHERE wd.pid = ? AND (? IS NULL OR DATE_FORMAT(wd.date, '%Y-%m') = ?) AND wd.status = 'APPROVED'
+      `,
+      [projectId, month, month]
+    );
+
+    res.json({ success: true, wages });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
 module.exports = router;

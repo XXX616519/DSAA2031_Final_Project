@@ -69,6 +69,25 @@ CREATE TABLE workload_declaration (
   UNIQUE KEY uk_pending (sid, pending_flag)
 );
 
+DELIMITER //
+
+CREATE TRIGGER enforce_single_pending
+BEFORE INSERT ON workload_declaration
+FOR EACH ROW
+BEGIN
+    IF NEW.status = 'PENDING' THEN
+        IF EXISTS (
+            SELECT 1 FROM workload_declaration 
+            WHERE sid = NEW.sid AND status = 'PENDING'
+        ) THEN
+            SIGNAL SQLSTATE '45000' 
+            SET MESSAGE_TEXT = '每个学生只能有一条PENDING记录';
+        END IF;
+    END IF;
+END//
+
+DELIMITER ;
+
 -- 工资发放历史
 CREATE TABLE wage_payments (
   sid VARCHAR(10),

@@ -118,7 +118,7 @@ if (role == 2) {
     const numBd = Number(newBd);
 
     // 验证所有数字输入必须为正数
-    if (numHp <= 0 ) {
+    if (numHp <= 0) {
       alert("Hour Payment must be a positive number!");
       return;
     }
@@ -173,15 +173,15 @@ if (role == 2) {
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
 
     // 验证所有数字输入必须为正数
-    if (hourPayment <= 0 ) {
+    if (hourPayment <= 0) {
       alert("Hour Payment must be a positive number!");
       return;
     }
-    if (performanceRatio <= 0 ) {
+    if (performanceRatio <= 0) {
       alert("Performance Ratio must be a positive number!");
       return;
     }
-    if (budget <= 0 ) {
+    if (budget <= 0) {
       alert("Budget must be a positive number!");
       return;
     }
@@ -505,124 +505,81 @@ else if (role == 1) {
     attachConfirmHandler(projectId, currentYear, currentMonth, resultDiv);
   }
 
+  function renderWagePaymentDetails(wagehistory, projectId, resultDiv) {
+    resultDiv.innerHTML = ''; // 清空之前的内容
+    if (wagehistory.length === 0) {
+      resultDiv.textContent = 'No records found for the selected criteria.';
+      return;
+    }
+    wagehistory.forEach(wage => {
+      const entryDiv = document.createElement('div');
+      const date = new Date(wage.declarationDate).toISOString().slice(0, 10);
+      entryDiv.className = 'project-box';
+      entryDiv.innerHTML = `
+      <strong>Student ID:</strong> ${wage.studentId}<br>
+      <strong>Student Name:</strong> ${wage.studentName}<br>
+      <strong>Declared Hours:</strong> ${wage.declaredHours}<br>
+      <strong>Performance Score:</strong> ${wage.performanceScore}<br>
+      <strong>Wage Amount:</strong> $${wage.wageAmount}<br>
+      <strong>Status:</strong> ${wage.declarationStatus}<br>
+        `;
+      resultDiv.appendChild(entryDiv);
+    });
+  }
+  
+  function attachConfirmHandler_wage(projectId, currentYear, currentMonth, resultDiv) {
+    const confirmButton = document.getElementById('confirmButton1');
+    confirmButton.addEventListener('click', () => {
+      const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
+      const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
+      // 校验不能选择未来日期
+      if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+        alert('Error: You cannot select a future date.');
+        return;
+      }
+
+      const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+
+      console.log(month);
+      // 调用后端 API 获取对应年月的工资支付情况
+      fetch(`http://localhost:3000/api/wage-paid-condition/${projectId}?yearMonth=${month}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log('get');
+          if (data.success) {
+            const wageHistory = data.wageHistory;
+            renderWagePaymentDetails(wageHistory, projectId, resultDiv);
+          } else {
+            alert('Failed to fetch data: ' + data.message);
+          }
+        })
+        .catch(error => console.error('Error fetching wage payment details:', error));
+    });
+  }
+
   // 点击Wage payment按钮后，显示工资支付情况
   function fetchWagePaymentSituation(projectId) {
     let currentYear = new Date().getFullYear(); // 获取当前年份
     let currentMonth = new Date().getMonth() + 1; // 获取当前月份（格式：YYYY-MM）
-    displayMgr.toggleWage(projectId); // 切换工资支付区域的显示状态
     const WagePaymentDetailsDiv = document.getElementById('WagePaymentDetails');
+    displayMgr.toggleWage(projectId); // 切换工资支付区域的显示状态
     WagePaymentDetailsDiv.innerHTML = `
     <h1>Wage Payment</h1>
     <p>Here are Project ${projectId} wage payment situation:</p>
     `;
 
-    // 创建日期导航
-    const dateNav = document.createElement('div');
-    dateNav.style.marginBottom = '10px';
-    dateNav.innerHTML = `
-      <label for="yearSelect">Year:</label>
-      <select id="yearSelect">
-          ${[...Array(5)].map((_, i) => {
-      const year = currentYear - i;
-      return `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`;
-    }).join('')}
-      </select>
-      <label for="monthSelect">Month:</label>
-      <select id="monthSelect">
-          ${[...Array(12)].map((_, i) => {
-      const month = (i + 1).toString().padStart(2, '0');
-      return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
-    }).join('')}
-      </select>
-      <button class="button" id="confirmButton2" style="margin-left: 10px;">Confirm</button>
-  `;
+    // 创建并添加日期导航模块
+    const dateNav = createDateNavigation(currentYear, currentMonth);
     WagePaymentDetailsDiv.appendChild(dateNav);
 
-    // 创建一个占位符，后续用于显示筛选结果
+    // 添加显示结果的占位符
     const resultDiv = document.createElement('div');
     resultDiv.id = 'resultDiv';
     WagePaymentDetailsDiv.appendChild(resultDiv);
 
-
-
-    const confirmButton2 = document.getElementById('confirmButton2');
-    if (!confirmButton2) {
-      console.error('Confirm button not found in DOM.');
-      return;
-    }
-
-    confirmButton2.addEventListener('click', () => {
-      const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
-      const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
-
-      // 检查是否选择了未来的年月
-      if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
-        alert('Error: You cannot select a future date.');
-        return; // 阻止后续操作
-      }
-
-      // 格式化年月为 YYYY-MM
-      const yearMonth = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-
-      const apiUrl = `http://localhost:3000/api/wage-payment-status/${projectId}?yearMonth=${yearMonth}`;
-      console.log('API URL:', apiUrl);
-
-      // 调用后端 API 获取工资发放状态
-      fetch(apiUrl)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            // 更新页面显示结果
-            resultDiv.innerHTML = ''; // 清空之前的内容
-
-            if (data.status.length > 0) {
-              data.status.forEach(entry => {
-                const entryDiv = document.createElement('div');
-                entryDiv.className = 'project-box'; // 添加样式类
-                entryDiv.innerHTML = `
-                                  <strong>Student ID:</strong> ${entry.studentId}<br>
-                                  <strong>Payment Status:</strong> ${entry.paymentStatus}<br>
-                                  <button class="button" id="paiedButton-${entry.studentId}" style="margin-top: 5px;" ${entry.paymentStatus === 'Paied' ? 'disabled style="background-color: gray;"' : ''
-                  }>
-                                      ${entry.paymentStatus === 'Paied' ? 'Paied' : 'Mark as Paied'}
-                                  </button>
-                              `;
-                resultDiv.appendChild(entryDiv);
-
-                // 如果状态为 "Unpaid"，添加点击事件
-                if (entry.paymentStatus === 'Unpaid') {
-                  document
-                    .getElementById(`paiedButton-${entry.studentId}`)
-                    .addEventListener('click', () => {
-                      // 调用后端 API 更新工资状态
-                      fetch(`http://localhost:3000/api/mark-wage-paied/${projectId}/${entry.studentId}?yearMonth=${yearMonth}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                      })
-                        .then(response => response.json())
-                        .then(updateData => {
-                          if (updateData.success) {
-                            alert('Payment status updated to "Paied" successfully!');
-                            // 重新加载页面
-                            document.getElementById('confirmButton2').click();
-                          } else {
-                            alert('Failed to update payment status: ' + updateData.message);
-                          }
-                        })
-                        .catch(error => console.error('Error updating payment status:', error));
-                    });
-                }
-              });
-            } else {
-              resultDiv.textContent = 'No payment records found for the selected criteria.';
-            }
-          } else {
-            alert('Failed to fetch wage payment status: ' + data.message);
-          }
-        })
-        .catch(error => console.error('Error fetching wage payment status:', error));
-    });
+    attachConfirmHandler_wage(projectId, currentYear, currentMonth, resultDiv);
   }
+
 }
 else if (role == 0) {
   studentProjects.style.display = 'block';
@@ -654,16 +611,19 @@ else if (role == 0) {
       })
       .catch(error => console.error("Error uploading working hours:", error));
   }
-
   // 获取学生项目数据并显示在页面上
   function fetchStudentProjects() {
-    fetch('http://localhost:3000/api/student-projects')
+    // 获取学生ID从localStorage
+    const studentId = localStorage.getItem('userId');
+
+    // 通过api/student-projects传入studentId获取对应的学生项目数据
+    fetch(`http://localhost:3000/api/student-projects/${studentId}`)
       .then(response => response.json())
       .then(data => {
         const studentProjectList = document.getElementById('studentProjectList');
         studentProjectList.innerHTML = '';
         if (data.success && data.projects.length > 0) {
-          fetch(`http://localhost:3000/api/student-working-hours/${userId}`)
+          fetch(`http://localhost:3000/api/student-working-hours/${studentId}`)
             .then(response => response.json())
             .then(hoursData => {
               const submittedHours = hoursData.success ? hoursData.workingHours : [];
@@ -696,7 +656,7 @@ else if (role == 0) {
                     const yearMonth = new Date().toISOString().slice(0, 7); // 获取当前年月，格式为 YYYY-MM
 
                     // 调用 API 获取本月最新的工作时长记录
-                    fetch(`http://localhost:3000/api/student-working-hours/${userId}?yearMonth=${yearMonth}`)
+                    fetch(`http://localhost:3000/api/student-working-hours/${studentId}?yearMonth=${yearMonth}`)
                       .then(response => response.json())
                       .then(data => {
                         if (data.success && data.workingHours.length > 0) {
@@ -754,7 +714,7 @@ else if (role == 0) {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                   projectId: project.projectId,
-                                  studentId: userId,
+                                  studentId: studentId,
                                   workingHours: Number(newWorkingHours),
                                   yearMonth: newUploadDate
                                 })
@@ -810,7 +770,7 @@ else if (role == 0) {
                           const yearMonth = `${selectedYear}-${selectedMonth}`;
                           const resultDiv = document.getElementById(`resultDiv-${project.projectId}`);
 
-                          fetch(`http://localhost:3000/api/student-working-hours/${userId}?yearMonth=${yearMonth}`)
+                          fetch(`http://localhost:3000/api/student-working-hours/${studentId}?yearMonth=${yearMonth}`)
                             .then(response => response.json())
                             .then(data => {
                               if (data.success) {
