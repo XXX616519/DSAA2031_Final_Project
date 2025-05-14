@@ -114,6 +114,7 @@ router.post('/declare-working-hours', async (req, res) => {
   const { pid, sid, hours, date } = req.body;
 
   if (!pid || !sid || !hours || !date) {
+    console.error("Missing required fields:", { pid, sid, hours, date });
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
 
