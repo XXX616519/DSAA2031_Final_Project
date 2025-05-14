@@ -1,3 +1,7 @@
+DROP DATABASE IF EXISTS payroll;
+CREATE DATABASE payroll;
+USE payroll;
+
 -- 用户表
 CREATE TABLE students (
   id VARCHAR(10) PRIMARY KEY,
@@ -22,7 +26,6 @@ CREATE TABLE projects (
   id VARCHAR(10) PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
-  -- x系数
   x_coefficient DECIMAL(5,2) DEFAULT 1.0, -- 教授决定
   hour_payment DECIMAL(10,2), -- admin决定
   budget DECIMAL(15,2), -- admin决定
@@ -70,7 +73,7 @@ CREATE TABLE wage_payments (
   hourp DECIMAL(10,2),
   prate DECIMAL(10,2),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL,
 );
 
 -- 年报表
