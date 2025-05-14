@@ -96,7 +96,7 @@ router.put('/project-students/:status', async (req, res) => {
   }
 });
 
-// API: 获取该项目的工资发放情况
+// API: 获取该项目的待发放工资
 router.get('/wage-paid-condition/:projectId', async (req, res) => {
   const {projectId} = req.params;
   const {month} = req.query; // 从查询参数中获取月份（格式：YYYY-MM）
@@ -125,7 +125,7 @@ router.put('/wage-paid', async (req, res) => {
     await pool.query(
       `
       UPDATE workload_declaration
-      SET status = 'PAYED'
+      SET status = 'PAIED', wage = (SELECT p.hour_payment * w.hours+w.pscore*p.x_coefficient FROM workload_declaration w, projects p WHERE w.pid = p.id )
       WHERE status='APPROVED' AND sid = ? AND pid = ? AND date = ?
       `,
       [studentId, projectId, date]

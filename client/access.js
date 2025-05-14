@@ -349,8 +349,8 @@ else if (role == 1) {
     }
     students.forEach(student => {
       const entryDiv = document.createElement('div');
-      // const date = new Date(student.uploadDate).toDateString();
-      const date = student.uploadDate;
+      const date = new Date(student.uploadDate).toISOString().slice(0, 10);
+      // const date = student.uploadDate;
       entryDiv.className = 'project-box';
       entryDiv.innerHTML = `
       <strong>Student ID:</strong> ${student.studentId}<br>
@@ -369,6 +369,7 @@ else if (role == 1) {
       // Approve button listener
       document.getElementById(`approve-${student.studentId}`).addEventListener('click', () => {
         const performanceScore = document.getElementById(`performanceScore-${student.studentId}`).value;
+        // const date = new Date().toISOString().slice(0, 10); // 获取当前日期，格式为 YYYY-MM-DD
         if (performanceScore === '' || performanceScore < 0 || isNaN(performanceScore)) {
           alert('Performance Score must be a non-negative number.');
           return;
@@ -539,12 +540,13 @@ else if (role == 1) {
       const entryDiv = document.createElement('div');
       // const date = new Date(wage.declarationDate).toISOString().slice(0, 10);
       const date = wage.ApprovedDate;
+       console.log("wage:",wage);
       entryDiv.className = 'project-box';
       entryDiv.innerHTML = `
       <strong>Student ID:</strong> ${wage.studentId}<br>
       <strong>Declared Hours:</strong> ${wage.declaredHours}<br>
-      <strong>Performance Score:</strong> ${wage.performanceScore}<br>
-      <strong>Wage Amount:</strong> $${wage.wageAmount}<br>
+      <strong>Performance Score:</strong> ${wage.performance}<br>
+      <strong>Wage Amount:</strong> $${wage.wageAmount}<br
       <strong>Status:</strong> ${wage.wageStatus}<br>
       <button class="button" id="${wage.wageStatus === 'APPROVED' ? `pay-${wage.studentId}` : `paid-${wage.studentId}`}" 
         ${wage.wageStatus === 'APPROVED' ? `onclick="payWage('${wage.studentId}', '${projectId}', '${date}')">Pay` : `style="background-color: gray; cursor: not-allowed;" disabled>Paid`}
@@ -558,6 +560,7 @@ else if (role == 1) {
   function attachConfirmHandler_wage(projectId, currentYear, currentMonth, resultDiv) {
     const confirmButton = document.getElementById('confirmButton1');
     confirmButton.addEventListener('click', () => {
+      console.log('Confirm button clicked');
       const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
       const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
       // 校验不能选择未来日期
