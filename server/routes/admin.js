@@ -95,33 +95,46 @@ router.put('/projects/:projectId', async (req, res) => {
 router.post('/projects', async (req, res) => {
   const { projectId, projectName, description, hourPayment, performanceRatio, budget, participants, leadingProfessor } = req.body;
 
+  // 检查必要字段是否存在
   if (!projectId || !projectName) {
+    console.log("缺少必要字段: projectId 或 projectName");
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
 
   try {
+    // 检查项目ID是否已存在
     const [existingProject] = await pool.query(`SELECT id FROM projects WHERE id = ?`, [projectId]);
     if (existingProject.length > 0) {
+      console.log(`项目ID已存在: ${projectId}`);
       return res.status(400).json({ success: false, message: "Project ID already exists" });
     }
 
+    // 获取负责人教师的ID
     const [teacher] = await pool.query(`SELECT id FROM teachers WHERE name = ?`, [leadingProfessor]);
     const tid = teacher.length > 0 ? teacher[0].id : null;
+    console.log(`负责人教师ID: ${tid}`);
 
+    // 初始化项目余额为预算值
     const initialBalance = budget;
+
+    // 插入新项目数据
     await pool.query(
       `INSERT INTO projects (id, name, description, hour_payment, x_coefficient, budget, balance, tid, start_date) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
       [projectId, projectName, description, hourPayment, performanceRatio, budget, initialBalance, tid]
     );
+    console.log(`新项目已添加: ${projectId}, ${projectName}`);
 
+    // 如果有参与者，插入参与者数据
     if (participants && participants.length > 0) {
       const participantValues = participants.map(sid => [projectId, sid]);
       await pool.query(`INSERT INTO project_participants (pid, sid) VALUES ?`, [participantValues]);
+      console.log(`参与者已添加: ${participants}`);
     }
 
     res.json({ success: true });
   } catch (error) {
+    console.error("数据库错误:", error);
     res.status(500).json({ success: false, message: "Database error", error });
   }
 });
