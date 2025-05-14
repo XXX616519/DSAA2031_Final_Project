@@ -97,6 +97,7 @@ router.get('/student-working-hours/:studentId', async (req, res) => {
         wd.status AS approvalStatus 
       FROM workload_declaration wd
       WHERE wd.sid = ?
+      ORDER BY wd.date DESC
     `, [studentId]);
 
     if (workingHours.length > 0) {

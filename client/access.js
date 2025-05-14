@@ -653,7 +653,9 @@ else if (role == 0) {
           alert("Working hours uploaded successfully!");
           // 更新页面显示已提交的工作时长
           const submittedHoursDiv = document.getElementById(`submittedHours-${projectId}`);
-          submittedHoursDiv.textContent = `Submitted working hours for ${yearMonth}: ${workingHours}`;
+          console.log(submittedHoursDiv.projectId);
+          console.log(submittedHoursDiv);
+          submittedHoursDiv.textContent = `Submitted working hours for ${date}: ${workingHours}`;
         } else {
           alert("Failed to upload working hours: " + data.message);
         }
@@ -1007,26 +1009,21 @@ else if (role == 0) {
         .then(response => response.json())
         .then(data => {
           panel.innerHTML = '';
-
+          const { workingHours } = data;
           // 最新记录模块
           const latestSection = document.createElement('div');
           latestSection.className = 'record-section';
+          latestSection.id = `submittedHours-${workingHours[0]?.projectId}`;
           if (data.workingHours.length > 0) {
             const latest = data.workingHours.reduce((a, b) =>
               new Date(a.uploadDate) > new Date(b.uploadDate) ? a : b
             );
-            console.log(latest.approvalStatus);
+            console.log(latest);
             latestSection.innerHTML = `
                   <h4>Latest Submission</h4>
-                  <p>Date: ${latest.uploadDate}</p>
-                  <p>Hours: ${latest.workingHours}</p>
-                  <p>Status: ${getStatusBadge(latest.approvalStatus)}</p>
-                  ${latest.approvalStatus !== "PENDING" ?
-                `<button class="edit-trigger">Edit</button>
-                       <div class="edit-form" style="display:none">
-                           <input type="number" class="new-hours" placeholder="New hours">
-                           <button class="save-edit">Save</button>
-                       </div>` : ''}
+                  <p>Date: ${latest.workDate}</p>
+                  <p>Hours: ${latest.workHours}</p>
+                  <p>Status: ${latest.approvalStatus}</p>
               `;
           } else {
             latestSection.innerHTML = '<p>No submissions this month</p>';
@@ -1058,7 +1055,7 @@ else if (role == 0) {
           });
 
           panel.querySelector('.save-edit')?.addEventListener('click', handleSaveEdit);
-          panel.querySelector('.query-btn')?.addEventListener('click', handleHistoryQuery);
+          panel.querySelector('.query-btn')?.addEventListener('click', () => { console.log('test'); });
         });
     }
 
@@ -1112,14 +1109,6 @@ else if (role == 0) {
       ).join('');
     }
 
-    function getStatusBadge(status) {
-      const badges = {
-        0: '<span class="badge pending">Pending</span>',
-        1: '<span class="badge approved">Approved</span>',
-        2: '<span class="badge rejected">Rejected</span>'
-      };
-      return badges[status] || '';
-    }
 
     function getPaymentStatus(status) {
       return status === 1 ? 'Paid' : 'Pending';
