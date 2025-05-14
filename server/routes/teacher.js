@@ -103,10 +103,10 @@ router.get('/wage-paid-condition/:projectId', async (req, res) => {
   try {
     const [wages] = await pool.query(
       `
-      SELECT wd.sid AS studentId, wd.hours AS declaredHours, wd.pscore AS performance, wd.wage AS wageAmount, wd.status AS wageStatus, wd.date as ApprovedDate
+      SELECT wd.sid AS studentId, wd.hours AS declaredHours, wd.pscore AS performance, p.hour_payment * wd.hours+wd.pscore*p.x_coefficient AS wageAmount, wd.status AS wageStatus, wd.date as ApprovedDate
       FROM workload_declaration wd
-      JOIN students s ON wd.sid = s.id
-      WHERE wd.pid = ? AND (? IS NULL OR DATE_FORMAT(wd.date, '%Y-%m') = ?) AND wd.status = 'APPROVED'
+      JOIN students s ON wd.sid = s.id, projects p
+      WHERE p.id=wd.pid AND wd.pid = ? AND (? IS NULL OR DATE_FORMAT(wd.date, '%Y-%m') = ?) AND wd.status = 'APPROVED'
       `,
       [projectId, month, month]
     );
