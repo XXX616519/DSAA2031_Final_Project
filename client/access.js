@@ -444,12 +444,47 @@ else if (role == 1) {
     });
   }
 
+  const displayMgr = {
+    DISPLAY_STATUS: ['none', 'block'],
+    detailsStatus: 0,
+    wageStatus: 1,
+    last_id: null,
+    toggleDetails: function (id) {
+      if (this.last_id !== id) {
+        this.last_id = id;
+        this.detailsStatus = 1;
+      } else {
+        this.detailsStatus = 1 - this.detailsStatus;
+      }
+      this.wageStatus = 0; // 隐藏工资支付区域
+      this.resetDisplay();
+    },
+    toggleWage: function (id) {
+      if (this.last_id !== id) {
+        this.last_id = id;
+        this.wageStatus = 1;
+      } else {
+        this.wageStatus = 1 - this.wageStatus;
+      }
+      this.detailsStatus = 0; // 隐藏项目详情区域
+      this.resetDisplay();
+    },
+    resetDisplay: function () {
+      document.getElementById('WagePaymentDetails').style.display = this.DISPLAY_STATUS[this.wageStatus];
+      document.getElementById('projectDetails').style.display = this.DISPLAY_STATUS[this.detailsStatus];
+    }
+  };
+
   // 主入口函数，构建整体页面结构并初始化事件绑定
   function fetchProjectDetails(projectId) {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
     const projectDetailsDiv = document.getElementById('projectDetails');
-    projectDetailsDiv.innerHTML = ''; // 清空原有内容
+    displayMgr.toggleDetails(projectId); // 切换项目详情区域的显示状态
+    projectDetailsDiv.innerHTML = `
+    <h1>Project Participant Details</h1>
+    <p>Here are Project ${projectId} participant details:</p>
+    `; // 清空原有内容
 
     // 创建并添加日期导航模块
     const dateNav = createDateNavigation(currentYear, currentMonth);
@@ -468,10 +503,12 @@ else if (role == 1) {
   function fetchWagePaymentSituation(projectId) {
     let currentYear = new Date().getFullYear(); // 获取当前年份
     let currentMonth = new Date().getMonth() + 1; // 获取当前月份（格式：YYYY-MM）
-
-
+    displayMgr.toggleWage(projectId); // 切换工资支付区域的显示状态
     const WagePaymentDetailsDiv = document.getElementById('WagePaymentDetails');
-    WagePaymentDetailsDiv.innerHTML = ''; // 清空内容
+    WagePaymentDetailsDiv.innerHTML = `
+    <h1>Wage Payment</h1>
+    <p>Here are Project ${projectId} wage payment situation:</p>
+    `;
 
     // 创建日期导航
     const dateNav = document.createElement('div');
