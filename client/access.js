@@ -118,7 +118,7 @@ if (role == 2) {
     const numBd = Number(newBd);
 
     // 验证所有数字输入必须为正数
-    if (numHp <= 0 ) {
+    if (numHp <= 0) {
       alert("Hour Payment must be a positive number!");
       return;
     }
@@ -173,15 +173,15 @@ if (role == 2) {
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
 
     // 验证所有数字输入必须为正数
-    if (hourPayment <= 0 ) {
+    if (hourPayment <= 0) {
       alert("Hour Payment must be a positive number!");
       return;
     }
-    if (performanceRatio <= 0 ) {
+    if (performanceRatio <= 0) {
       alert("Performance Ratio must be a positive number!");
       return;
     }
-    if (budget <= 0 ) {
+    if (budget <= 0) {
       alert("Budget must be a positive number!");
       return;
     }
@@ -654,16 +654,19 @@ else if (role == 0) {
       })
       .catch(error => console.error("Error uploading working hours:", error));
   }
-
   // 获取学生项目数据并显示在页面上
   function fetchStudentProjects() {
-    fetch('http://localhost:3000/api/student-projects')
+    // 获取学生ID从localStorage
+    const studentId = localStorage.getItem('userId');
+
+    // 通过api/student-projects传入studentId获取对应的学生项目数据
+    fetch(`http://localhost:3000/api/student-projects/${studentId}`)
       .then(response => response.json())
       .then(data => {
         const studentProjectList = document.getElementById('studentProjectList');
         studentProjectList.innerHTML = '';
         if (data.success && data.projects.length > 0) {
-          fetch(`http://localhost:3000/api/student-working-hours/${userId}`)
+          fetch(`http://localhost:3000/api/student-working-hours/${studentId}`)
             .then(response => response.json())
             .then(hoursData => {
               const submittedHours = hoursData.success ? hoursData.workingHours : [];
@@ -696,7 +699,7 @@ else if (role == 0) {
                     const yearMonth = new Date().toISOString().slice(0, 7); // 获取当前年月，格式为 YYYY-MM
 
                     // 调用 API 获取本月最新的工作时长记录
-                    fetch(`http://localhost:3000/api/student-working-hours/${userId}?yearMonth=${yearMonth}`)
+                    fetch(`http://localhost:3000/api/student-working-hours/${studentId}?yearMonth=${yearMonth}`)
                       .then(response => response.json())
                       .then(data => {
                         if (data.success && data.workingHours.length > 0) {
@@ -754,7 +757,7 @@ else if (role == 0) {
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                   projectId: project.projectId,
-                                  studentId: userId,
+                                  studentId: studentId,
                                   workingHours: Number(newWorkingHours),
                                   yearMonth: newUploadDate
                                 })
@@ -810,7 +813,7 @@ else if (role == 0) {
                           const yearMonth = `${selectedYear}-${selectedMonth}`;
                           const resultDiv = document.getElementById(`resultDiv-${project.projectId}`);
 
-                          fetch(`http://localhost:3000/api/student-working-hours/${userId}?yearMonth=${yearMonth}`)
+                          fetch(`http://localhost:3000/api/student-working-hours/${studentId}?yearMonth=${yearMonth}`)
                             .then(response => response.json())
                             .then(data => {
                               if (data.success) {
