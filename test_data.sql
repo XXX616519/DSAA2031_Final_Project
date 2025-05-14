@@ -99,66 +99,24 @@ FROM (
   ) nums
 ) p;
 
--- 项目参与者分配（每个项目5-15名学生）
+-- 生成项目参与者（每个项目至少一个学生，每个学生最多参与两个项目）
 INSERT INTO project_participants (pid, sid)
 SELECT 
   p.id,
   s.id
 FROM projects p
-CROSS JOIN (
-  SELECT 
-    id,
-    ROW_NUMBER() OVER (ORDER BY RAND()) AS rn 
-  FROM students
-) s
-WHERE s.rn <= 5 + FLOOR(RAND() * 11)  -- 生成5-15个随机学生
-  AND NOT EXISTS (
-    SELECT 1 
-    FROM project_participants pp 
-    WHERE pp.pid = p.id 
-      AND pp.sid = s.id
-  );
-
--- 生成工时申报数据（2024-2025年）
-INSERT INTO workload_declaration (sid, pid, date, hours, pscore, wage, status)
-WITH RECURSIVE dates AS (
-  SELECT '2024-01-01' AS date
-  UNION ALL
-  SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates 
-  WHERE date < '2025-04-30'
+JOIN students s ON s.id = CONCAT('S', LPAD(1 + FLOOR(RAND() * 100), 3, '0'))
+WHERE (
+  SELECT COUNT(*) 
+  FROM project_participants pp 
+  WHERE pp.sid = s.id
+) < 2
+AND NOT EXISTS (
+  SELECT 1 
+  FROM project_participants pp 
+  WHERE pp.pid = p.id AND pp.sid = s.id
 )
-SELECT 
-  pp.sid,
-  pp.pid,
-  d.date,
-  ROUND(1 + RAND() * 8, 2), -- 1-9小时
-  CASE 
-    WHEN RAND() > 0.1 THEN 60 + FLOOR(RAND() * 40) -- 60-100分
-    ELSE NULL -- 10%概率未评分
-  END,
-  NULL, -- 初始wage为NULL
-  CASE 
-    WHEN d.date < DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY) THEN 
-      ELT(1 + FLOOR(RAND() * 4), 'PENDING', 'APPROVED', 'REJECTED', 'PAYED')
-    ELSE 'PENDING' -- 最近30天的记录保持PENDING
-  END
-FROM project_participants pp
-JOIN dates d ON 
-  d.date BETWEEN (SELECT start_date FROM projects WHERE id = pp.pid) AND '2025-04-30'
-WHERE 
-  DAYOFWEEK(d.date) BETWEEN 2 AND 6 -- 仅工作日
-  AND RAND() > 0.7 -- 70%概率不申报某天
-LIMIT 5000; -- 约5000条记录
-
--- 计算并更新已批准记录的工资
-UPDATE workload_declaration wd
-JOIN projects p ON wd.pid = p.id
-SET wd.wage = ROUND(wd.hours * p.hour_payment * 
-  CASE 
-    WHEN wd.pscore IS NULL THEN 1.0
-    ELSE p.x_coefficient * (wd.pscore / 100)
-  END, 2)
-WHERE wd.status IN ('APPROVED', 'PAYED');
+ORDER BY p.id, RAND();
 
 -- 生成工资发放记录（从已批准记录中复制）
 INSERT INTO wage_payments (sid, pid, date, hours, pscore, hourp, prate)
