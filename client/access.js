@@ -649,16 +649,19 @@ else if (role == 0) {
             <strong>Start Date:</strong> ${project.startDate}<br>
           `;
 
-            // 添加申报工作时长的输入框和按钮
+            // Check if there is a pending declaration for this project
+            const isPending = project.status === 'PENDING';
+
+            // Add declaration input and button
             const declareDiv = document.createElement('div');
             declareDiv.style.marginTop = '10px';
             declareDiv.innerHTML = `
             <label for="declareHours-${project.projectId}">Declare Working Hours:</label>
-            <input type="number" id="declareHours-${project.projectId}" placeholder="Enter hours">
-            <button onclick="declareWorkingHours('${project.projectId}')">Declare</button>
+            <input type="number" id="declareHours-${project.projectId}" placeholder="Enter hours" ${isPending ? 'disabled' : ''}>
+            <button onclick="declareWorkingHours('${project.projectId}')" ${isPending ? 'disabled' : ''}>Declare</button>
           `;
 
-            // 添加取消申报的按钮
+            // Add cancel button
             const cancelButton = document.createElement('button');
             cancelButton.textContent = 'Cancel Declaration';
             cancelButton.style.marginLeft = '10px';
