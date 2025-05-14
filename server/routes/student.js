@@ -166,4 +166,56 @@ router.post('/upload-working-hours', async (req, res) => {
   }
 });
 
-module.exports = router; 
+// API: 申报工作时长
+router.post('/declare-working-hours', async (req, res) => {
+  const { projectId, studentId, workingHours, yearMonth } = req.body;
+
+  if (!projectId || !studentId || !workingHours || !yearMonth) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  try {
+    // 检查是否有 PENDING 状态的申报
+    const [pendingEntry] = await pool.query(`
+      SELECT * FROM workload_declaration 
+      WHERE pid = ? AND sid = ? AND status = 'PENDING'
+    `, [projectId, studentId]);
+
+    if (pendingEntry.length > 0) {
+      return res.status(400).json({ success: false, message: "You have a pending declaration. Please cancel it first." });
+    }
+
+    // 插入新的申报记录
+    await pool.query(`
+      INSERT INTO workload_declaration (pid, sid, date, hours, status) 
+      VALUES (?, ?, ?, ?, 'PENDING')
+    `, [projectId, studentId, `${yearMonth}-01`, workingHours]);
+
+    res.json({ success: true, message: "Working hours declared successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// API: 取消申报工作时长
+router.delete('/cancel-working-hours/:projectId/:studentId', async (req, res) => {
+  const { projectId, studentId } = req.params;
+
+  try {
+    // 删除 PENDING 状态的申报记录
+    const [result] = await pool.query(`
+      DELETE FROM workload_declaration 
+      WHERE pid = ? AND sid = ? AND status = 'PENDING'
+    `, [projectId, studentId]);
+
+    if (result.affectedRows > 0) {
+      res.json({ success: true, message: "Working hours declaration canceled successfully" });
+    } else {
+      res.status(400).json({ success: false, message: "No pending declaration found to cancel." });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+module.exports = router;
