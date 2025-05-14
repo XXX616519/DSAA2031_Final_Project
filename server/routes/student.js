@@ -4,32 +4,6 @@ const pool = require('../config/db');
 
 
 // 学生项目数据接口
-// API: 获取学生的项目列表
-router.get('/projects/:studentId', async (req, res) => {
-  try {
-    const [projects] = await pool.query(`
-      SELECT 
-        p.id AS projectId, 
-        p.name AS projectName, 
-        p.description AS projectDescription, 
-        p.x_coefficient AS xCoefficient, 
-        p.hour_payment AS hourPayment, 
-        p.budget AS projectBudget, 
-        p.balance AS projectBalance, 
-        p.start_date AS startDate, 
-        wh.status AS wageStatus, 
-        wh.wage AS wageAmount 
-      FROM projects p
-      JOIN wage_history wh ON p.id = wh.projectId
-      WHERE wh.studentId = ?
-    `, [req.params.studentId]);
-
-    res.json({ success: true, projects });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
 // API: 获取学生的项目详情
 router.get('/student-projects/:sid', async (req, res) => {
   const { sid } = req.params;
@@ -40,7 +14,8 @@ router.get('/student-projects/:sid', async (req, res) => {
       p.name AS projectName, 
       p.description AS projectDescription, 
       p.start_date AS startDate, 
-      t.name AS teacherName 
+      t.name AS teacherName,
+      p.hour_payment AS hourlyPayment
     FROM project_participants pp
     JOIN projects p ON pp.pid = p.id
     JOIN teachers t ON p.tid = t.id
