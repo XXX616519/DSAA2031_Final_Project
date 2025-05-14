@@ -649,6 +649,7 @@ else if (role == 0) {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
+          fetchStudentProjects(); // 刷新项目列表
           alert("Working hours uploaded successfully!");
           // 更新页面显示已提交的工作时长
           const submittedHoursDiv = document.getElementById(`submittedHours-${projectId}`);
