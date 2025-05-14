@@ -355,15 +355,14 @@ else if (role == 1) {
       <strong>Working Hours:</strong> ${student.workingHours !== null ? student.workingHours : 'Not Uploaded'}<br>
       <strong>Upload Date:</strong> ${new Date(student.uploadDate).toISOString().slice(0, 10)}<br>
       <strong>Approval Status:</strong> ${student.approvalStatus}<br>
-      <strong>Performance Score:</strong> ${student.performanceScore !== null ? student.performanceScore : 'Not Assigned'}<br>
+      <div id="editDiv-${student.studentId}" style="margin-top: 10px;">
+      <label for="performanceScore-${student.studentId}">Performance Score:</label>
+      <input type="number" id="performanceScore-${student.studentId}" value="${student.performanceScore || ''}" min="0" placeholder="Enter score"><br>
+      </div>
       <button class="button" id="approve-${student.studentId}">Approve</button>
       <button class="button" id="reject-${student.studentId}" style="margin-left: 10px;">Reject</button>
-      <div id="editDiv-${student.studentId}" style="margin-top: 10px;">
-          <label for="performanceScore-${student.studentId}">Performance Score:</label>
-          <input type="number" id="performanceScore-${student.studentId}" value="${student.performanceScore || ''}" min="0" placeholder="Enter score"><br>
-      </div>
         `;
-
+      resultDiv.appendChild(entryDiv);
       // Approve button listener
       document.getElementById(`approve-${student.studentId}`).addEventListener('click', () => {
         const performanceScore = document.getElementById(`performanceScore-${student.studentId}`).value;
