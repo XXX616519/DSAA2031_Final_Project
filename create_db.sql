@@ -64,7 +64,6 @@ CREATE TABLE workload_declaration (
 
 -- 工资发放历史
 CREATE TABLE wage_payments (
-  -- id INT AUTO_INCREMENT PRIMARY KEY,
   sid VARCHAR(10),
   pid VARCHAR(10),
   date DATE NOT NULL,
