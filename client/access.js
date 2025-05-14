@@ -34,7 +34,6 @@ if (role == 2) {
             projectDiv.style.border = "1px solid #ddd";
             projectDiv.style.padding = "10px";
             projectDiv.style.marginBottom = "10px";
-
             // 将项目信息放到一个段落中
             const infoHTML = `
             <p><strong>Project ID:</strong> ${project.projectId}</p>
@@ -654,9 +653,6 @@ else if (role == 0) {
         if (data.success) {
           fetchStudentProjects(); // 刷新项目列表
           alert("Working hours uploaded successfully!");
-          // 更新页面显示已提交的工作时长
-          const submittedHoursDiv = document.getElementById(`submittedHours-${projectId}`);
-          submittedHoursDiv.textContent = `Submitted working hours for ${yearMonth}: ${workingHours}`;
         } else {
           alert("Failed to upload working hours: " + data.message);
         }
@@ -679,7 +675,7 @@ else if (role == 0) {
             .then(response => response.json())
             .then(hoursData => {
               const submittedHours = hoursData.success ? hoursData.workingHours : [];
-
+              console.log("submittedHours:", submittedHours);
               data.projects.forEach(project => {
                 const projectDiv = document.createElement('div');
                 projectDiv.className = 'project-box';
@@ -894,7 +890,6 @@ else if (role == 0) {
           studentProjectList.textContent = 'No projects found.';
           return;
         }
-
         // 获取工作时间数据
         return fetch(`http://localhost:3000/api/student-working-hours/${studentId}`)
           .then(response => response.json())
@@ -907,17 +902,17 @@ else if (role == 0) {
       })
       .then(({ projects, workingHours }) => {
         studentProjectList.innerHTML = '';
-        console.log(workingHours);
         projects.forEach(project => {
           // 创建项目容器
           const projectDiv = document.createElement('div');
+          console.log("project:", project);
           projectDiv.className = 'project-box';
           projectDiv.innerHTML = `
                     <strong>Project ID:</strong> ${project.projectId}<br>
                     <strong>Name:</strong> ${project.projectName}<br>
-                    <strong>Leading Professor:</strong> ${project.leadingProfessor}<br>
-                    <strong>Description:</strong> ${project.description}<br>
-                    <strong>Hourly Payment:</strong> $${project.hourPayment}<br>
+                    <strong>Leading Professor:</strong> ${project.teacherName}<br>
+                    <strong>Description:</strong> ${project.projectDescription}<br>
+                    <strong>Hourly Payment:</strong> $${project.hourlyPayment}<br>
                     <strong>Start Date:</strong> ${project.startDate}<br>
                 `;
 
@@ -1009,27 +1004,25 @@ else if (role == 0) {
       fetch(`http://localhost:3000/api/student-working-hours/${studentId}?yearMonth=${yearMonth}`)
         .then(response => response.json())
         .then(data => {
+          if (!data.success) {
+            panel.innerHTML = `<p>${data.message}</p>`;
+            return;
+          }
           panel.innerHTML = '';
-
+          const { workingHours } = data;
           // 最新记录模块
           const latestSection = document.createElement('div');
           latestSection.className = 'record-section';
-          if (data.workingHours.length > 0) {
+          if (workingHours.length > 0) {
             const latest = data.workingHours.reduce((a, b) =>
               new Date(a.uploadDate) > new Date(b.uploadDate) ? a : b
             );
-            console.log(latest.approvalStatus);
+            console.log(latest);
             latestSection.innerHTML = `
                   <h4>Latest Submission</h4>
-                  <p>Date: ${latest.uploadDate}</p>
-                  <p>Hours: ${latest.workingHours}</p>
-                  <p>Status: ${getStatusBadge(latest.approvalStatus)}</p>
-                  ${latest.approvalStatus !== "PENDING" ?
-                `<button class="edit-trigger">Edit</button>
-                       <div class="edit-form" style="display:none">
-                           <input type="number" class="new-hours" placeholder="New hours">
-                           <button class="save-edit">Save</button>
-                       </div>` : ''}
+                  <p>Date: ${latest.workDate}</p>
+                  <p>Hours: ${latest.workHours}</p>
+                  <p>Status: ${latest.approvalStatus}</p>
               `;
           } else {
             latestSection.innerHTML = '<p>No submissions this month</p>';
@@ -1061,7 +1054,7 @@ else if (role == 0) {
           });
 
           panel.querySelector('.save-edit')?.addEventListener('click', handleSaveEdit);
-          panel.querySelector('.query-btn')?.addEventListener('click', handleHistoryQuery);
+          panel.querySelector('.query-btn')?.addEventListener('click', () => { console.log('test'); });
         });
     }
 
@@ -1115,14 +1108,6 @@ else if (role == 0) {
       ).join('');
     }
 
-    function getStatusBadge(status) {
-      const badges = {
-        0: '<span class="badge pending">Pending</span>',
-        1: '<span class="badge approved">Approved</span>',
-        2: '<span class="badge rejected">Rejected</span>'
-      };
-      return badges[status] || '';
-    }
 
     function getPaymentStatus(status) {
       return status === 1 ? 'Paid' : 'Pending';
