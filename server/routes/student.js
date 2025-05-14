@@ -110,7 +110,7 @@ router.get('/student-working-hours/:studentId', async (req, res) => {
 });
 
 // API: 上传工作时长（学生端）
-router.post('/delcare-working-hours', async (req, res) => {
+router.post('/declare-working-hours', async (req, res) => {
   const { pid, sid, hours, date } = req.body;
 
   if (!pid || !sid || !hours || !date) {

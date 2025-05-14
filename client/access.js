@@ -615,27 +615,7 @@ else if (role == 0) {
   // ...existing code...
 
   // 学生使用的function:
-  // 申报工作时长的函数
-  function declareWorkingHours(projectId) {
-    const workingHours = document.getElementById(`declareHours-${projectId}`).value;
-    const yearMonth = new Date().toISOString().slice(0, 7); // 获取当前年月，格式为 YYYY-MM
-
-    fetch('http://localhost:3000/api/declare-working-hours', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId, studentId: userId, workingHours: Number(workingHours), yearMonth })
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert("Working hours declared successfully!");
-          fetchStudentProjects(); // 刷新项目列表
-        } else {
-          alert("Failed to declare working hours: " + data.message);
-        }
-      })
-      .catch(error => console.error("Error declaring working hours:", error));
-  }
+  
 
   // 取消申报工作时长的函数
   function cancelWorkingHours(projectId) {
@@ -658,13 +638,13 @@ else if (role == 0) {
   // 上传工作时间的函数，该函数会在点击“Upload”按钮时被调用
   function declareWorkingHours(projectId) {
     const workingHours = document.getElementById(`declareHours-${projectId}`).value;
-    const data= new Date();
+    const date= new Date().toLocaleDateString();
 
     // 通过api/upload-working-hours上传工作时间数据
-    fetch('http://localhost:3000/api/upload-working-hours', {
+    fetch('http://localhost:3000/api/declare-working-hours', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId, studentId: userId, workingHours: Number(workingHours), date }) // 传入所有参数
+      body: JSON.stringify({ pid:projectId,sid: userId, hours: Number(workingHours), date }) // 传入所有参数
     })
       .then(response => response.json())
       .then(data => {
