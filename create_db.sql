@@ -56,10 +56,17 @@ CREATE TABLE workload_declaration (
   hours DECIMAL(5,2),
   pscore INT,
   wage DECIMAL(10,2),
-  status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAYED') DEFAULT 'PENDING',
+  status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAID') DEFAULT 'PENDING',
+  pending_flag VARCHAR(3) AS (
+    CASE 
+      WHEN status = 'PENDING' THEN 'Yes'
+      ELSE NULL 
+    END
+  ) VIRTUAL,
   PRIMARY KEY (sid, pid, date),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE,
+  UNIQUE KEY uk_pending (sid, pending_flag)
 );
 
 -- 工资发放历史

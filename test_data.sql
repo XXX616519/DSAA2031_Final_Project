@@ -139,7 +139,7 @@ SELECT
   NULL, -- 初始wage为NULL
   CASE 
     WHEN d.date < DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY) THEN 
-      ELT(1 + FLOOR(RAND() * 4), 'PENDING', 'APPROVED', 'REJECTED', 'PAYED')
+      ELT(1 + FLOOR(RAND() * 4), 'PENDING', 'APPROVED', 'REJECTED', 'PAID')
     ELSE 'PENDING' -- 最近30天的记录保持PENDING
   END
 FROM project_participants pp
@@ -148,7 +148,8 @@ JOIN dates d ON
 WHERE 
   DAYOFWEEK(d.date) BETWEEN 2 AND 6 -- 仅工作日
   AND RAND() > 0.7 -- 70%概率不申报某天
-LIMIT 5000; -- 约5000条记录
+LIMIT 5000 -- 约5000条记录
+ON DUPLICATE KEY UPDATE status='REJECTED';
 
 -- 计算并更新已批准记录的工资
 UPDATE workload_declaration wd
@@ -158,7 +159,7 @@ SET wd.wage = ROUND(wd.hours * p.hour_payment *
     WHEN wd.pscore IS NULL THEN 1.0
     ELSE p.x_coefficient * (wd.pscore / 100)
   END, 2)
-WHERE wd.status IN ('APPROVED', 'PAYED');
+WHERE wd.status IN ('APPROVED', 'PAID');
 
 -- 生成工资发放记录（从已批准记录中复制）
 INSERT INTO wage_payments (sid, pid, date, hours, pscore, hourp, prate)
@@ -177,7 +178,7 @@ SELECT
   )
 FROM workload_declaration wd
 JOIN projects p ON wd.pid = p.id
-WHERE wd.status = 'PAYED';
+WHERE wd.status = 'PAID';
 
 -- 生成年度报表数据（2024年）
 INSERT INTO annual_reports (year, studentId, studentName, totalWage, averageScore)
