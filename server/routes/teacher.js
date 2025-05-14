@@ -62,7 +62,7 @@ router.put('/project-students/:status', async (req, res) => {
   const { projectId, studentId, date } = req.body;
   switch (status) {
     case 'approve':
-      const performanceScore = req.body;
+      const { performanceScore } = req.body;
       await pool.query(
         `
         UPDATE workload_declaration
