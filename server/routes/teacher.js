@@ -122,14 +122,27 @@ router.get('/wage-paid-condition/:projectId', async (req, res) => {
 router.put('/wage-paid', async (req, res) => {
   const { projectId, studentId, date } = req.body;
   try {
-    await pool.query(
-      `
-      UPDATE workload_declaration
-      SET status = 'PAIED', wage = (SELECT p.hour_payment * w.hours+w.pscore*p.x_coefficient FROM workload_declaration w, projects p WHERE w.pid = p.id )
-      WHERE status='APPROVED' AND sid = ? AND pid = ? AND date = ?
-      `,
-      [studentId, projectId, date]
-    );
+    // await pool.query(
+    //   `
+    //   UPDATE workload_declaration
+    //   SET status = 'PAIED', wage = (SELECT p.hour_payment * w.hours+w.pscore*p.x_coefficient FROM workload_declaration w, projects p WHERE w.pid = p.id )
+    //   WHERE status='APPROVED' AND sid = ? AND pid = ? AND date = ?
+    //   `,
+    //   [studentId, projectId, date]
+    // );
+        await pool.query(
+        `UPDATE workload_declaration wd
+        JOIN projects p ON wd.pid = p.id
+        SET wd.wage = p.hour_payment * wd.hours + wd.pscore * p.x_coefficient
+        WHERE wd.status = 'APPROVED'
+        AND wd.sid = ? AND wd.pid = ? AND wd.date = ?
+        `,
+        [studentId, projectId, date]);
+        await pool.query(`
+          UPDATE workload_declaration
+          SET status = 'PAID'
+          WHERE status = 'APPROVED'
+        `);
     res.json({ success: true, message: "Wage payment status updated successfully" });
   } catch (error) {
     console.error("Error updating wage payment status:", error);

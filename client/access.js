@@ -338,6 +338,32 @@ else if (role == 1) {
     `;
     return dateNav;
   }
+    function createDateNavigation2(currentYear, currentMonth) {
+    const dateNav = document.createElement('div');
+    dateNav.style.marginBottom = '10px';
+    dateNav.innerHTML = `
+      <label for="yearSelect">Year:</label>
+      <select id="yearSelect">
+          ${[...Array(5)]
+        .map((_, i) => {
+          const year = currentYear - i;
+          return `<option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>`;
+        })
+        .join('')}
+      </select>
+      <label for="monthSelect">Month:</label>
+      <select id="monthSelect">
+          ${[...Array(12)]
+        .map((_, i) => {
+          const month = (i + 1).toString().padStart(2, '0');
+          return `<option value="${month}" ${month === currentMonth ? 'selected' : ''}>${month}</option>`;
+        })
+        .join('')}
+      </select>
+      <button class="button" id="confirmButton2" style="margin-left: 10px;">Confirm</button>
+    `;
+    return dateNav;
+  }
 
   // 根据学生数组构建结果区域
   function renderStudentDetails(students, projectId, resultDiv) {
@@ -441,7 +467,6 @@ else if (role == 1) {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            console.log(data.students);
             renderStudentDetails(data.students, projectId, resultDiv);
           } else {
             alert('Failed to fetch data: ' + data.message);
@@ -507,7 +532,6 @@ else if (role == 1) {
   }
 
   function payWage(studentId, projectId, date) {
-    console.log(studentId, projectId, date);
     fetch(`http://localhost:3000/api/wage-paid`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -521,7 +545,7 @@ else if (role == 1) {
       .then(data => {
         if (data.success) {
           alert('Wage paid successfully!');
-          document.getElementById('confirmButton1').click(); // Refresh the data
+          document.getElementById('confirmButton2').click(); // Refresh the data
         } else {
           alert('Failed to pay wage: ' + data.message);
         }
@@ -539,7 +563,6 @@ else if (role == 1) {
       const entryDiv = document.createElement('div');
       // const date = new Date(wage.declarationDate).toISOString().slice(0, 10);
       const date = wage.ApprovedDate;
-       console.log("wage:",wage);
       entryDiv.className = 'project-box';
       entryDiv.innerHTML = `
       <strong>Student ID:</strong> ${wage.studentId}<br>
@@ -557,9 +580,8 @@ else if (role == 1) {
   }
 
   function attachConfirmHandler_wage(projectId, currentYear, currentMonth, resultDiv) {
-    const confirmButton = document.getElementById('confirmButton1');
+    const confirmButton = document.getElementById('confirmButton2');
     confirmButton.addEventListener('click', () => {
-      console.log('Confirm button clicked');
       const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
       const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
       // 校验不能选择未来日期
@@ -576,7 +598,6 @@ else if (role == 1) {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            console.log(data.wages);
             renderWagePaymentDetails(data.wages, projectId, resultDiv);
           } else {
             alert('Failed to fetch data: ' + data.message);
@@ -598,7 +619,7 @@ else if (role == 1) {
     `;
 
     // 创建并添加日期导航模块
-    const dateNav = createDateNavigation(currentYear, currentMonth);
+    const dateNav = createDateNavigation2(currentYear, currentMonth);
     WagePaymentDetailsDiv.appendChild(dateNav);
 
     // 添加显示结果的占位符
