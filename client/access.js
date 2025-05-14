@@ -719,13 +719,8 @@ else if (role == 0) {
             <h4>Your last submission in this month:</h4>
             <p><strong>Submitted Time:</strong> ${latestRecord.uploadDate}</p>
             <p><strong>Uploaded Working Hour:</strong> ${latestRecord.workingHours} hour(s)</p>
-            <p><strong>Status:</strong> ${latestRecord.approvalStatus === 0
-                              ? 'Pending'
-                              : latestRecord.approvalStatus === 1
-                                ? 'Approved'
-                                : 'Rejected'
-                            }</p>
-            <button id="editButton-${project.projectId}" style="margin-top: 10px;" ${latestRecord.approvalStatus === 0 ? 'disabled style="background-color: gray;"' : ''
+            <p><strong>Status:</strong> ${latestRecord.approvalStatus}</p>
+            <button id="editButton-${project.projectId}" style="margin-top: 10px;" ${latestRecord.approvalStatus === "PENDING" ? 'disabled style="background-color: gray;"' : ''
                             }>Edit</button>
             <div id="editDiv-${project.projectId}" style="display: none; margin-top: 10px;">
               <label for="newWorkingHours-${project.projectId}">Upload Working Hours:</label>
@@ -830,12 +825,7 @@ else if (role == 0) {
                                     entryDiv.innerHTML = `
                     <strong>Upload Date:</strong> ${entry.uploadDate}<br>
                     <strong>Working Hours:</strong> ${entry.workingHours}<br>
-                    <strong>Status:</strong> ${entry.approvalStatus === 0
-                                        ? 'Pending'
-                                        : entry.approvalStatus === 1
-                                          ? 'Approved'
-                                          : 'Rejected'
-                                      }<br>
+                    <strong>Status:</strong> ${entry.approvalStatus}<br>
                   `;
                                     resultDiv.appendChild(entryDiv);
                                   });
@@ -913,7 +903,7 @@ else if (role == 0) {
       })
       .then(({ projects, workingHours }) => {
         studentProjectList.innerHTML = '';
-
+        console.log(workingHours);
         projects.forEach(project => {
           // 创建项目容器
           const projectDiv = document.createElement('div');
@@ -929,7 +919,7 @@ else if (role == 0) {
 
           // ===================== 申报/取消模块 =====================
           const pendingRecord = workingHours.find(
-            wh => wh.projectId === project.projectId && wh.approvalStatus === 0
+            wh => wh.projectId === project.projectId && wh.approvalStatus === "PENDING"
           );
 
           // 申报输入组
@@ -1024,12 +1014,13 @@ else if (role == 0) {
             const latest = data.workingHours.reduce((a, b) =>
               new Date(a.uploadDate) > new Date(b.uploadDate) ? a : b
             );
+            console.log(latest.approvalStatus);
             latestSection.innerHTML = `
                   <h4>Latest Submission</h4>
                   <p>Date: ${latest.uploadDate}</p>
                   <p>Hours: ${latest.workingHours}</p>
                   <p>Status: ${getStatusBadge(latest.approvalStatus)}</p>
-                  ${latest.approvalStatus !== 0 ?
+                  ${latest.approvalStatus !== "PENDING" ?
                 `<button class="edit-trigger">Edit</button>
                        <div class="edit-form" style="display:none">
                            <input type="number" class="new-hours" placeholder="New hours">

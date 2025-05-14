@@ -94,7 +94,7 @@ router.get('/student-working-hours/:studentId', async (req, res) => {
         wd.hours AS workHours, 
         wd.pscore AS performanceScore, 
         wd.wage AS wageAmount, 
-        wd.status AS workStatus 
+        wd.status AS approvalStatus 
       FROM workload_declaration wd
       WHERE wd.sid = ?
     `, [studentId]);
