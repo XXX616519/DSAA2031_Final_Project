@@ -4,7 +4,6 @@ const pool = require('../config/db'); // 假设你有一个数据库连接模块
 
 // 新增表：年度报告表（用于存储年报数据）
 
-
 // 新增 API: 获取年度报告数据（基于SQL查询）
 router.get('/annual-report', async (req, res) => {
   const { year } = req.query;
@@ -12,13 +11,18 @@ router.get('/annual-report', async (req, res) => {
     return res.status(400).json({ success: false, message: "Missing year parameter" });
   }
 
+  const connection = await pool.getConnection();
   try {
-    const [rows] = await pool.query(
+    await connection.beginTransaction();
+
+    const [rows] = await connection.query(
       `SELECT studentId, studentName, totalWage, averageScore 
        FROM annual_reports 
        WHERE year = ?`,
       [year]
     );
+
+    await connection.commit();
 
     if (rows.length === 0) {
       return res.status(404).json({ success: false, message: "No data found for the specified year" });
@@ -26,14 +30,20 @@ router.get('/annual-report', async (req, res) => {
 
     res.json({ success: true, year, report: rows });
   } catch (error) {
+    await connection.rollback();
     res.status(500).json({ success: false, message: "Database error", error });
+  } finally {
+    connection.release();
   }
 });
 
 // 修改 GET /projects 接口，返回每个项目时，将 participants 映射为“ID (姓名)”的形式
 router.get('/projects', async (req, res) => {
+  const connection = await pool.getConnection();
   try {
-    const [projects] = await pool.query(`
+    await connection.beginTransaction();
+
+    const [projects] = await connection.query(`
       SELECT p.id AS projectId, p.name AS projectName, p.description, p.hour_payment AS hourPayment, 
              p.budget, p.balance, p.x_coefficient AS performanceRatio, p.start_date AS startDate, 
              t.name AS leadingProfessor, 
@@ -45,11 +55,15 @@ router.get('/projects', async (req, res) => {
       LEFT JOIN teachers t ON p.tid = t.id
       GROUP BY p.id
     `);
-    console.log("Projects fetched successfully:", projects);
+
+    await connection.commit();
 
     res.json({ success: true, projects });
   } catch (error) {
+    await connection.rollback();
     res.status(500).json({ success: false, message: "Database error", error });
+  } finally {
+    connection.release();
   }
 });
 
@@ -58,8 +72,11 @@ router.put('/projects/:projectId', async (req, res) => {
   const { projectId } = req.params;
   const { hourPayment, participants, budget, performanceRatio } = req.body;
 
+  const connection = await pool.getConnection();
   try {
-    const [result] = await pool.query(`
+    await connection.beginTransaction();
+
+    const [result] = await connection.query(`
       UPDATE projects SET 
         hour_payment = COALESCE(?, hour_payment), 
         budget = COALESCE(?, budget), 
@@ -69,10 +86,12 @@ router.put('/projects/:projectId', async (req, res) => {
     );
 
     if (participants) {
-      await pool.query(`DELETE FROM project_participants WHERE pid = ?`, [projectId]);
+      await connection.query(`DELETE FROM project_participants WHERE pid = ?`, [projectId]);
       const participantValues = participants.map(sid => [projectId, sid]);
-      await pool.query(`INSERT INTO project_participants (pid, sid) VALUES ?`, [participantValues]);
+      await connection.query(`INSERT INTO project_participants (pid, sid) VALUES ?`, [participantValues]);
     }
+
+    await connection.commit();
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, message: "Project not found" });
@@ -80,6 +99,7 @@ router.put('/projects/:projectId', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+    await connection.rollback();
     switch (error.errno) {
       case 1062:
         return res.status(400).json({ success: false, message: "Duplicate participants!" });
@@ -88,73 +108,6 @@ router.put('/projects/:projectId', async (req, res) => {
       default:
         return res.status(500).json({ success: false, message: "Database error", error });
     }
-  }
-});
-
-// API: 添加新项目
-router.post('/projects', async (req, res) => {
-  const { projectId, projectName, description, hourPayment, performanceRatio, budget, participants, leadingProfessor } = req.body;
-
-  if (!projectId || !projectName) {
-    return res.status(400).json({ success: false, message: "Missing required fields: projectId or projectName" });
-  }
-
-  const connection = await pool.getConnection();
-  try {
-    await connection.beginTransaction();
-
-    // Check if project ID already exists
-    const [existingProject] = await connection.query(`SELECT id FROM projects WHERE id = ?`, [projectId]);
-    if (existingProject.length > 0) {
-      throw { code: "PROJECT_EXISTS", message: "Project ID already exists" };
-    }
-
-    // Get teacher ID
-    const [teacher] = await connection.query(`SELECT id FROM teachers WHERE name = ?`, [leadingProfessor]);
-    if (teacher.length === 0) {
-      throw { code: "INVALID_TEACHER", message: "Invalid leading professor name" };
-    }
-    const tid = teacher[0].id;
-
-    // Initialize project balance as budget
-    const initialBalance = budget;
-
-    // Insert new project
-    await connection.query(
-      `INSERT INTO projects (id, name, description, hour_payment, x_coefficient, budget, balance, tid, start_date) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE())`,
-      [projectId, projectName, description, hourPayment, performanceRatio, budget, initialBalance, tid]
-    );
-
-    // Validate and insert participants
-    if (participants && participants.length > 0) {
-      const [validStudents] = await connection.query(`SELECT id FROM students WHERE id IN (?)`, [participants]);
-      const validStudentIds = validStudents.map(student => student.id);
-
-      if (validStudentIds.length !== participants.length) {
-        throw { code: "INVALID_STUDENTS", message: "Some student IDs are invalid" };
-      }
-
-      const participantValues = participants.map(sid => [projectId, sid]);
-      await connection.query(`INSERT INTO project_participants (pid, sid) VALUES ?`, [participantValues]);
-    }
-
-    await connection.commit();
-    res.json({ success: true });
-  } catch (error) {
-    await connection.rollback();
-
-    if (error.code === "PROJECT_EXISTS") {
-      return res.status(400).json({ success: false, message: error.message });
-    }
-    if (error.code === "INVALID_TEACHER") {
-      return res.status(400).json({ success: false, message: error.message });
-    }
-    if (error.code === "INVALID_STUDENTS") {
-      return res.status(400).json({ success: false, message: error.message });
-    }
-
-    res.status(500).json({ success: false, message: "Database error", error });
   } finally {
     connection.release();
   }
@@ -164,9 +117,14 @@ router.post('/projects', async (req, res) => {
 router.delete('/projects/:projectId', async (req, res) => {
   const { projectId } = req.params;
 
+  const connection = await pool.getConnection();
   try {
-    await pool.query(`DELETE FROM project_participants WHERE pid = ?`, [projectId]);
-    const [result] = await pool.query(`DELETE FROM projects WHERE id = ?`, [projectId]);
+    await connection.beginTransaction();
+
+    await connection.query(`DELETE FROM project_participants WHERE pid = ?`, [projectId]);
+    const [result] = await connection.query(`DELETE FROM projects WHERE id = ?`, [projectId]);
+
+    await connection.commit();
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ success: false, message: "Project not found" });
@@ -174,7 +132,10 @@ router.delete('/projects/:projectId', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+    await connection.rollback();
     res.status(500).json({ success: false, message: "Database error", error });
+  } finally {
+    connection.release();
   }
 });
 
