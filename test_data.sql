@@ -99,25 +99,24 @@ FROM (
   ) nums
 ) p;
 
--- 项目参与者分配（每个项目5-15名学生）
+-- 生成项目参与者（每个项目至少一个学生，每个学生最多参与两个项目）
 INSERT INTO project_participants (pid, sid)
 SELECT 
   p.id,
   s.id
 FROM projects p
-CROSS JOIN (
-  SELECT 
-    id,
-    ROW_NUMBER() OVER (ORDER BY RAND()) AS rn 
-  FROM students
-) s
-WHERE s.rn <= 5 + FLOOR(RAND() * 11)  -- 生成5-15个随机学生
-  AND NOT EXISTS (
-    SELECT 1 
-    FROM project_participants pp 
-    WHERE pp.pid = p.id 
-      AND pp.sid = s.id
-  );
+JOIN students s ON s.id = CONCAT('S', LPAD(1 + FLOOR(RAND() * 100), 3, '0'))
+WHERE (
+  SELECT COUNT(*) 
+  FROM project_participants pp 
+  WHERE pp.sid = s.id
+) < 2
+AND NOT EXISTS (
+  SELECT 1 
+  FROM project_participants pp 
+  WHERE pp.pid = p.id AND pp.sid = s.id
+)
+ORDER BY p.id, RAND();
 
 -- 生成工资发放记录（从已批准记录中复制）
 INSERT INTO wage_payments (sid, pid, date, hours, pscore, hourp, prate)
