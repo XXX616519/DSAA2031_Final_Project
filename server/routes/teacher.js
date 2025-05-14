@@ -57,22 +57,43 @@ router.get('/project-students/:projectId', async (req, res) => {
 });
 
 // API: 更新学生的 performance score
-router.put('/project-students/:projectId/:studentId', async (req, res) => {
-  const { projectId, studentId } = req.params;
-  const { performanceScore } = req.body;
-
-  await pool.query(
-    `
-      INSERT INTO workload_declaration (sid, pid, date, pscore)
-      VALUES (?, ?, ?, ?)
-      ON DUPLICATE KEY UPDATE pscore = ?
-      `,
-    [studentId, projectId, performanceScore, performanceScore]
-  ).then((_) => res.json({ success: true, message: "Performance score updated successfully" }))
-    .catch((error) => {
-      console.error("Error updating performance score:", error);
-      res.status(500).json({ success: false, message: error.message });
-    });
+router.put('/project-students/:status', async (req, res) => {
+  const { status } = req.params;
+  const { projectId, studentId, date } = req.body;
+  switch (status) {
+    case 'approve':
+      const performanceScore = req.body;
+      await pool.query(
+        `
+        UPDATE workload_declaration
+        SET status = 'APPROVED', performance_score = ?
+        WHERE sid = ? AND pid = ? AND date = ?
+        `,
+        [performanceScore, studentId, projectId, date]
+      ).then((_) => res.json({ success: true, message: "Application approved successfully" }))
+        .catch((error) => {
+          console.error("Error approving application:", error);
+          res.status(500).json({ success: false, message: error.message });
+        });
+      break;
+    case 'reject':
+      await pool.query(
+        `
+        UPDATE workload_declaration
+        SET status = 'REJECTED'
+        WHERE sid = ? AND pid = ? AND date = ?
+        `,
+        [studentId, projectId, date]
+      ).then((_) => res.json({ success: true, message: "Application rejected successfully" }))
+        .catch((error) => {
+          console.error("Error rejecting application:", error);
+          res.status(500).json({ success: false, message: error.message });
+        });
+      break;
+    default:
+      res.status(400).json({ success: false, message: "Invalid status" });
+      break;
+  }
 });
 
 

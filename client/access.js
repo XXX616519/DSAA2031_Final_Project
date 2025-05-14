@@ -348,12 +348,13 @@ else if (role == 1) {
     }
     students.forEach(student => {
       const entryDiv = document.createElement('div');
+      const date = new Date(student.uploadDate).toISOString().slice(0, 10);
       entryDiv.className = 'project-box';
       entryDiv.innerHTML = `
       <strong>Student ID:</strong> ${student.studentId}<br>
       <strong>Student Name:</strong> ${student.studentName}<br>
       <strong>Working Hours:</strong> ${student.workingHours !== null ? student.workingHours : 'Not Uploaded'}<br>
-      <strong>Upload Date:</strong> ${new Date(student.uploadDate).toISOString().slice(0, 10)}<br>
+      <strong>Upload Date:</strong> ${date}<br>
       <strong>Approval Status:</strong> ${student.approvalStatus}<br>
       <div id="editDiv-${student.studentId}" style="margin-top: 10px;">
       <label for="performanceScore-${student.studentId}">Performance Score:</label>
@@ -371,10 +372,15 @@ else if (role == 1) {
           return;
         }
 
-        fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}/approve`, {
-          method: 'POST',
+        fetch(`http://localhost:3000/api/project-students/approve`, {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ performanceScore: Number(performanceScore) })
+          body: JSON.stringify({
+            projectId,
+            studentId: student.studentId,
+            date,
+            performanceScore: Number(performanceScore)
+          })
         })
           .then(response => response.json())
           .then(data => {
@@ -390,9 +396,14 @@ else if (role == 1) {
 
       // Reject button listener
       document.getElementById(`reject-${student.studentId}`).addEventListener('click', () => {
-        fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}/reject`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
+        fetch(`http://localhost:3000/api/project-students/reject`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId,
+            studentId: student.studentId,
+            date
+          })
         })
           .then(response => response.json())
           .then(data => {
@@ -405,49 +416,6 @@ else if (role == 1) {
           })
           .catch(error => console.error('Error rejecting student:', error));
       });
-      resultDiv.appendChild(entryDiv);
-
-      //   // 切换编辑区域显示
-      //   document.getElementById(`edit-${student.studentId}`).addEventListener('click', () => {
-      //     const editDiv = document.getElementById(`editDiv-${student.studentId}`);
-      //     console.log(editDiv);
-      //     editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
-      //   });
-
-      //   // 更新学生信息
-      //   document.getElementById(`update-${student.studentId}`).addEventListener('click', () => {
-      //     const performanceScore = document.getElementById(`performanceScore-${student.studentId}`).value;
-      //     const date = document.getElementById(`date-${student.studentId}`).value;
-
-      //     if (performanceScore === '' || performanceScore <= 0 || isNaN(performanceScore)) {
-      //       alert('Performance Score must be a positive integer.');
-      //       return;
-      //     }
-      //     if (!date) {
-      //       alert('Please select a valid date.');
-      //       return;
-      //     }
-
-      //     fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}`, {
-      //       method: 'PUT',
-      //       headers: { 'Content-Type': 'application/json' },
-      //       body: JSON.stringify({
-      //         performanceScore: Number(performanceScore),
-      //         date: date
-      //       })
-      //     })
-      //       .then(response => response.json())
-      //       .then(data => {
-      //         if (data.success) {
-      //           alert('Student information updated successfully!');
-      //           // 重新触发查询，刷新学生信息
-      //           document.getElementById('confirmButton1').click();
-      //         } else {
-      //           alert('Failed to update student information: ' + data.message);
-      //         }
-      //       })
-      //       .catch(error => console.error('Error updating student information:', error));
-      //   });
     });
   }
 
