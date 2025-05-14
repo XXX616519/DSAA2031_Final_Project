@@ -190,7 +190,7 @@ SELECT
 FROM students s
 JOIN workload_declaration wd ON s.id = wd.sid
 JOIN projects p ON wd.pid = p.id
-WHERE YEAR(wd.date) = 2024 AND wd.status = 'PAYED' AND wd.pscore IS NOT NULL
+WHERE YEAR(wd.date) = 2024 AND wd.status = 'PAID' AND wd.pscore IS NOT NULL
 GROUP BY s.id, s.name;
 
 -- 更新项目余额（基于已支付工资）
@@ -198,10 +198,10 @@ UPDATE projects p
 SET p.balance = p.budget - IFNULL((
   SELECT SUM(wd.wage)
   FROM workload_declaration wd
-  WHERE wd.pid = p.id AND wd.status = 'PAYED'
+  WHERE wd.pid = p.id AND wd.status = 'PAID'
 ), 0)
 WHERE p.budget > IFNULL((
   SELECT SUM(wd.wage)
   FROM workload_declaration wd
-  WHERE wd.pid = p.id AND wd.status = 'PAYED'
+  WHERE wd.pid = p.id AND wd.status = 'PAID'
 ), 0);
