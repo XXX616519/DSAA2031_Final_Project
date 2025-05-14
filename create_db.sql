@@ -64,7 +64,6 @@ CREATE TABLE workload_declaration (
 
 -- 工资发放历史
 CREATE TABLE wage_payments (
-  -- id INT AUTO_INCREMENT PRIMARY KEY,
   sid VARCHAR(10),
   pid VARCHAR(10),
   date DATE NOT NULL,
@@ -73,7 +72,7 @@ CREATE TABLE wage_payments (
   hourp DECIMAL(10,2),
   prate DECIMAL(10,2),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL,
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL
 );
 
 -- 年报表
