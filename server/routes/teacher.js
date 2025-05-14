@@ -31,7 +31,7 @@ router.get('/teacher-projects/:teacherId', async (req, res) => {
   }
 });
 
-// API: 获取指定项目的学生信息及 performance score（按月份筛选）
+// API: 获取指定项目的学生提交的等待处理的申请（按月份）
 router.get('/project-students/:projectId', async (req, res) => {
   const { projectId } = req.params;
   const { month } = req.query; // 从查询参数中获取月份（格式：YYYY-MM）
@@ -39,11 +39,13 @@ router.get('/project-students/:projectId', async (req, res) => {
   try {
     const [students] = await pool.query(
       `
-      SELECT pp.sid AS studentId, s.name AS studentName, wd.pscore AS performanceScore, wd.date
+      SELECT pp.sid AS studentId, s.name AS studentName, wd.date as uploadDate,
+      wd.status AS approvalStatus, wd.hours AS workingHours
       FROM project_participants pp
       JOIN students s ON pp.sid = s.id
       LEFT JOIN workload_declaration wd ON pp.sid = wd.sid AND pp.pid = wd.pid
       WHERE pp.pid = ? AND (? IS NULL OR DATE_FORMAT(wd.date, '%Y-%m') = ?)
+      AND wd.status = 'PENDING'
       `,
       [projectId, month, month]
     );
@@ -57,73 +59,21 @@ router.get('/project-students/:projectId', async (req, res) => {
 // API: 更新学生的 performance score
 router.put('/project-students/:projectId/:studentId', async (req, res) => {
   const { projectId, studentId } = req.params;
-  const { performanceScore, date } = req.body;
+  const { performanceScore } = req.body;
 
-  try {
-    const [result] = await pool.query(
-      `
+  await pool.query(
+    `
       INSERT INTO workload_declaration (sid, pid, date, pscore)
       VALUES (?, ?, ?, ?)
       ON DUPLICATE KEY UPDATE pscore = ?
       `,
-      [studentId, projectId, date, performanceScore, performanceScore]
-    );
-
-    res.json({ success: true, message: "Performance score updated successfully" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
+    [studentId, projectId, performanceScore, performanceScore]
+  ).then((_) => res.json({ success: true, message: "Performance score updated successfully" }))
+    .catch((error) => {
+      console.error("Error updating performance score:", error);
+      res.status(500).json({ success: false, message: error.message });
+    });
 });
 
-// API: 老师获得指定项目的学生工作时长及审核状态
-router.get('/project-working-hours/:projectId', async (req, res) => {
-  const { projectId } = req.params;
-
-  try {
-    const [workingHours] = await pool.query(
-      `
-      SELECT wd.sid AS studentId, s.name AS studentName, wd.hours AS workingHours, wd.date AS uploadDate, wd.status AS approvalStatus
-      FROM workload_declaration wd
-      JOIN students s ON wd.sid = s.id
-      WHERE wd.pid = ?
-      `,
-      [projectId]
-    );
-
-    res.json({ success: true, workingHours });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// API: 教师审核学生的工作时长
-// PENDING: 未审核, APPROVED: 已批准, REJECTED: 已拒绝
-router.put('/project-working-hours/:projectId/:studentId', async (req, res) => {
-  const { projectId, studentId } = req.params;
-  const { status, date } = req.body;
-
-  if (!['PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
-    return res.status(400).json({ success: false, message: "Invalid approval status" });
-  }
-
-  try {
-    const [result] = await pool.query(
-      `
-      UPDATE workload_declaration
-      SET status = ?
-      WHERE pid = ? AND sid = ? AND date = ?
-      `,
-      [status, projectId, studentId, date]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: "Entry not found" });
-    }
-
-    res.json({ success: true, message: "Approval status updated successfully" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
 
 module.exports = router;

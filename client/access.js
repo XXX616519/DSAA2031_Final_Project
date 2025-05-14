@@ -353,65 +353,102 @@ else if (role == 1) {
       <strong>Student ID:</strong> ${student.studentId}<br>
       <strong>Student Name:</strong> ${student.studentName}<br>
       <strong>Working Hours:</strong> ${student.workingHours !== null ? student.workingHours : 'Not Uploaded'}<br>
-      <strong>Approval Status:</strong> ${student.approvalStatus === 0
-          ? 'Pending'
-          : student.approvalStatus === 1
-            ? 'Approved'
-            : student.approvalStatus === 2
-              ? 'Rejected'
-              : 'Not Available'}<br>
+      <strong>Upload Date:</strong> ${new Date(student.uploadDate).toISOString().slice(0, 10)}<br>
+      <strong>Approval Status:</strong> ${student.approvalStatus}<br>
       <strong>Performance Score:</strong> ${student.performanceScore !== null ? student.performanceScore : 'Not Assigned'}<br>
-      <button class="button" id="edit-${student.studentId}">Edit</button>
-      <div id="editDiv-${student.studentId}" style="display: none; margin-top: 10px;">
+      <button class="button" id="approve-${student.studentId}">Approve</button>
+      <button class="button" id="reject-${student.studentId}" style="margin-left: 10px;">Reject</button>
+      <div id="editDiv-${student.studentId}" style="margin-top: 10px;">
           <label for="performanceScore-${student.studentId}">Performance Score:</label>
           <input type="number" id="performanceScore-${student.studentId}" value="${student.performanceScore || ''}" min="0" placeholder="Enter score"><br>
-          <label for="date-${student.studentId}">Date:</label>
-          <input type="date" id="date-${student.studentId}" value="${new Date().toISOString().slice(0, 10)}"><br>
-          <button class="button" id="update-${student.studentId}" style="margin-top: 10px;">Update</button>
       </div>
-    `;
-      resultDiv.appendChild(entryDiv);
+        `;
 
-      // 切换编辑区域显示
-      document.getElementById(`edit-${student.studentId}`).addEventListener('click', () => {
-        const editDiv = document.getElementById(`editDiv-${student.studentId}`);
-        editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
-      });
-
-      // 更新学生信息
-      document.getElementById(`update-${student.studentId}`).addEventListener('click', () => {
+      // Approve button listener
+      document.getElementById(`approve-${student.studentId}`).addEventListener('click', () => {
         const performanceScore = document.getElementById(`performanceScore-${student.studentId}`).value;
-        const date = document.getElementById(`date-${student.studentId}`).value;
-
-        if (performanceScore === '' || performanceScore <= 0 || isNaN(performanceScore)) {
-          alert('Performance Score must be a positive integer.');
-          return;
-        }
-        if (!date) {
-          alert('Please select a valid date.');
+        if (performanceScore === '' || performanceScore < 0 || isNaN(performanceScore)) {
+          alert('Performance Score must be a non-negative number.');
           return;
         }
 
-        fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}`, {
-          method: 'PUT',
+        fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}/approve`, {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            performanceScore: Number(performanceScore),
-            date: date
-          })
+          body: JSON.stringify({ performanceScore: Number(performanceScore) })
         })
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              alert('Student information updated successfully!');
-              // 重新触发查询，刷新学生信息
-              document.getElementById('confirmButton1').click();
+              alert('Student approved successfully!');
+              document.getElementById('confirmButton1').click(); // Refresh the data
             } else {
-              alert('Failed to update student information: ' + data.message);
+              alert('Failed to approve student: ' + data.message);
             }
           })
-          .catch(error => console.error('Error updating student information:', error));
+          .catch(error => console.error('Error approving student:', error));
       });
+
+      // Reject button listener
+      document.getElementById(`reject-${student.studentId}`).addEventListener('click', () => {
+        fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('Student rejected successfully!');
+              document.getElementById('confirmButton1').click(); // Refresh the data
+            } else {
+              alert('Failed to reject student: ' + data.message);
+            }
+          })
+          .catch(error => console.error('Error rejecting student:', error));
+      });
+      resultDiv.appendChild(entryDiv);
+
+      //   // 切换编辑区域显示
+      //   document.getElementById(`edit-${student.studentId}`).addEventListener('click', () => {
+      //     const editDiv = document.getElementById(`editDiv-${student.studentId}`);
+      //     console.log(editDiv);
+      //     editDiv.style.display = editDiv.style.display === 'none' ? 'block' : 'none';
+      //   });
+
+      //   // 更新学生信息
+      //   document.getElementById(`update-${student.studentId}`).addEventListener('click', () => {
+      //     const performanceScore = document.getElementById(`performanceScore-${student.studentId}`).value;
+      //     const date = document.getElementById(`date-${student.studentId}`).value;
+
+      //     if (performanceScore === '' || performanceScore <= 0 || isNaN(performanceScore)) {
+      //       alert('Performance Score must be a positive integer.');
+      //       return;
+      //     }
+      //     if (!date) {
+      //       alert('Please select a valid date.');
+      //       return;
+      //     }
+
+      //     fetch(`http://localhost:3000/api/project-students/${projectId}/${student.studentId}`, {
+      //       method: 'PUT',
+      //       headers: { 'Content-Type': 'application/json' },
+      //       body: JSON.stringify({
+      //         performanceScore: Number(performanceScore),
+      //         date: date
+      //       })
+      //     })
+      //       .then(response => response.json())
+      //       .then(data => {
+      //         if (data.success) {
+      //           alert('Student information updated successfully!');
+      //           // 重新触发查询，刷新学生信息
+      //           document.getElementById('confirmButton1').click();
+      //         } else {
+      //           alert('Failed to update student information: ' + data.message);
+      //         }
+      //       })
+      //       .catch(error => console.error('Error updating student information:', error));
+      //   });
     });
   }
 
@@ -431,7 +468,7 @@ else if (role == 1) {
       const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
 
       // 调用后端 API 获取对应年月的学生详情
-      fetch(`http://localhost:3000/api/project-student-details/${projectId}?month=${month}`)
+      fetch(`http://localhost:3000/api/project-students/${projectId}?month=${month}`)
         .then(response => response.json())
         .then(data => {
           if (data.success) {
