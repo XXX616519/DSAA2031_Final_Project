@@ -117,9 +117,9 @@ if (role == 2) {
     const numPr = Number(newPr);
     const numBd = Number(newBd);
 
-    // 验证所有数字输入必须为正整数
-    if (numHp <= 0 || !Number.isInteger(numHp)) {
-      alert("Hour Payment must be a positive integer!");
+    // 验证所有数字输入必须为正数
+    if (numHp <= 0 ) {
+      alert("Hour Payment must be a positive number!");
       return;
     }
     if (numPr < 0) {
@@ -172,23 +172,24 @@ if (role == 2) {
     const participantsArr = participantsInput.split(',').map(item => item.trim());
     const leadingProfessor = document.getElementById('newLeadingProfessor').value;
 
-    // 验证所有数字输入必须为正整数
-    if (hourPayment <= 0 || !Number.isInteger(hourPayment)) {
-      alert("Hour Payment must be a positive integer!");
+    // 验证所有数字输入必须为正数
+    if (hourPayment <= 0 ) {
+      alert("Hour Payment must be a positive number!");
       return;
     }
-    if (performanceRatio <= 0 || !Number.isInteger(performanceRatio)) {
-      alert("Performance Ratio must be a positive integer!");
+    if (performanceRatio <= 0 ) {
+      alert("Performance Ratio must be a positive number!");
       return;
     }
-    if (budget <= 0 || !Number.isInteger(budget)) {
-      alert("Budget must be a positive integer!");
+    if (budget <= 0 ) {
+      alert("Budget must be a positive number!");
       return;
     }
-    const participantRegex = /^\S+\(\S+\)$/;
+
+    const participantRegex = /^\S+$/;
     for (let participant of participantsArr) {
       if (!participantRegex.test(participant)) {
-        alert("Input error: Each participant must be in the format 'ID(name)'.");
+        alert("Input error: Please input the participant IDs with seperator ','.");
         return;
       }
     }
