@@ -66,7 +66,7 @@ router.put('/project-students/:status', async (req, res) => {
       await pool.query(
         `
         UPDATE workload_declaration
-        SET status = 'APPROVED', performance_score = ?
+        SET status = 'APPROVED', pscore = ?
         WHERE status='PENDING' AND sid = ? AND pid = ? AND date = ?
         `,
         [performanceScore, studentId, projectId, date]
