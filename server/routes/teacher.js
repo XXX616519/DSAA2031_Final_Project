@@ -103,8 +103,7 @@ router.get('/wage-paid-condition/:projectId', async (req, res) => {
   try {
     const [wages] = await pool.query(
       `
-      SELECT wd.sid AS studentId, s.name AS studentName, wd.date AS uploadDate,
-      wd.status AS approvalStatus, wd.hours AS workingHours
+      SELECT wd.sid AS studentId, wd.hours AS declaredHours, wd.pscore AS performance, wd.wage AS wageAmount, wd.status AS wageStatus, wd.date as ApprovedDate
       FROM workload_declaration wd
       JOIN students s ON wd.sid = s.id
       WHERE wd.pid = ? AND (? IS NULL OR DATE_FORMAT(wd.date, '%Y-%m') = ?) AND wd.status = 'APPROVED'
@@ -114,6 +113,26 @@ router.get('/wage-paid-condition/:projectId', async (req, res) => {
 
     res.json({ success: true, wages });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// API: 更新工资发放状态
+// 只更新了status，没有添加时间等其他信息
+router.put('/wage-paid', async (req, res) => {
+  const { projectId, studentId, date } = req.body;
+  try {
+    await pool.query(
+      `
+      UPDATE workload_declaration
+      SET status = 'PAYED'
+      WHERE status='APPROVED' AND sid = ? AND pid = ? AND date = ?
+      `,
+      [studentId, projectId, date]
+    );
+    res.json({ success: true, message: "Wage payment status updated successfully" });
+  } catch (error) {
+    console.error("Error updating wage payment status:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 });

@@ -441,6 +441,7 @@ else if (role == 1) {
         .then(response => response.json())
         .then(data => {
           if (data.success) {
+            console.log(data.students);
             renderStudentDetails(data.students, projectId, resultDiv);
           } else {
             alert('Failed to fetch data: ' + data.message);
@@ -505,6 +506,29 @@ else if (role == 1) {
     attachConfirmHandler(projectId, currentYear, currentMonth, resultDiv);
   }
 
+  function payWage(studentId, projectId, date) {
+    console.log(studentId, projectId, date);
+    fetch(`http://localhost:3000/api/wage-paid`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projectId,
+        studentId,
+        date
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Wage paid successfully!');
+          document.getElementById('confirmButton1').click(); // Refresh the data
+        } else {
+          alert('Failed to pay wage: ' + data.message);
+        }
+      })
+      .catch(error => console.error('Error paying wage:', error));
+  }
+
   function renderWagePaymentDetails(wagehistory, projectId, resultDiv) {
     resultDiv.innerHTML = ''; // 清空之前的内容
     if (wagehistory.length === 0) {
@@ -513,16 +537,20 @@ else if (role == 1) {
     }
     wagehistory.forEach(wage => {
       const entryDiv = document.createElement('div');
-      const date = new Date(wage.declarationDate).toISOString().slice(0, 10);
+      // const date = new Date(wage.declarationDate).toISOString().slice(0, 10);
+      const date = wage.ApprovedDate;
       entryDiv.className = 'project-box';
       entryDiv.innerHTML = `
       <strong>Student ID:</strong> ${wage.studentId}<br>
-      <strong>Student Name:</strong> ${wage.studentName}<br>
       <strong>Declared Hours:</strong> ${wage.declaredHours}<br>
       <strong>Performance Score:</strong> ${wage.performanceScore}<br>
       <strong>Wage Amount:</strong> $${wage.wageAmount}<br>
-      <strong>Status:</strong> ${wage.declarationStatus}<br>
+      <strong>Status:</strong> ${wage.wageStatus}<br>
+      <button class="button" id="${wage.wageStatus === 'APPROVED' ? `pay-${wage.studentId}` : `paid-${wage.studentId}`}" 
+        ${wage.wageStatus === 'APPROVED' ? `onclick="payWage('${wage.studentId}', '${projectId}', '${date}')">Pay` : `style="background-color: gray; cursor: not-allowed;" disabled>Paid`}
+      </button>
         `;
+      // If status is 'APPROVED', button is "Pay"; if 'PAID', button is "Paid" and disabled.
       resultDiv.appendChild(entryDiv);
     });
   }
@@ -545,10 +573,9 @@ else if (role == 1) {
       fetch(`http://localhost:3000/api/wage-paid-condition/${projectId}?yearMonth=${month}`)
         .then(response => response.json())
         .then(data => {
-          console.log('get');
           if (data.success) {
-            const wageHistory = data.wageHistory;
-            renderWagePaymentDetails(wageHistory, projectId, resultDiv);
+            console.log(data.wages);
+            renderWagePaymentDetails(data.wages, projectId, resultDiv);
           } else {
             alert('Failed to fetch data: ' + data.message);
           }
@@ -667,11 +694,11 @@ else if (role == 0) {
 
                           // 显示最新记录模块
                           uploadedHoursDiv.innerHTML = `
-          <div style="margin-bottom: 20px;">
-            <h4>Your last submission in this month:</h4>
-            <p><strong>Submitted Time:</strong> ${latestRecord.uploadDate}</p>
-            <p><strong>Uploaded Working Hour:</strong> ${latestRecord.workingHours} hour(s)</p>
-            <p><strong>Status:</strong> ${latestRecord.approvalStatus === 0
+                            <div style="margin-bottom: 20px;">
+                            <h4>Your last submission in this month:</h4>
+                            <p><strong>Submitted Time:</strong> ${latestRecord.uploadDate}</p>
+                            <p><strong>Uploaded Working Hour:</strong> ${latestRecord.workingHours} hour(s)</p>
+                            <p><strong>Status:</strong> ${latestRecord.approvalStatus === 0
                               ? 'Pending'
                               : latestRecord.approvalStatus === 1
                                 ? 'Approved'
