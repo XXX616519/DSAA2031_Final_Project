@@ -656,15 +656,15 @@ else if (role == 0) {
 
   // 学生使用的function:
   // 上传工作时间的函数，该函数会在点击“Upload”按钮时被调用
-  function uploadWorkingHours(projectId) {
-    const workingHours = document.getElementById(`workingHours-${projectId}`).value;
-    const yearMonth = new Date().toISOString().slice(0, 7); // 获取当前年月，格式为 YYYY-MM
+  function declareWorkingHours(projectId) {
+    const workingHours = document.getElementById(`declareHours-${projectId}`).value;
+    const data= new Date();
 
     // 通过api/upload-working-hours上传工作时间数据
     fetch('http://localhost:3000/api/upload-working-hours', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectId, studentId: userId, workingHours: Number(workingHours), yearMonth }) // 传入所有参数
+      body: JSON.stringify({ projectId, studentId: userId, workingHours: Number(workingHours), date }) // 传入所有参数
     })
       .then(response => response.json())
       .then(data => {
