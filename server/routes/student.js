@@ -55,21 +55,21 @@ router.get('/student-projects/:sid', async (req, res) => {
 });
 
 // API: 获取学生的 monthly wage history
-router.get('/student-wage-history/:projectId', async (req, res) => {
-  const { projectId } = req.params;
+router.get('/wage-history/:studentId/:projectId', async (req, res) => {
+  const { studentId, projectId } = req.params;
   try {
     const [wageHistory] = await pool.query(`
       SELECT 
-        wd.sid AS studentId, 
-        wd.pid AS projectId, 
-        wd.date AS declarationDate, 
-        wd.hours AS declaredHours, 
-        wd.pscore AS performanceScore, 
-        wd.wage AS wageAmount, 
-        wd.status AS declarationStatus 
-      FROM workload_declaration wd
-      WHERE wd.pid = ?
-    `, [projectId]);
+      wp.sid AS studentId, 
+      wp.pid AS projectId, 
+      wp.date AS paymentDate, 
+      wp.hours AS workedHours, 
+      wp.pscore AS performanceScore, 
+      wp.hourp AS hourlyPayment, 
+      wp.prate AS projectRate 
+      FROM wage_payments wp
+      WHERE wp.pid = ? AND wp.sid = ?
+    `, [projectId, studentId]);
 
     if (wageHistory.length > 0) {
       res.json({ success: true, history: wageHistory });
@@ -110,7 +110,7 @@ router.get('/student-working-hours/:studentId', async (req, res) => {
 });
 
 // API: 上传工作时长（学生端）
-router.post('/upload-working-hours', async (req, res) => {
+router.post('/delcare-working-hours', async (req, res) => {
   const { pid, sid, hours, date } = req.body;
 
   if (!pid || !sid || !hours || !date) {
@@ -166,36 +166,6 @@ router.post('/upload-working-hours', async (req, res) => {
   }
 });
 
-// API: 申报工作时长
-router.post('/declare-working-hours', async (req, res) => {
-  const { projectId, studentId, workingHours, yearMonth } = req.body;
-
-  if (!projectId || !studentId || !workingHours || !yearMonth) {
-    return res.status(400).json({ success: false, message: "Missing required fields" });
-  }
-
-  try {
-    // 检查是否有 PENDING 状态的申报
-    const [pendingEntry] = await pool.query(`
-      SELECT * FROM workload_declaration 
-      WHERE pid = ? AND sid = ? AND status = 'PENDING'
-    `, [projectId, studentId]);
-
-    if (pendingEntry.length > 0) {
-      return res.status(400).json({ success: false, message: "You have a pending declaration. Please cancel it first." });
-    }
-
-    // 插入新的申报记录
-    await pool.query(`
-      INSERT INTO workload_declaration (pid, sid, date, hours, status) 
-      VALUES (?, ?, ?, ?, 'PENDING')
-    `, [projectId, studentId, `${yearMonth}-01`, workingHours]);
-
-    res.json({ success: true, message: "Working hours declared successfully" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
 
 // API: 取消申报工作时长
 router.delete('/cancel-working-hours/:projectId/:studentId', async (req, res) => {
