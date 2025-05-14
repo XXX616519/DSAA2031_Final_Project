@@ -87,12 +87,12 @@ SELECT
     END),
   ROUND(0.5 + RAND() * 1.5, 2), -- x_coefficient 0.5-2.0
   ROUND(30 + RAND() * 70, 2),    -- hour_payment 30-100
-  ROUND(5000 + RAND() * 15000, 2), -- budget 5k-20k
-  ROUND((5000 + RAND() * 15000) * 0.7, 2), -- balance 70% of budget
-  CONCAT('T', LPAD(1 + FLOOR(RAND() * 30), 2, '0')),
+  p.budget, -- budget 5k-20k
+  ROUND(p.budget * 0.7, 2), -- balance 70% of budget
+  CONCAT('T', LPAD(1 + FLOOR(RAND() * 29), 2, '0')),
   DATE_ADD('2024-01-01', INTERVAL FLOOR(RAND() * 450) DAY) -- 2024-01-01 to 2025-04-15
 FROM (
-  SELECT n AS id FROM (
+  SELECT n AS id,ROUND(5000 + RAND() * 15000, 2) AS budget FROM (
     WITH RECURSIVE seq AS (
       SELECT 1 AS n UNION ALL SELECT n+1 FROM seq WHERE n < 40
     ) SELECT n FROM seq
@@ -196,7 +196,12 @@ GROUP BY s.id, s.name;
 -- 更新项目余额（基于已支付工资）
 UPDATE projects p
 SET p.balance = p.budget - IFNULL((
-  SELECT SUM(wd.wage) 
-  FROM workload_declaration wd 
+  SELECT SUM(wd.wage)
+  FROM workload_declaration wd
+  WHERE wd.pid = p.id AND wd.status = 'PAYED'
+), 0)
+WHERE p.budget > IFNULL((
+  SELECT SUM(wd.wage)
+  FROM workload_declaration wd
   WHERE wd.pid = p.id AND wd.status = 'PAYED'
 ), 0);
