@@ -45,7 +45,8 @@ const containers = [
 function handleLogin(role) {
   return async () => {
     const id = document.getElementById(`${ROLENAME[role]}Id`).value;
-    const password = document.getElementById(`${ROLENAME[role]}Password`).value;
+    const rawPassword = document.getElementById(`${ROLENAME[role]}Password`).value;
+    const password = CryptoJS.SHA256(rawPassword).toString(CryptoJS.enc.Hex);
     const payload = { role, id, password };
     const responseContainer = containers[role];
 

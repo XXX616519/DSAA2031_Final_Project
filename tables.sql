@@ -41,7 +41,7 @@ CREATE TABLE project_participants (
   pid VARCHAR(10) NOT NULL,
   sid VARCHAR(10) NOT NULL,
   PRIMARY KEY (pid, sid),
-  FOREIGN KEY (pid) REFERENCES projects(id),
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE,
   FOREIGN KEY (sid) REFERENCES students(id)
 );
 
@@ -56,7 +56,7 @@ CREATE TABLE workload_declaration (
   status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAYED') DEFAULT 'PENDING',
   PRIMARY KEY (sid, pid, date),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id)
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE
 );
 
 -- 工资发放历史
@@ -70,7 +70,7 @@ CREATE TABLE wage_payments (
   hourp DECIMAL(10,2),
   prate DECIMAL(10,2),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id)
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE
 );
 
 -- 年报表

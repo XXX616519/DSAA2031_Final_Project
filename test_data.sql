@@ -1,49 +1,202 @@
--- 插入学生数据
-INSERT INTO students (id, name, password) VALUES
-('S001', '张三', 'password123'),
-('S002', '李四', 'password123'),
-('S003', '王五', 'password123'),
-('S004', '赵六', 'password123'),
-('S005', '陈七', 'password123');
+-- 清空现有数据（测试环境使用）
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE students;
+TRUNCATE TABLE teachers;
+TRUNCATE TABLE admins;
+TRUNCATE TABLE projects;
+TRUNCATE TABLE project_participants;
+TRUNCATE TABLE workload_declaration;
+TRUNCATE TABLE wage_payments;
+TRUNCATE TABLE annual_reports;
+SET FOREIGN_KEY_CHECKS = 1;
 
--- 插入教师数据
-INSERT INTO teachers (id, name, password) VALUES
-('T001', '王老师', 'password123'),
-('T002', '李老师', 'password123'),
-('T003', '张教授', 'password123');
+-- 生成100名学生数据（真实英文姓名）
+INSERT INTO students (id, name, password)
+WITH RECURSIVE student_seq AS (
+  SELECT 1 AS n UNION ALL SELECT n+1 FROM student_seq WHERE n < 100
+)
+SELECT 
+  CONCAT('S', LPAD(n, 3, '0')),
+  CONCAT(
+    ELT(FLOOR(1 + RAND() * 20), -- 20个常见英文名
+      'James', 'Mary', 'John', 'Patricia', 'Robert', 
+      'Jennifer', 'Michael', 'Linda', 'William', 'Elizabeth',
+      'David', 'Susan', 'Joseph', 'Jessica', 'Thomas',
+      'Sarah', 'Charles', 'Karen', 'Christopher', 'Nancy'),
+    ' ',
+    ELT(FLOOR(1 + RAND() * 20), -- 20个常见英文姓氏
+      'Smith', 'Johnson', 'Williams', 'Brown', 'Jones',
+      'Miller', 'Davis', 'Garcia', 'Rodriguez', 'Wilson',
+      'Martinez', 'Anderson', 'Taylor', 'Thomas', 'Hernandez',
+      'Moore', 'Martin', 'Jackson', 'Thompson', 'White')
+  ),
+  'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3' -- 统一密码
+FROM student_seq;
 
--- 插入管理员数据
-INSERT INTO admins (id, name, password) VALUES
-('A001', '系统管理员', 'admin123'),
-('A002', '财务管理员', 'admin123');
+-- 生成30名教师数据（真实英文姓名）
+INSERT INTO teachers (id, name, password)
+WITH RECURSIVE teacher_seq AS (
+  SELECT 1 AS n UNION ALL SELECT n+1 FROM teacher_seq WHERE n < 30
+)
+SELECT 
+  CONCAT('T', LPAD(n, 2, '0')),
+  CONCAT(
+    'Prof. ',
+    ELT(FLOOR(1 + RAND() * 15), -- 15个学术常见英文名
+      'Alexander', 'Margaret', 'Henry', 'Emma', 'Richard',
+      'Catherine', 'Edward', 'Alice', 'George', 'Dorothy',
+      'Arthur', 'Grace', 'Albert', 'Emily', 'Louis'),
+    ' ',
+    ELT(FLOOR(1 + RAND() * 20), -- 20个学术常见姓氏
+      'Wilson', 'Taylor', 'Clark', 'Young', 'Harris',
+      'Lewis', 'Walker', 'Hall', 'Allen', 'Scott',
+      'King', 'Green', 'Evans', 'Baker', 'Adams',
+      'Nelson', 'Carter', 'Mitchell', 'Parker', 'Cook')
+  ),
+  'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3' -- 统一密码
+FROM teacher_seq;
 
--- 插入项目数据（假设预算充足，balance 初始为0）
-INSERT INTO projects (id, name, description, x_coefficient, hour_payment, budget, balance, tid, start_date) VALUES
-('P001', '人工智能研究', '探索AI算法优化', 1.2, 50.00, 100000.00, 0.00, 'T001', '2023-01-01'),
-('P002', '量子计算实验', '量子比特稳定性分析', 1.0, 80.00, 80000.00, 0.00, 'T002', '2023-06-01'),
-('P003', '生物信息学', '基因序列比对研究', 0.8, 60.00, 50000.00, 0.00, 'T003', '2023-09-01');
+-- 生成5名管理员（保持简单格式）
+INSERT INTO admins (id, name, password)
+WITH RECURSIVE admin_seq AS (
+  SELECT 1 AS n UNION ALL SELECT n+1 FROM admin_seq WHERE n < 5
+)
+SELECT 
+  CONCAT('A', LPAD(n, 2, '0')),
+  CONCAT('Admin_', LPAD(n, 2, '0')),
+  'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3' -- 统一密码
+FROM admin_seq;
 
--- 项目参与者关联
-INSERT INTO project_participants (pid, sid) VALUES
-('P001', 'S001'),
-('P001', 'S002'),
-('P002', 'S003'),
-('P003', 'S004'),
-('P003', 'S005');
+-- 生成40个项目（2024-2025年）
+INSERT INTO projects (id, name, description, x_coefficient, hour_payment, budget, balance, tid, start_date)
+SELECT 
+  CONCAT('P', LPAD(p.id, 3, '0')),
+  CONCAT('Project_', 
+    CASE 
+      WHEN p.id % 4 = 0 THEN 'AI'
+      WHEN p.id % 4 = 1 THEN 'Blockchain'
+      WHEN p.id % 4 = 2 THEN 'Biotech'
+      ELSE 'Quantum'
+    END, '_', LPAD(p.id, 3, '0')),
+  CONCAT('Research project on ', 
+    CASE 
+      WHEN p.id % 4 = 0 THEN 'Artificial Intelligence'
+      WHEN p.id % 4 = 1 THEN 'Blockchain Technology'
+      WHEN p.id % 4 = 2 THEN 'Biomedical Engineering'
+      ELSE 'Quantum Computing'
+    END),
+  ROUND(0.5 + RAND() * 1.5, 2), -- x_coefficient 0.5-2.0
+  ROUND(30 + RAND() * 70, 2),    -- hour_payment 30-100
+  ROUND(5000 + RAND() * 15000, 2), -- budget 5k-20k
+  ROUND((5000 + RAND() * 15000) * 0.7, 2), -- balance 70% of budget
+  CONCAT('T', LPAD(1 + FLOOR(RAND() * 30), 2, '0')),
+  DATE_ADD('2024-01-01', INTERVAL FLOOR(RAND() * 450) DAY) -- 2024-01-01 to 2025-04-15
+FROM (
+  SELECT n AS id FROM (
+    WITH RECURSIVE seq AS (
+      SELECT 1 AS n UNION ALL SELECT n+1 FROM seq WHERE n < 40
+    ) SELECT n FROM seq
+  ) nums
+) p;
 
--- 工时提交记录（工资字段通过 hour_payment * x_coefficient * hours 计算）
-INSERT INTO workload_declaration (sid, pid, date, hours, pscore, wage, status) VALUES
-('S001', 'P001', '2023-10-01', 5.0, 85, 5.0 * 50 * 1.2, 'APPROVED'),
-('S001', 'P001', '2023-10-02', 3.5, 90, 3.5 * 50 * 1.2, 'PAYED'),
-('S002', 'P001', '2023-10-01', 4.0, 78, 4.0 * 50 * 1.2, 'PENDING'),
-('S003', 'P002', '2023-10-05', 6.0, 88, 6.0 * 80 * 1.0, 'APPROVED'),
-('S004', 'P003', '2023-10-10', 2.5, 92, 2.5 * 60 * 0.8, 'REJECTED');
+-- 项目参与者分配（每个项目5-15名学生）
+INSERT INTO project_participants (pid, sid)
+SELECT 
+  p.id,
+  s.id
+FROM projects p
+CROSS JOIN (
+  SELECT 
+    id,
+    ROW_NUMBER() OVER (ORDER BY RAND()) AS rn 
+  FROM students
+) s
+WHERE s.rn <= 5 + FLOOR(RAND() * 11)  -- 生成5-15个随机学生
+  AND NOT EXISTS (
+    SELECT 1 
+    FROM project_participants pp 
+    WHERE pp.pid = p.id 
+      AND pp.sid = s.id
+  );
 
--- 工资发放历史（仅插入已支付的记录）
-INSERT INTO wage_payments (sid, pid, date, hours, pscore, hourp, prate) VALUES
-('S001', 'P001', '2023-10-02', 3.5, 90, 50.00, 1.2);
+-- 生成工时申报数据（2024-2025年）
+INSERT INTO workload_declaration (sid, pid, date, hours, pscore, wage, status)
+WITH RECURSIVE dates AS (
+  SELECT '2024-01-01' AS date
+  UNION ALL
+  SELECT DATE_ADD(date, INTERVAL 1 DAY) FROM dates 
+  WHERE date < '2025-04-30'
+)
+SELECT 
+  pp.sid,
+  pp.pid,
+  d.date,
+  ROUND(1 + RAND() * 8, 2), -- 1-9小时
+  CASE 
+    WHEN RAND() > 0.1 THEN 60 + FLOOR(RAND() * 40) -- 60-100分
+    ELSE NULL -- 10%概率未评分
+  END,
+  NULL, -- 初始wage为NULL
+  CASE 
+    WHEN d.date < DATE_SUB(CURRENT_DATE, INTERVAL 30 DAY) THEN 
+      ELT(1 + FLOOR(RAND() * 4), 'PENDING', 'APPROVED', 'REJECTED', 'PAYED')
+    ELSE 'PENDING' -- 最近30天的记录保持PENDING
+  END
+FROM project_participants pp
+JOIN dates d ON 
+  d.date BETWEEN (SELECT start_date FROM projects WHERE id = pp.pid) AND '2025-04-30'
+WHERE 
+  DAYOFWEEK(d.date) BETWEEN 2 AND 6 -- 仅工作日
+  AND RAND() > 0.7 -- 70%概率不申报某天
+LIMIT 5000; -- 约5000条记录
 
--- 年报表数据（示例2023年部分统计）
-INSERT INTO annual_reports (year, studentId, studentName, totalWage, averageScore) VALUES
-(2023, 'S001', '张三', (5.0 * 50 * 1.2) + (3.5 * 50 * 1.2), (85 + 90)/2.0),
-(2023, 'S003', '王五', 6.0 * 80 * 1.0, 88.0);
+-- 计算并更新已批准记录的工资
+UPDATE workload_declaration wd
+JOIN projects p ON wd.pid = p.id
+SET wd.wage = ROUND(wd.hours * p.hour_payment * 
+  CASE 
+    WHEN wd.pscore IS NULL THEN 1.0
+    ELSE p.x_coefficient * (wd.pscore / 100)
+  END, 2)
+WHERE wd.status IN ('APPROVED', 'PAYED');
+
+-- 生成工资发放记录（从已批准记录中复制）
+INSERT INTO wage_payments (sid, pid, date, hours, pscore, hourp, prate)
+SELECT 
+  wd.sid,
+  wd.pid,
+  wd.date,
+  wd.hours,
+  wd.pscore,
+  p.hour_payment,
+  ROUND(
+    CASE 
+      WHEN wd.pscore IS NULL THEN 1.0
+      ELSE p.x_coefficient * (wd.pscore / 100)
+    END, 2
+  )
+FROM workload_declaration wd
+JOIN projects p ON wd.pid = p.id
+WHERE wd.status = 'PAYED';
+
+-- 生成年度报表数据（2024年）
+INSERT INTO annual_reports (year, studentId, studentName, totalWage, averageScore)
+SELECT 
+  2024,
+  s.id,
+  s.name,
+  ROUND(SUM(wd.wage), 2),
+  ROUND(AVG(wd.pscore), 2)
+FROM students s
+JOIN workload_declaration wd ON s.id = wd.sid
+JOIN projects p ON wd.pid = p.id
+WHERE YEAR(wd.date) = 2024 AND wd.status = 'PAYED' AND wd.pscore IS NOT NULL
+GROUP BY s.id, s.name;
+
+-- 更新项目余额（基于已支付工资）
+UPDATE projects p
+SET p.balance = p.budget - IFNULL((
+  SELECT SUM(wd.wage) 
+  FROM workload_declaration wd 
+  WHERE wd.pid = p.id AND wd.status = 'PAYED'
+), 0);
