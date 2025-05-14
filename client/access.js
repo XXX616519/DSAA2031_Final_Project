@@ -526,7 +526,7 @@ else if (role == 1) {
       resultDiv.appendChild(entryDiv);
     });
   }
-  
+
   function attachConfirmHandler_wage(projectId, currentYear, currentMonth, resultDiv) {
     const confirmButton = document.getElementById('confirmButton1');
     confirmButton.addEventListener('click', () => {
@@ -585,7 +585,97 @@ else if (role == 0) {
   studentProjects.style.display = 'block';
   // 学生登录，显示学生信息
   userInfoDiv.textContent = `Logged in as Student: ${userName} (ID: ${userId})`;
+  // ...existing code...
 
+  // 学生使用的function:
+  // 申报工作时长的函数
+  function declareWorkingHours(projectId) {
+    const workingHours = document.getElementById(`declareHours-${projectId}`).value;
+    const yearMonth = new Date().toISOString().slice(0, 7); // 获取当前年月，格式为 YYYY-MM
+
+    fetch('http://localhost:3000/api/declare-working-hours', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectId, studentId: userId, workingHours: Number(workingHours), yearMonth })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Working hours declared successfully!");
+          fetchStudentProjects(); // 刷新项目列表
+        } else {
+          alert("Failed to declare working hours: " + data.message);
+        }
+      })
+      .catch(error => console.error("Error declaring working hours:", error));
+  }
+
+  // 取消申报工作时长的函数
+  function cancelWorkingHours(projectId) {
+    fetch(`http://localhost:3000/api/cancel-working-hours/${projectId}/${userId}`, {
+      method: 'DELETE'
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Working hours declaration canceled successfully!");
+          fetchStudentProjects(); // 刷新项目列表
+        } else {
+          alert("Failed to cancel working hours: " + data.message);
+        }
+      })
+      .catch(error => console.error("Error canceling working hours:", error));
+  }
+
+  // 修改 fetchStudentProjects 函数，添加申报和取消按钮
+  function fetchStudentProjects() {
+    const studentId = localStorage.getItem('userId');
+
+    fetch(`http://localhost:3000/api/student-projects/${studentId}`)
+      .then(response => response.json())
+      .then(data => {
+        const studentProjectList = document.getElementById('studentProjectList');
+        studentProjectList.innerHTML = '';
+        if (data.success && data.projects.length > 0) {
+          data.projects.forEach(project => {
+            const projectDiv = document.createElement('div');
+            projectDiv.className = 'project-box';
+            projectDiv.innerHTML = `
+            <strong>Project ID:</strong> ${project.projectId}<br>
+            <strong>Name:</strong> ${project.projectName}<br>
+            <strong>Leading Professor:</strong> ${project.leadingProfessor}<br>
+            <strong>Description:</strong> ${project.description}<br>
+            <strong>Hourly Payment:</strong> $${project.hourPayment}<br>
+            <strong>Start Date:</strong> ${project.startDate}<br>
+          `;
+
+            // 添加申报工作时长的输入框和按钮
+            const declareDiv = document.createElement('div');
+            declareDiv.style.marginTop = '10px';
+            declareDiv.innerHTML = `
+            <label for="declareHours-${project.projectId}">Declare Working Hours:</label>
+            <input type="number" id="declareHours-${project.projectId}" placeholder="Enter hours">
+            <button onclick="declareWorkingHours('${project.projectId}')">Declare</button>
+          `;
+
+            // 添加取消申报的按钮
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancel Declaration';
+            cancelButton.style.marginLeft = '10px';
+            cancelButton.onclick = () => cancelWorkingHours(project.projectId);
+
+            projectDiv.appendChild(declareDiv);
+            projectDiv.appendChild(cancelButton);
+            studentProjectList.appendChild(projectDiv);
+          });
+        } else {
+          studentProjectList.textContent = 'No projects found.';
+        }
+      })
+      .catch(error => console.error('Error fetching student projects:', error));
+  }
+
+  // ...existing code...
   // 学生使用的function:
   // 上传工作时间的函数，该函数会在点击“Upload”按钮时被调用
   function uploadWorkingHours(projectId) {
