@@ -62,12 +62,12 @@ router.put('/project-students/:status', async (req, res) => {
   const { projectId, studentId, date } = req.body;
   switch (status) {
     case 'approve':
-      const performanceScore = req.body;
+      const { performanceScore } = req.body;
       await pool.query(
         `
         UPDATE workload_declaration
-        SET status = 'APPROVED', performance_score = ?
-        WHERE sid = ? AND pid = ? AND date = ?
+        SET status = 'APPROVED', pscore = ?
+        WHERE status='PENDING' AND sid = ? AND pid = ? AND date = ?
         `,
         [performanceScore, studentId, projectId, date]
       ).then((_) => res.json({ success: true, message: "Application approved successfully" }))
@@ -81,7 +81,7 @@ router.put('/project-students/:status', async (req, res) => {
         `
         UPDATE workload_declaration
         SET status = 'REJECTED'
-        WHERE sid = ? AND pid = ? AND date = ?
+        WHERE status='PENDING' AND sid = ? AND pid = ? AND date = ?
         `,
         [studentId, projectId, date]
       ).then((_) => res.json({ success: true, message: "Application rejected successfully" }))

@@ -349,7 +349,8 @@ else if (role == 1) {
     }
     students.forEach(student => {
       const entryDiv = document.createElement('div');
-      const date = new Date(student.uploadDate).toISOString().slice(0, 10);
+      // const date = new Date(student.uploadDate).toDateString();
+      const date = student.uploadDate;
       entryDiv.className = 'project-box';
       entryDiv.innerHTML = `
       <strong>Student ID:</strong> ${student.studentId}<br>
