@@ -71,12 +71,15 @@ DSAA2031_Final_Project/
 ├── .vscode/                
 │   └── settings.json      
 ├── client/             
-│   ├── index.html
-|   ├── access.js
+│   ├── admin.html
+|   ├── admin_access.js
 |   ├── app.js
 |   ├── index.html
-|   ├── personal.html
-|   └── style.css
+|   ├── student.html
+|   ├── student_access.js
+|   ├── style.css
+|   ├── teacher.html
+|   └── teacher_access.js
 ├── server/
 │   ├── node_modules/
 |   ├── config/
@@ -201,7 +204,7 @@ You're now ready to start working with:
 
 
 <!-- USAGE EXAMPLES -->
-## Report
+## 📖Report
 
 Use this space to show the report of our project. 
 Please refer to the [Documentation](https://github.com/XXX616519/DSAA2031_Final_Project/blob/main/report/functions.md)_
@@ -211,7 +214,7 @@ Please refer to the [Documentation](https://github.com/XXX616519/DSAA2031_Final_
 
 
 <!-- CONTRIBUTING -->
-## Contributing
+## 💬Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
