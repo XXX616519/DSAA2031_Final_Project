@@ -133,6 +133,6 @@
 ![alt text](image-2.png)
 
 ## 3. Data Flow Diagrams (DFDs)
-![alt text](<Blank diagram (2).png>)
+![alt text](image-3.png)
 
 ## 4. ER Diagram

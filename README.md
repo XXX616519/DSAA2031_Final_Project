@@ -22,11 +22,11 @@
     <a href="https://github.com/XXX616519/DSAA2031_Final_Project"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/XXX616519/DSAA2031_Final_Project">View Demo</a>
+    <a href="https://github.com/XXX616519/DSAA2031_Final_Project/tree/main/report">View Demo</a>
     &middot;
-    <a href="https://github.com/XXX616519/DSAA2031_Final_Project">Report Bug</a>
+    <a href="https://github.com/XXX616519/DSAA2031_Final_Project/blob/main/report/functions.md">Report</a>
     &middot;
-    <a href="https://github.com/XXX616519/DSAA2031_Final_Project">Request Feature</a>
+    <a href="https://github.com/XXX616519/DSAA2031_Final_Project/blob/main/report/functions.md">Feature</a>
   </p>
 </div>
 
