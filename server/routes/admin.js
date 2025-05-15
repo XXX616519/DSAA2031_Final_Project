@@ -67,6 +67,61 @@ router.get('/projects', async (req, res) => {
   }
 });
 
+router.post('/projects', async (req, res) => {
+  const {
+    projectName,
+    description,
+    hourPayment,
+    performanceRatio,
+    budget,
+    participants,
+    leadingProfessor
+  } = req.body;
+
+  if (!projectName || !hourPayment || !performanceRatio || !budget || !participants || !leadingProfessor) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    // Use leadingProfessor as teacher id directly
+    const tid = leadingProfessor;
+
+    // Insert into projects
+    const [projectResult] = await connection.query(
+      `INSERT INTO projects (name, description, hour_payment, x_coefficient, budget, tid, start_date, balance)
+       VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)`,
+      [projectName, description, hourPayment, performanceRatio, budget, tid, budget]
+    );
+    const projectId = projectResult.insertId;
+
+    // Insert participants
+    if (participants.length > 0) {
+      const participantValues = participants.map(sid => [projectId, sid]);
+      await connection.query(
+        `INSERT INTO project_participants (pid, sid) VALUES ?`,
+        [participantValues]
+      );
+    }
+
+    await connection.commit();
+    res.json({ success: true, projectId });
+  } catch (error) {
+    await connection.rollback();
+    switch (error.errno) {
+      case 1062:
+        return res.status(400).json({ success: false, message: "Duplicate participants!" });
+      case 1452:
+        return res.status(400).json({ success: false, message: "Please ensure the students and professor exist!" });
+      default:
+        return res.status(500).json({ success: false, message: "Database error", error });
+    }
+  } finally {
+    connection.release();
+  }
+});
+
 // API: 更新指定项目（仅允许修改 hourPayment, participants, performanceRatio, budget）
 router.put('/projects/:projectId', async (req, res) => {
   const { projectId } = req.params;
