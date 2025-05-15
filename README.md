@@ -242,10 +242,10 @@ Don't forget to give the project a star! Thanks again!
 
 | Name          | Email                                                |
 |---------------|------------------------------------------------------|
-| Keyu HU       | [khu616@connect.hkust-gz.edu.cn](mailto:khu616@connect.hkust-gz.edu.cn)     |
-| Zhouan SHEN   | [zshen575@connect.hkust-gz.edu.cn](mailto:zshen575@connect.hkust-gz.edu.cn) |
-| Zhenzhuo LI   | [zli743@connect.hkust-gz.edu.cn](mailto:zli743@connect.hkust-gz.edu.cn)     |
-| Yingwen PENG  | [ypeng996@connect.hkust-gz.edu.cn](mailto:ypeng996@connect.hkust-gz.edu.cn) |
+| Keyu HU(SQL and Report)       | [khu616@connect.hkust-gz.edu.cn](mailto:khu616@connect.hkust-gz.edu.cn)     |
+| Zhouan SHEN(Client)   | [zshen575@connect.hkust-gz.edu.cn](mailto:zshen575@connect.hkust-gz.edu.cn) |
+| Zhenzhuo LI(Server)   | [zli743@connect.hkust-gz.edu.cn](mailto:zli743@connect.hkust-gz.edu.cn)     |
+| Yingwen PENG(Client)  | [ypeng996@connect.hkust-gz.edu.cn](mailto:ypeng996@connect.hkust-gz.edu.cn) |
 
 **Project Link**: [DSAA2031_Final_Project](https://github.com/XXX616519/DSAA2031_Final_Project)
 

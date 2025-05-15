@@ -1,5 +1,7 @@
 # **Login System**  
 
+**GitHub Website:** https://github.com/XXX616519/DSAA2031_Final_Project
+
 ## 1.Organizational and Role Analysis
 
 ### Three user roles can log in to the frontend: **Student**, **Teacher**, and **Admin**.  
@@ -185,4 +187,71 @@ Average Teacher pay wage: 0.015s
 | Teacher reject working hours  | ≈ 1000 teachers              | 0.010               |
 | Teacher wage paid condition   | ≈ 1000 teachers              | 0.006               |
 | Teacher pay wage              | ≈ 1000 teachers              | 0.015               |
-As you can see, all the operations are quick and efficient 
+As you can see, all the operations are quick and efficient
+
+
+### 3. Attempt Optimization
+
+```sql
+  CREATE INDEX idx_project_participants_sid ON project_participants(sid);
+  CREATE INDEX idx_project_participants_pid ON project_participants(pid);
+  CREATE INDEX idx_workload_sid_pid_status ON workload_declaration(sid, pid, status);
+  CREATE INDEX idx_workload_pid_status ON workload_declaration(pid, status);
+  CREATE INDEX idx_workload_status ON workload_declaration(status);
+  CREATE INDEX idx_workload_date ON workload_declaration(date);
+  CREATE INDEX idx_projects_tid ON projects(tid);
+```
+
+| Operation Name                | Test Dataset Size | Avg Runtime (Before) (s) | Avg Runtime (After) (s) | Improvement |
+| ----------------------------- | ----------------- | ------------------------ | ----------------------- | ----------- |
+| Admin login                   | 1 admin           | 0.003                    | 0.003                   | —           |
+| Teacher login                 | 1000 teachers     | 0.002                    | 0.003                   | -0.001      |
+| Student login                 | 50000 students    | 0.002                    | 0.003                   | -0.001      |
+| Admin add project             | 3333 projects     | 0.004                    | 0.004                   | —           |
+| Admin get projects            | 3333 projects     | **0.052**                | **0.048**               |✅ \~7.7%    |
+| Admin update project          | 3333 projects     | 0.009                    | 0.009                   | —           |
+| Admin delete project          | 3333 projects     | 0.008                    | 0.008                   | —           |
+| Admin annual report           | System-wide       | 0.019                    | 0.016                   | ✅ \~15.8%  |
+| Student get projects          | 50000 students    | 0.003                    | 0.003                   | —           |
+| Student declare working hours | 50000 students    | 0.007                    | 0.008                   | -0.001      |
+| Student cancel working hours  | 50000 students    | 0.011                    | 0.012                   | -0.001      |
+| Student get working hours     | 50000 students    | **0.017**                | **0.010**               | ✅ \~41.2%  |
+| Student wage history          | 50000 students    | 0.017                    | 0.018                   | -0.001      |
+| Teacher get projects          | 1000 teachers     | **0.007**                | **0.005**               | ✅ \~28.6%  |
+| Teacher get project students  | ≈1000 teachers    | 0.006                    | 0.006                   | —           |
+| Teacher approve working hours | ≈1000 teachers    | 0.010                    | 0.012                   | -0.002      |
+| Teacher reject working hours  | ≈1000 teachers    | 0.010                    | 0.012                   | -0.002      |
+| Teacher wage paid condition   | ≈1000 teachers    | 0.006                    | 0.007                   | -0.001      |
+| Teacher pay wage              | ≈1000 teachers    | 0.015                    | 0.016                   | -0.001      |
+
+## ✅ Summary and Reflection
+
+This project successfully implements a role-based login system for managing student research projects, with clear functionality for **Students**, **Teachers**, and **Admins**.
+
+### Key Achievements:
+
+* **Clear role separation**: Each role has distinct permissions, enhancing data security and workflow clarity.
+* **Automated wage calculation**: Based on working hours and performance scores, wages are computed transparently.
+* **Well-structured system design**: DFDs and ER diagrams helped guide database and logic implementation effectively.
+* **Efficient performance**: Most operations respond in under 0.01s, even with large test datasets (1000 teachers, 50,000 students).
+
+### Optimization Insights:
+
+* We added multiple indexes on frequently queried fields, which **improved key operations**:
+
+  * `Student get working hours`: improved by \~41%
+  * `Teacher get projects`: improved by \~28%
+  * `Admin get projects`: improved by \~7%
+
+### Reflection:
+
+* **Indexing** significantly reduces query time and should be planned early in system design.
+* **Performance testing** helped identify bottlenecks and validate scalability.
+* The system is stable and ready for future improvements like pagination, caching, and audit logging.
+
+This project provided valuable hands-on experience in **full-stack system design, database optimization, and performance testing**.
+
+##  Work Distribution
+### Yingwen Peng and Zhouan Shen: Client
+### Zhenzhuo Li: Server
+### Keyu Hu: SQL and Report
