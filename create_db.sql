@@ -41,7 +41,7 @@ CREATE TABLE projects (
 
 -- 项目参与者关联表（学生）
 CREATE TABLE project_participants (
-  pid VARCHAR(10) NOT NULL,
+  pid VARCHAR(10),
   sid VARCHAR(10) NOT NULL,
   PRIMARY KEY (pid, sid),
   FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE,
@@ -50,14 +50,14 @@ CREATE TABLE project_participants (
 
 -- 工时提交历史表
 CREATE TABLE workload_declaration (
-  sid VARCHAR(10),
+  sid VARCHAR(10) NOT NULL,
   pid VARCHAR(10),
   date DATE NOT NULL,
   hours DECIMAL(5,2),
   pscore INT,
   wage DECIMAL(10,2),
   status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAID') DEFAULT 'PENDING',
-  PRIMARY KEY (sid, pid, date),
+  UNIQUE (sid, pid, date),
   FOREIGN KEY (sid) REFERENCES students(id),
   FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL
 );
