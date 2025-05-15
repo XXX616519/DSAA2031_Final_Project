@@ -59,7 +59,7 @@ router.get('/wage-history/:studentId/:projectId', async (req, res) => {
 // API: 获取学生的工作时长记录
 router.get('/student-working-hours/:studentId', async (req, res) => {
   const { studentId } = req.params;
-
+  const { pid, newest } = req.query;
   try {
     const [workingHours] = await pool.query(`
       SELECT 
@@ -71,9 +71,9 @@ router.get('/student-working-hours/:studentId', async (req, res) => {
         wd.wage AS wageAmount, 
         wd.status AS approvalStatus 
       FROM workload_declaration wd
-      WHERE wd.sid = ?
-      ORDER BY wd.date DESC
-    `, [studentId]);
+      WHERE wd.sid = ? AND pid = ?
+      ORDER BY wd.date DESC ${newest ? 'LIMIT 1' : ''}
+    `, [studentId, pid]);
 
     if (workingHours.length > 0) {
       res.json({ success: true, workingHours });
