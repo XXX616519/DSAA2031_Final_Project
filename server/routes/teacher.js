@@ -141,8 +141,10 @@ router.put('/wage-paid', async (req, res) => {
         await pool.query(`
           UPDATE workload_declaration
           SET status = 'PAID'
-          WHERE status = 'APPROVED'
-        `);
+          WHERE status = 'APPROVED' AND sid=? AND pid=? AND date=?
+          `,
+        [studentId, projectId, date]
+        );
     res.json({ success: true, message: "Wage payment status updated successfully" });
   } catch (error) {
     console.error("Error updating wage payment status:", error);
