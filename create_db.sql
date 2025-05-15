@@ -71,7 +71,7 @@ BEGIN
     IF NEW.status = 'PENDING' THEN
         IF EXISTS (
             SELECT 1 FROM workload_declaration 
-            WHERE sid = NEW.sid AND status = 'PENDING'
+            WHERE sid = NEW.sid AND status = 'PENDING' AND pid = NEW.pid
         ) THEN
             SIGNAL SQLSTATE '45000' 
             SET MESSAGE_TEXT = '每个学生只能有一条PENDING记录';
