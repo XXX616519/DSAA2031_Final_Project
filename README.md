@@ -22,11 +22,11 @@
     <a href="https://github.com/XXX616519/DSAA2031_Final_Project"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/XXX616519/DSAA2031_Final_Project">View Demo</a>
+    <a href="https://github.com/XXX616519/DSAA2031_Final_Project/tree/main/report">View Demo</a>
     &middot;
-    <a href="https://github.com/XXX616519/DSAA2031_Final_Project">Report Bug</a>
+    <a href="https://github.com/XXX616519/DSAA2031_Final_Project/blob/main/report/functions.md">Report</a>
     &middot;
-    <a href="https://github.com/XXX616519/DSAA2031_Final_Project">Request Feature</a>
+    <a href="https://github.com/XXX616519/DSAA2031_Final_Project/blob/main/report/functions.md">Feature</a>
   </p>
 </div>
 
@@ -201,11 +201,10 @@ You're now ready to start working with:
 
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## Report
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+Use this space to show the report of our project. 
+Please refer to the [Documentation](https://github.com/XXX616519/DSAA2031_Final_Project/blob/main/report/functions.md)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
