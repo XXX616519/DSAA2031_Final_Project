@@ -64,7 +64,9 @@ router.get('/student-working-hours/:studentId', async (req, res) => {
   const { studentId } = req.params;
   const { pid, newest } = req.query;
   try {
-    const [workingHours] = await pool.query(`
+    var workingHours;;
+    if (newest) {
+      [workingHours] = await pool.query(`
       SELECT 
         wd.sid AS studentId, 
         wd.pid AS projectId, 
@@ -77,7 +79,25 @@ router.get('/student-working-hours/:studentId', async (req, res) => {
       WHERE wd.sid = ? AND pid = ?
       ORDER BY wd.date DESC ${newest ? 'LIMIT 1' : ''}
     `, [studentId, pid]);
-
+    }
+    else {
+      const { year, month } = req.query;
+      if (!year || !month) {
+        return res.status(400).json({ success: false, message: "Year and month are required." });
+      }
+      [workingHours] = await pool.query(`
+          SELECT 
+            wd.sid AS studentId, 
+            wd.pid AS projectId, 
+            wd.date AS workDate, 
+            wd.hours AS workHours, 
+            wd.pscore AS performanceScore, 
+            wd.wage AS wageAmount, 
+            wd.status AS approvalStatus 
+          FROM workload_declaration wd
+          WHERE wd.sid = ? AND pid = ? AND YEAR(wd.date) = ? AND MONTH(wd.date) = ?
+        `, [studentId, pid, year, month]);
+    }
     if (workingHours.length > 0) {
       res.json({ success: true, workingHours });
     } else {

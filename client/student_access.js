@@ -3,13 +3,8 @@ const userId = localStorage.getItem('userId');
 const userName = localStorage.getItem('userName');
 const role = localStorage.getItem('role');
 const userInfoDiv = document.getElementById('userInfo');
-
-
 // 学生登录，显示学生信息
 userInfoDiv.textContent = `Logged in as Student: ${userName} (ID: ${userId})`;
-// ...existing code...
-
-// 学生使用的function:
 
 
 // 取消申报工作时长的函数
@@ -174,8 +169,7 @@ function fetchStudentProjects() {
         fetch(`http://localhost:3000/api/student-working-hours/${studentId}?pid=${pid}&newest=true`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
-        }
-        )
+        })
             .then(response => response.json())
             .then(data => {
                 if (!data.success) {
@@ -186,48 +180,71 @@ function fetchStudentProjects() {
                 const { workingHours } = data;
                 const latestSection = document.createElement('div');
                 latestSection.className = 'record-section';
-                if (workingHours.length > 0) {
+                if (workingHours && workingHours.length > 0) {
                     const latest = workingHours[0];
-                    console.log(latest);
                     latestSection.innerHTML = `
-                <h4>Latest Submission</h4>
-                <p>Date: ${latest.workDate}</p>
-                <p>Hours: ${latest.workHours}</p>
-                <p>Status: ${latest.approvalStatus}</p>
-            `;
+                        <h4>Latest Submission</h4>
+                        <p>Date: ${latest.workDate}</p>
+                        <p>Hours: ${latest.workHours}</p>
+                        <p>Status: ${latest.approvalStatus}</p>
+                    `;
                 } else {
                     latestSection.innerHTML = '<p>No submissions this month</p>';
                 }
                 panel.appendChild(latestSection);
+
+                // 历史查询模块
+                const historySection = document.createElement('div');
+                historySection.className = 'history-query';
+                historySection.innerHTML = `
+                    <h4>History Query</h4>
+                    <div class="date-picker">
+                        <select class="year-select">
+                            ${generateYearOptions()}
+                        </select>
+                        <select class="month-select">
+                            ${generateMonthOptions()}
+                        </select>
+                        <div class="query-results"></div>
+                    </div>
+                `;
+                panel.appendChild(historySection);
+
+                function handleQuery() {
+                    const year = this.parentElement.querySelector('.year-select').value;
+                    const month = this.parentElement.querySelector('.month-select').value;
+                    const resultsContainer = this.parentElement.querySelector('.query-results');
+                    resultsContainer.innerHTML = '<div class="loading">Loading...</div>';
+
+                    fetch(`http://localhost:3000/api/student-working-hours/${studentId}?pid=${project.projectId}&year=${year}&month=${month}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                resultsContainer.innerHTML = '';
+                                data.workingHours.forEach(entry => {
+                                    const entryDiv = document.createElement('div');
+                                    entryDiv.className = 'entry';
+                                    entryDiv.innerHTML = `
+                                        <p>Date: ${entry.workDate}</p>
+                                        <p>Hours: ${entry.workHours}</p>
+                                        <p>Status: ${entry.approvalStatus}</p>
+                                    `;
+                                    resultsContainer.appendChild(entryDiv);
+                                });
+                            } else {
+                                resultsContainer.innerHTML = `<p>${data.message}</p>`;
+                            }
+                        });
+                }
+
+                // 事件绑定
+                panel.querySelector('.month-select')?.addEventListener('change', handleQuery);
+                panel.querySelector('.year-select')?.addEventListener('change', handleQuery);
+            })
+            .catch(error => {
+                panel.innerHTML = `<p>Error loading records.</p>`;
+                console.error(error);
             });
-
-
-        // 历史查询模块
-        const historySection = document.createElement('div');
-        historySection.className = 'history-query';
-        historySection.innerHTML = `
-            <h4>History Query</h4>
-            <div class="date-picker">
-                <select class="year-select">
-                    ${generateYearOptions()}
-                </select>
-                <select class="month-select">
-                    ${generateMonthOptions()}
-                </select>
-                <button class="query-btn">Search</button>
-            </div>
-            <div class="query-results"></div>
-        `;
-        panel.appendChild(historySection);
-
-        // 事件绑定
-        panel.querySelector('.edit-trigger')?.addEventListener('click', () => {
-            const form = panel.querySelector('.edit-form');
-            form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        });
-
-        panel.querySelector('.save-edit')?.addEventListener('click', handleSaveEdit);
-        panel.querySelector('.query-btn')?.addEventListener('click', () => { console.log('test'); });
     }
 
     function initWagePanel(project, container) {
@@ -280,10 +297,9 @@ function fetchStudentProjects() {
     }
 
 
-    function getPaymentStatus(status) {
-        return status === 1 ? 'Paid' : 'Pending';
-    }
 }
+
+
 fetchStudentProjects();
 
 // 获取并显示 Wage History
