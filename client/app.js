@@ -73,7 +73,17 @@ function handleLogin(role) {
           localStorage.setItem('userName', data.name);
           localStorage.setItem('role', role);
           // 跳转到个人信息页面
-          window.location.href = 'personal.html';
+          switch (role) {
+            case 0:
+              window.location.href = 'student.html';
+              break;
+            case 1:
+              window.location.href = 'teacher.html';
+              break;
+            case 2:
+              window.location.href = 'admin.html';
+              break;
+          }
         }
         else {
           console.error('Login failed:', data.message);
