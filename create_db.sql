@@ -59,7 +59,7 @@ CREATE TABLE workload_declaration (
   status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAID') DEFAULT 'PENDING',
   PRIMARY KEY (sid, pid, date),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL
 );
 
 DELIMITER //
@@ -77,6 +77,14 @@ BEGIN
             SET MESSAGE_TEXT = '每个学生只能有一条PENDING记录';
         END IF;
     END IF;
+END//
+
+CREATE TRIGGER delete_unpaid_workloads_on_project_delete
+BEFORE DELETE ON projects
+FOR EACH ROW
+BEGIN
+  DELETE FROM workload_declaration
+  WHERE pid = OLD.id AND status <> 'PAID';
 END//
 
 DELIMITER ;
