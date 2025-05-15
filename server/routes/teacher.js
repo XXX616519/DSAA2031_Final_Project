@@ -14,6 +14,7 @@ router.get('/teacher-projects/:teacherId', async (req, res) => {
       p.id AS projectId, 
       p.name AS projectName, 
       p.budget, 
+      p.balance,
       GROUP_CONCAT(CONCAT(s.id, ' (', s.name, ')') SEPARATOR ', ') AS participants
       FROM projects p
       LEFT JOIN project_participants pp ON p.id = pp.pid
@@ -122,34 +123,60 @@ router.get('/wage-paid-condition/:projectId', async (req, res) => {
 // 只更新了status，没有添加时间等其他信息
 router.put('/wage-paid', async (req, res) => {
   const { projectId, studentId, date } = req.body;
+  const connection = await pool.getConnection();
   try {
-    // await pool.query(
-    //   `
-    //   UPDATE workload_declaration
-    //   SET status = 'PAIED', wage = (SELECT p.hour_payment * w.hours+w.pscore*p.x_coefficient FROM workload_declaration w, projects p WHERE w.pid = p.id )
-    //   WHERE status='APPROVED' AND sid = ? AND pid = ? AND date = ?
-    //   `,
-    //   [studentId, projectId, date]
-    // );
-        await pool.query(
-        `UPDATE workload_declaration wd
-        JOIN projects p ON wd.pid = p.id
-        SET wd.wage = p.hour_payment * wd.hours + wd.pscore * p.x_coefficient
-        WHERE wd.status = 'APPROVED'
-        AND wd.sid = ? AND wd.pid = ? AND wd.date = ?
-        `,
-        [studentId, projectId, date]);
-        await pool.query(`
-          UPDATE workload_declaration
-          SET status = 'PAID'
-          WHERE status = 'APPROVED' AND sid=? AND pid=? AND date=?
-          `,
-        [studentId, projectId, date]
-        );
-    res.json({ success: true, message: "Wage payment status updated successfully" });
+    await connection.beginTransaction();
+
+    // 1. 计算工资
+    const [wageRows] = await connection.query(
+      `SELECT wd.hours, wd.pscore, p.hour_payment, p.x_coefficient, p.balance
+       FROM workload_declaration wd
+       JOIN projects p ON wd.pid = p.id
+       WHERE wd.status = 'APPROVED' AND wd.sid = ? AND wd.pid = ? AND wd.date = ? FOR UPDATE`,
+      [studentId, projectId, date]
+    );
+    if (wageRows.length === 0) {
+      throw new Error('No approved workload found for payment');
+    }
+    const { hours, pscore, hour_payment, x_coefficient, balance } = wageRows[0];
+    const wage = Number(hour_payment) * Number(hours) + Number(pscore) * Number(x_coefficient);
+
+    if (Number(balance) < wage) {
+      throw new Error('Insufficient project balance');
+    }
+
+    // 2. 更新工资字段
+    await connection.query(
+      `UPDATE workload_declaration
+       SET wage = ?
+       WHERE status = 'APPROVED' AND sid = ? AND pid = ? AND date = ?`,
+      [wage, studentId, projectId, date]
+    );
+
+    // 3. 更新发放状态
+    await connection.query(
+      `UPDATE workload_declaration
+       SET status = 'PAID'
+       WHERE status = 'APPROVED' AND sid = ? AND pid = ? AND date = ?`,
+      [studentId, projectId, date]
+    );
+
+    // 4. 扣除项目余额
+    await connection.query(
+      `UPDATE projects
+       SET balance = balance - ?
+       WHERE id = ?`,
+      [wage, projectId]
+    );
+
+    await connection.commit();
+    res.json({ success: true, message: "Wage payment status updated and project balance deducted successfully" });
   } catch (error) {
+    await connection.rollback();
     console.error("Error updating wage payment status:", error);
     res.status(500).json({ success: false, message: error.message });
+  } finally {
+    connection.release();
   }
 });
 

@@ -31,7 +31,7 @@ function fetchProjects() {
           <p><strong>Performance Ratio:</strong> <span id="hp-${project.performanceRatio}">${project.performanceRatio}</span></p>
           <p><strong>Budget:</strong> <span id="bd-${project.projectId}">${project.budget}</span></p>
           <p><strong>Balance:</strong> <span id="hp-${project.balance}">${project.balance}</span></p>
-          <p><strong>Leading Professor:</strong> ${project.leadingProfessor}</p>
+          <p><strong>Leading Professor:</strong> ${project.leadingProfessor} (${project.leadingProfessorId})</p>
           <p><strong>Participants:</strong> ${project.participants}</p>
         `;
 

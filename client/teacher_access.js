@@ -27,6 +27,7 @@ function fetchTeacherProjects() {
               <strong>Project ID:</strong> ${project.projectId}<br>
               <strong>Name:</strong> ${project.projectName}<br>
               <strong>Budget:</strong> $${project.budget}<br>
+              <strong>Balance:</strong> $${project.balance}<br>
               <strong>Participants:</strong> ${project.participants}<br>
               <button class="button" onclick="fetchProjectDetails('${project.projectId}')">View Details</button>
               <button class=".button" style="margin-left: 10px;" onclick="fetchWagePaymentSituation('${project.projectId}')">Wage payment</button>
