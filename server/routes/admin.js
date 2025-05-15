@@ -46,7 +46,7 @@ router.get('/projects', async (req, res) => {
     const [projects] = await connection.query(`
       SELECT p.id AS projectId, p.name AS projectName, p.description, p.hour_payment AS hourPayment, 
              p.budget, p.balance, p.x_coefficient AS performanceRatio, p.start_date AS startDate, 
-             t.name AS leadingProfessor, 
+             t.name AS leadingProfessor, t.id AS leadingProfessorId,
              GROUP_CONCAT(CONCAT(s.id, ' (', s.name, ')') SEPARATOR ', ') AS participants,
              GROUP_CONCAT(s.id SEPARATOR ',') AS participantIds
       FROM projects p
@@ -89,6 +89,17 @@ router.post('/projects', async (req, res) => {
     // Use leadingProfessor as teacher id directly
     const tid = leadingProfessor;
 
+
+    // Check if the project ID already exists
+    const [[existingProject]] = await connection.query(
+      `SELECT id FROM projects WHERE id = ?`,
+      [projectId]
+    );
+    if (existingProject) {
+      await connection.rollback();
+      return res.status(400).json({ success: false, message: "Project ID already exists" });
+    }
+
     // Insert into projects
     const [projectResult] = await connection.query(
       `INSERT INTO projects (id, name, description, hour_payment, x_coefficient, budget, tid, start_date, balance)
@@ -110,6 +121,7 @@ router.post('/projects', async (req, res) => {
     res.json({ success: true, projectId });
   } catch (error) {
     await connection.rollback();
+    console.error("Error inserting project:", error);
     switch (error.errno) {
       case 1062:
         return res.status(400).json({ success: false, message: "Duplicate participants!" });
@@ -126,20 +138,49 @@ router.post('/projects', async (req, res) => {
 // API: 更新指定项目（仅允许修改 hourPayment, participants, performanceRatio, budget）
 router.put('/projects/:projectId', async (req, res) => {
   const { projectId } = req.params;
-  const { hourPayment, participants, budget, performanceRatio } = req.body;
+  const { hourPayment, participants, balance, performanceRatio } = req.body;
 
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-
-    const [result] = await connection.query(`
+    const [[projectInfo]] = await connection.query(
+      `SELECT balance, budget FROM projects WHERE id = ?`,
+      [projectId]
+    );
+    if (!projectInfo) {
+      await connection.rollback();
+      return res.status(404).json({ success: false, message: "Project not found" });
+    }
+    // If balance is provided, update budget by the same difference
+    let result;
+    console.log("Project info:", projectInfo);
+    if (balance !== undefined && balance !== null) {
+      const oldBudget = parseFloat(projectInfo.budget);
+      const oldBlance = parseFloat(projectInfo.balance);
+      const balanceDiff = balance - oldBlance;
+      const newBudget = oldBudget + balanceDiff;
+      console.log(typeof newBudget);
+      console.log("New budget:", newBudget);
+      [result] = await connection.query(
+      `
       UPDATE projects SET 
         hour_payment = COALESCE(?, hour_payment), 
-        budget = COALESCE(?, budget), 
+        balance = COALESCE(?, balance), 
+        budget = ?, 
         x_coefficient = COALESCE(?, x_coefficient)
       WHERE id = ?`,
-      [hourPayment, budget, performanceRatio, projectId]
-    );
+      [hourPayment, balance, newBudget, performanceRatio, projectId]
+      );
+    } else {
+      [result] = await connection.query(
+      `
+      UPDATE projects SET 
+        hour_payment = COALESCE(?, hour_payment), 
+        x_coefficient = COALESCE(?, x_coefficient)
+      WHERE id = ?`,
+      [hourPayment, performanceRatio, projectId]
+      );
+    }
 
     if (participants) {
       await connection.query(`DELETE FROM project_participants WHERE pid = ?`, [projectId]);
