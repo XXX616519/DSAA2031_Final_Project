@@ -71,12 +71,15 @@ DSAA2031_Final_Project/
 ├── .vscode/                
 │   └── settings.json      
 ├── client/             
-│   ├── index.html
-|   ├── access.js
+│   ├── admin.html
+|   ├── admin_access.js
 |   ├── app.js
 |   ├── index.html
-|   ├── personal.html
-|   └── style.css
+|   ├── student.html
+|   ├── student_access.js
+|   ├── style.css
+|   ├── teacher.html
+|   └── teacher_access.js
 ├── server/
 │   ├── node_modules/
 |   ├── config/
