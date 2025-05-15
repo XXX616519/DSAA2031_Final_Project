@@ -88,26 +88,19 @@ END//
 
 DELIMITER ;
 
--- 工资发放历史
-CREATE TABLE wage_payments (
-  sid VARCHAR(10),
-  pid VARCHAR(10),
-  date DATE NOT NULL,
-  hours DECIMAL(5,2),
-  pscore INT,
-  hourp DECIMAL(10,2),
-  prate DECIMAL(10,2),
-  FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL
-);
-
--- 年报表
-CREATE TABLE annual_reports(
-  year INT NOT NULL,
-  studentId VARCHAR(10),
-  studentName VARCHAR(50),
-  totalWage DECIMAL(15, 2),
-  averageScore DECIMAL(5, 2),
-  PRIMARY KEY(year, studentId),
-  FOREIGN KEY(studentId) REFERENCES students(id)
-);
+-- 年报视图
+CREATE VIEW annual_reports AS
+SELECT
+  YEAR(wd.date) AS year,
+  s.id AS studentId,
+  s.name AS studentName,
+  SUM(wd.wage) AS totalWage,
+  AVG(wd.pscore) AS averageScore,
+  MAX(wd.date) AS updatedOn
+FROM
+  workload_declaration wd
+  JOIN students s ON wd.sid = s.id
+WHERE
+  wd.status = 'PAID'
+GROUP BY
+  YEAR(wd.date), s.id;
