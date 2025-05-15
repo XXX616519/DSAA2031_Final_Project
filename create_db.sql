@@ -26,11 +26,11 @@ CREATE TABLE projects (
   id VARCHAR(10) PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
-  x_coefficient DECIMAL(5,2) DEFAULT 1.0, -- 教授决定
+  x_coefficient DECIMAL(5,2) DEFAULT 1.0, -- admin决定
   hour_payment DECIMAL(10,2), -- admin决定
   budget DECIMAL(15,2), -- admin决定
-  balance DECIMAL(15,2) DEFAULT 0.00, -- 自动计算
-  tid VARCHAR(10),
+  balance DECIMAL(15,2) DEFAULT 0.00, 
+  tid VARCHAR(10), -- 负责人
   start_date DATE,
   FOREIGN KEY (tid) REFERENCES teachers(id),
   CHECK (x_coefficient > 0),
@@ -59,7 +59,7 @@ CREATE TABLE workload_declaration (
   status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAID') DEFAULT 'PENDING',
   PRIMARY KEY (sid, pid, date),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL
 );
 
 DELIMITER //
@@ -77,6 +77,14 @@ BEGIN
             SET MESSAGE_TEXT = '每个学生只能有一条PENDING记录';
         END IF;
     END IF;
+END//
+
+CREATE TRIGGER delete_unpaid_workloads_on_project_delete
+BEFORE DELETE ON projects
+FOR EACH ROW
+BEGIN
+  DELETE FROM workload_declaration
+  WHERE pid = OLD.id AND status <> 'PAID';
 END//
 
 DELIMITER ;
