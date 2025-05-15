@@ -69,6 +69,7 @@ router.get('/projects', async (req, res) => {
 
 router.post('/projects', async (req, res) => {
   const {
+    projectId,
     projectName,
     description,
     hourPayment,
@@ -78,7 +79,7 @@ router.post('/projects', async (req, res) => {
     leadingProfessor
   } = req.body;
 
-  if (!projectName || !hourPayment || !performanceRatio || !budget || !participants || !leadingProfessor) {
+  if (!projectId ||!projectName || !hourPayment || !performanceRatio || !budget || !participants || !leadingProfessor) {
     return res.status(400).json({ success: false, message: "Missing required fields" });
   }
 
@@ -90,11 +91,11 @@ router.post('/projects', async (req, res) => {
 
     // Insert into projects
     const [projectResult] = await connection.query(
-      `INSERT INTO projects (name, description, hour_payment, x_coefficient, budget, tid, start_date, balance)
-       VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)`,
-      [projectName, description, hourPayment, performanceRatio, budget, tid, budget]
+      `INSERT INTO projects (id, name, description, hour_payment, x_coefficient, budget, tid, start_date, balance)
+       VALUES (?,?, ?, ?, ?, ?, ?, NOW(), ?)`,
+      [projectId,projectName, description, hourPayment, performanceRatio, budget, tid, budget]
     );
-    const projectId = projectResult.insertId;
+    // const projectId = projectResult.insertId;
 
     // Insert participants
     if (participants.length > 0) {

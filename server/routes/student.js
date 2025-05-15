@@ -35,15 +35,14 @@ router.get('/wage-history/:studentId/:projectId', async (req, res) => {
   try {
     const [wageHistory] = await pool.query(`
       SELECT 
-      wp.sid AS studentId, 
-      wp.pid AS projectId, 
-      wp.date AS paymentDate, 
-      wp.hours AS workedHours, 
-      wp.pscore AS performanceScore, 
-      wp.hourp AS hourlyPayment, 
-      wp.prate AS projectRate 
-      FROM wage_payments wp
-      WHERE wp.pid = ? AND wp.sid = ?
+      wd.sid AS studentId, 
+      wd.pid AS projectId, 
+      wd.date AS paymentDate, 
+      wd.hours AS workedHours, 
+      wd.pscore AS performanceScore, 
+      wd.wage AS amount
+      FROM workload_declaration wd
+      WHERE wd.status = 'PAID' AND wd.pid = ? AND wd.sid = ?
     `, [projectId, studentId]);
 
     if (wageHistory.length > 0) {
