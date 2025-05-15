@@ -26,11 +26,11 @@ CREATE TABLE projects (
   id VARCHAR(10) PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   description TEXT,
-  x_coefficient DECIMAL(5,2) DEFAULT 1.0, -- 教授决定
+  x_coefficient DECIMAL(5,2) DEFAULT 1.0, -- admin决定
   hour_payment DECIMAL(10,2), -- admin决定
   budget DECIMAL(15,2), -- admin决定
-  balance DECIMAL(15,2) DEFAULT 0.00, -- 自动计算
-  tid VARCHAR(10),
+  balance DECIMAL(15,2) DEFAULT 0.00, 
+  tid VARCHAR(10), -- 负责人
   start_date DATE,
   FOREIGN KEY (tid) REFERENCES teachers(id),
   CHECK (x_coefficient > 0),
@@ -41,7 +41,7 @@ CREATE TABLE projects (
 
 -- 项目参与者关联表（学生）
 CREATE TABLE project_participants (
-  pid VARCHAR(10) NOT NULL,
+  pid VARCHAR(10),
   sid VARCHAR(10) NOT NULL,
   PRIMARY KEY (pid, sid),
   FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE,
@@ -50,16 +50,16 @@ CREATE TABLE project_participants (
 
 -- 工时提交历史表
 CREATE TABLE workload_declaration (
-  sid VARCHAR(10),
+  sid VARCHAR(10) NOT NULL,
   pid VARCHAR(10),
   date DATE NOT NULL,
   hours DECIMAL(5,2),
   pscore INT,
   wage DECIMAL(10,2),
   status ENUM('PENDING', 'APPROVED', 'REJECTED', 'PAID') DEFAULT 'PENDING',
-  PRIMARY KEY (sid, pid, date),
+  UNIQUE (sid, pid, date),
   FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE CASCADE
+  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL
 );
 
 DELIMITER //
@@ -71,7 +71,7 @@ BEGIN
     IF NEW.status = 'PENDING' THEN
         IF EXISTS (
             SELECT 1 FROM workload_declaration 
-            WHERE sid = NEW.sid AND status = 'PENDING'
+            WHERE sid = NEW.sid AND status = 'PENDING' AND pid = NEW.pid
         ) THEN
             SIGNAL SQLSTATE '45000' 
             SET MESSAGE_TEXT = '每个学生只能有一条PENDING记录';
@@ -79,28 +79,29 @@ BEGIN
     END IF;
 END//
 
+CREATE TRIGGER delete_unpaid_workloads_on_project_delete
+BEFORE DELETE ON projects
+FOR EACH ROW
+BEGIN
+  DELETE FROM workload_declaration
+  WHERE pid = OLD.id AND status <> 'PAID';
+END//
+
 DELIMITER ;
 
--- 工资发放历史
-CREATE TABLE wage_payments (
-  sid VARCHAR(10),
-  pid VARCHAR(10),
-  date DATE NOT NULL,
-  hours DECIMAL(5,2),
-  pscore INT,
-  hourp DECIMAL(10,2),
-  prate DECIMAL(10,2),
-  FOREIGN KEY (sid) REFERENCES students(id),
-  FOREIGN KEY (pid) REFERENCES projects(id) ON DELETE SET NULL
-);
-
--- 年报表
-CREATE TABLE annual_reports(
-  year INT NOT NULL,
-  studentId VARCHAR(10),
-  studentName VARCHAR(50),
-  totalWage DECIMAL(15, 2),
-  averageScore DECIMAL(5, 2),
-  PRIMARY KEY(year, studentId),
-  FOREIGN KEY(studentId) REFERENCES students(id)
-);
+-- 年报视图
+CREATE VIEW annual_reports AS
+SELECT
+  YEAR(wd.date) AS year,
+  s.id AS studentId,
+  s.name AS studentName,
+  SUM(wd.wage) AS totalWage,
+  AVG(wd.pscore) AS averageScore,
+  MAX(wd.date) AS updatedOn
+FROM
+  workload_declaration wd
+  JOIN students s ON wd.sid = s.id
+WHERE
+  wd.status = 'PAID'
+GROUP BY
+  YEAR(wd.date), s.id;
