@@ -50,7 +50,7 @@ function createDateNavigation(currentYear, currentMonth) {
     dateNav.style.marginBottom = '10px';
     dateNav.innerHTML = `
     <label for="yearSelect">Year:</label>
-    <select id="yearSelect">
+    <select class="yearSelect">
         ${[...Array(5)]
             .map((_, i) => {
                 const year = currentYear - i;
@@ -59,7 +59,7 @@ function createDateNavigation(currentYear, currentMonth) {
             .join('')}
     </select>
     <label for="monthSelect">Month:</label>
-    <select id="monthSelect">
+    <select class="monthSelect">
         ${[...Array(12)]
             .map((_, i) => {
                 const month = (i + 1).toString().padStart(2, '0');
@@ -76,7 +76,7 @@ function createDateNavigation2(currentYear, currentMonth) {
     dateNav.style.marginBottom = '10px';
     dateNav.innerHTML = `
     <label for="yearSelect">Year:</label>
-    <select id="yearSelect">
+    <select class="yearSelect">
         ${[...Array(5)]
             .map((_, i) => {
                 const year = currentYear - i;
@@ -85,7 +85,7 @@ function createDateNavigation2(currentYear, currentMonth) {
             .join('')}
     </select>
     <label for="monthSelect">Month:</label>
-    <select id="monthSelect">
+    <select class="monthSelect">
         ${[...Array(12)]
             .map((_, i) => {
                 const month = (i + 1).toString().padStart(2, '0');
@@ -184,17 +184,15 @@ function renderStudentDetails(students, projectId, resultDiv) {
 function attachConfirmHandler(projectId, currentYear, currentMonth, resultDiv) {
     const confirmButton = document.getElementById('confirmButton1');
     confirmButton.addEventListener('click', () => {
-        const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
-        const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
-
+        const selectedYear = confirmButton.parentElement.querySelector('.yearSelect').value;
+        const selectedMonth = confirmButton.parentElement.querySelector('.monthSelect').value;
         // 校验不能选择未来日期
-        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+        const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+        if (month > new Date().toISOString().slice(0, 7)) {
             alert('Error: You cannot select a future date.');
             return;
         }
-
-        const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-
+        
         // 调用后端 API 获取对应年月的学生详情
         fetch(`http://localhost:3000/api/project-students/${projectId}?month=${month}`)
             .then(response => response.json())
@@ -315,17 +313,14 @@ function renderWagePaymentDetails(wagehistory, projectId, resultDiv) {
 function attachConfirmHandler_wage(projectId, currentYear, currentMonth, resultDiv) {
     const confirmButton = document.getElementById('confirmButton2');
     confirmButton.addEventListener('click', () => {
-        const selectedYear = parseInt(document.getElementById('yearSelect').value, 10);
-        const selectedMonth = parseInt(document.getElementById('monthSelect').value, 10);
+        const selectedYear = confirmButton.parentElement.querySelector('.yearSelect').value;
+        const selectedMonth = confirmButton.parentElement.querySelector('.monthSelect').value;
         // 校验不能选择未来日期
-        if (selectedYear > currentYear || (selectedYear === currentYear && selectedMonth > currentMonth)) {
+        const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
+        if (month > new Date().toISOString().slice(0, 7)) {
             alert('Error: You cannot select a future date.');
             return;
         }
-
-        const month = `${selectedYear}-${String(selectedMonth).padStart(2, '0')}`;
-
-        console.log(month);
         // 调用后端 API 获取对应年月的工资支付情况
         fetch(`http://localhost:3000/api/wage-paid-condition/${projectId}?yearMonth=${month}`)
             .then(response => response.json())

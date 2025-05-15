@@ -98,19 +98,20 @@ router.put('/project-students/:status', async (req, res) => {
 
 // API: 获取该项目的待发放工资
 router.get('/wage-paid-condition/:projectId', async (req, res) => {
-  const { projectId } = req.params;
-  const { month } = req.query; // 从查询参数中获取月份（格式：YYYY-MM）
+  const {projectId} = req.params;
+  const {yearMonth} = req.query; // 从查询参数中获取月份（格式：YYYY-MM）
   try {
+    console.log("month:", yearMonth);
     const [wages] = await pool.query(
       `
       SELECT wd.sid AS studentId, wd.hours AS declaredHours, wd.pscore AS performance, p.hour_payment * wd.hours+wd.pscore*p.x_coefficient AS wageAmount, wd.status AS wageStatus, wd.date as ApprovedDate
       FROM workload_declaration wd
-      JOIN projects p ON p.id=wd.pid
-      WHERE wd.pid = ? AND (? IS NULL OR DATE_FORMAT(wd.date, '%Y-%m') = ?) AND wd.status = 'APPROVED'
+      JOIN students s ON wd.sid = s.id, projects p
+      WHERE p.id=wd.pid AND wd.pid = ? AND (? IS NULL OR DATE_FORMAT(wd.date, '%Y-%m') = ?) AND wd.status = 'APPROVED'
       `,
-      [projectId, month, month]
+      [projectId, yearMonth, yearMonth]
     );
-
+    console.log(wages);
     res.json({ success: true, wages });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -130,21 +131,21 @@ router.put('/wage-paid', async (req, res) => {
     //   `,
     //   [studentId, projectId, date]
     // );
-    await pool.query(
-      `UPDATE workload_declaration wd
+        await pool.query(
+        `UPDATE workload_declaration wd
         JOIN projects p ON wd.pid = p.id
         SET wd.wage = p.hour_payment * wd.hours + wd.pscore * p.x_coefficient
         WHERE wd.status = 'APPROVED'
         AND wd.sid = ? AND wd.pid = ? AND wd.date = ?
         `,
-      [studentId, projectId, date]);
-    await pool.query(`
+        [studentId, projectId, date]);
+        await pool.query(`
           UPDATE workload_declaration
           SET status = 'PAID'
           WHERE status = 'APPROVED' AND sid=? AND pid=? AND date=?
           `,
-      [studentId, projectId, date]
-    );
+        [studentId, projectId, date]
+        );
     res.json({ success: true, message: "Wage payment status updated successfully" });
   } catch (error) {
     console.error("Error updating wage payment status:", error);
