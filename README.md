@@ -164,28 +164,33 @@ Make sure you have the following installed:
 
 3. **Set up the SQL database**
 
-   * For SQLite:
-
-     ```sh
-     python setup_db.py  # This will create and initialize the database
-     ```
-   * For MySQL, create a database manually and update the connection string in `config.py`.
-
-4. **Install JavaScript dependencies (optional, for advanced frontend setups)**
+   MySQL only:
 
    ```sh
+   python init_database.py  # Initialize database schema and data
+   python -m venv venv
+   venv\Scripts\activate  # Windows
+   pip install -r requirements.txt
+   ```
+
+   > Enter your MySQL username and password as prompted. The script will automatically create the payroll database and import schema/data.
+
+4. **Install JavaScript dependencies (optional, for frontend development only)**
+
+   ```sh
+   cd server
    npm install
    ```
 
-5. **Run the development server**
+5. **Run the Node.js backend server**
 
    ```sh
-   python app.py
+   python start_server.py
    ```
 
-6. **Open the app in your browser**
+6. **Open the frontend pages**
 
-   * Navigate to: [http://localhost:5000](http://localhost:5000)
+   * Open client/index.html, student.html, teacher.html, or admin.html directly in your browser.
 
 ---
 
