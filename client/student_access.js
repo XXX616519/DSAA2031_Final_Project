@@ -5,7 +5,6 @@ const role = localStorage.getItem('role');
 const userInfoDiv = document.getElementById('userInfo');
 
 
-studentProjects.style.display = 'block';
 // 学生登录，显示学生信息
 userInfoDiv.textContent = `Logged in as Student: ${userName} (ID: ${userId})`;
 // ...existing code...

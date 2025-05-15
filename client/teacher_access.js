@@ -5,7 +5,6 @@ const role = localStorage.getItem('role');
 const userInfoDiv = document.getElementById('userInfo');
 
 
-teacherProjects.style.display = 'block';
 // 教师登录，显示教师信息
 userInfoDiv.textContent = `Logged in as Teacher: ${userName} (ID: ${userId})`;
 
