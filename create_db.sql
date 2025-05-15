@@ -105,3 +105,18 @@ WHERE
   wd.status = 'PAID'
 GROUP BY
   YEAR(wd.date), s.id;
+
+  -- 索引优化
+
+  -- 项目参与者关联表常用查询索引
+  CREATE INDEX idx_project_participants_sid ON project_participants(sid);
+  CREATE INDEX idx_project_participants_pid ON project_participants(pid);
+
+  -- workload_declaration常用查询索引
+  CREATE INDEX idx_workload_sid_pid_status ON workload_declaration(sid, pid, status);
+  CREATE INDEX idx_workload_pid_status ON workload_declaration(pid, status);
+  CREATE INDEX idx_workload_status ON workload_declaration(status);
+  CREATE INDEX idx_workload_date ON workload_declaration(date);
+
+  -- projects表负责人查询索引
+  CREATE INDEX idx_projects_tid ON projects(tid);
