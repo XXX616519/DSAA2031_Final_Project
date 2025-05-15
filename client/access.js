@@ -169,7 +169,7 @@ if (role == 2) {
     const budget = Number(document.getElementById('newBudget').value);
     const participantsInput = document.getElementById('newParticipants').value;
     const participantsArr = participantsInput.split(',').map(item => item.trim());
-    const leadingProfessor = document.getElementById('newLeadingProfessor').value;
+    const leadingProfessorID = document.getElementById('newLeadingProfessorID').value;
 
     // 验证所有数字输入必须为正数
     if (hourPayment <= 0) {
@@ -204,7 +204,7 @@ if (role == 2) {
         performanceRatio,
         budget,
         participants: participantsArr,
-        leadingProfessor
+        leadingProfessorID
       })
     })
       .then(response => response.json())
@@ -220,7 +220,7 @@ if (role == 2) {
           document.getElementById('newBudget').value = '';
           document.getElementById('newPerformanceRatio').value = '';
           document.getElementById('newParticipants').value = '';
-          document.getElementById('newLeadingProfessor').value = '';
+          document.getElementById('newLeadingProfessorID').value = '';
         } else {
           alert("Failed to add project: " + data.message);
         }
