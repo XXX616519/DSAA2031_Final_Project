@@ -93,8 +93,10 @@ DSAA2031_Final_Project/
 |   ├── package.json
 |   └── server.js
 ├── .gitignore                 
-├── README.md            
-├── create_db.sql              
+├── create_db.sql            
+├── group project specification.pdf
+├── README.md
+├── requirements.txt              
 └── test_data.sql       
 ```
 

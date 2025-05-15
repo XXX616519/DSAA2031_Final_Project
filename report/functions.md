@@ -136,3 +136,53 @@
 ![alt text](image-3.png)
 
 ## 4. ER Diagram
+![alt text](image-4.jpg)
+
+## 5. Performance Testing
+
+### 1.Test Key Operations
+```
+Average Admin login: 0.003s
+Average Teacher login: 0.002s
+Average Student login: 0.002s
+Average Admin add project: 0.004s
+Average Admin get projects: 0.052s
+Average Admin update project: 0.009s
+Average Admin delete project: 0.008s
+Average Admin annual report: 0.019s
+Average Student get projects: 0.003s
+Average Student declare working hours: 0.007s
+Average Student cancel working hours: 0.011s
+Average Student get working hours: 0.017s
+Average Student wage history: 0.017s
+Average Teacher get projects: 0.007s
+Average Teacher get project students: 0.006s
+Average Teacher approve working hours: 0.010s
+Average Teacher reject working hours: 0.010s
+Average Teacher wage paid condition: 0.006s
+Average Teacher pay wage: 0.015s
+```
+
+### 2. Analyze and Report
+| Operation Name                | Test Dataset Size            | Average Runtime (s) |
+| ----------------------------- | ---------------------------- | ------------------- |
+| Admin login                   | 1 admin                      | 0.003               |
+| Teacher login                 | 1000 teachers                | 0.002               |
+| Student login                 | 50000 students               | 0.002               |
+| Admin add project             | 3333 projects                | 0.004               |
+| Admin get projects            | 3333 projects                | 0.052               |
+| Admin update project          | 3333 projects                | 0.009               |
+| Admin delete project          | 3333 projects                | 0.008               |
+| Admin annual report           | System-wide (all users/data) | 0.019               |
+| Student get projects          | 50000 students               | 0.003               |
+| Student declare working hours | 50000 students               | 0.007               |
+| Student cancel working hours  | 50000 students               | 0.011               |
+| Student get working hours     | 50000 students               | 0.017               |
+| Student wage history          | 50000 students               | 0.017               |
+| Teacher get projects          | 1000 teachers                | 0.007               |
+| Teacher get project students  | ≈ 1000 teachers              | 0.006               |
+| Teacher approve working hours | ≈ 1000 teachers              | 0.010               |
+| Teacher reject working hours  | ≈ 1000 teachers              | 0.010               |
+| Teacher wage paid condition   | ≈ 1000 teachers              | 0.006               |
+| Teacher pay wage              | ≈ 1000 teachers              | 0.015               |
+As you can see, all the operations are quick and efficient 
