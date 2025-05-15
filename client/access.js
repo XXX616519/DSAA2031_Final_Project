@@ -862,14 +862,14 @@ else if (role == 0) {
       const panel = container.querySelector(`#wage-${project.projectId}`);
       panel.innerHTML = '<div class="loading">Loading wage history...</div>';
 
-      fetch(`http://localhost:3000/api/wage-history/${studentId}/${project.projectId}`)
+      fetch(`http://localhost:3000/api/wage-history/${studentId}?projectId=${project.projectId}`)
         .then(response => response.json())
         .then(data => {
           panel.innerHTML = '';
 
           if (data.success && data.history.length > 0) {
             const table = document.createElement('table');
-            table.style.margin='auto';
+            table.style.margin = 'auto';
             table.innerHTML = `
                   <tr>
                       <th>Payment Date</th>

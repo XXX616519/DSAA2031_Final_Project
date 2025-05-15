@@ -30,8 +30,12 @@ router.get('/student-projects/:sid', async (req, res) => {
 });
 
 // API: 获取学生的 monthly wage history
-router.get('/wage-history/:studentId/:projectId', async (req, res) => {
-  const { studentId, projectId } = req.params;
+router.get('/wage-history/:studentId', async (req, res) => {
+  const { studentId } = req.params;
+  const { projectId } = req.query;
+  if (!projectId) {
+    return res.status(400).json({ success: false, message: "Project ID is required." });
+  }
   try {
     const [wageHistory] = await pool.query(`
       SELECT 
