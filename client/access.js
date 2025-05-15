@@ -1094,17 +1094,15 @@ else if (role == 0) {
                   <tr>
                       <th>Payment Date</th>
                       <th>Hours</th>
-                      <th>Rate</th>
+                      <th>Performance</th>
                       <th>Amount</th>
-                      <th>Status</th>
                   </tr>
                   ${data.history.map(entry => `
                       <tr>
                           <td>${entry.paymentDate}</td>
-                          <td>${entry.hours}</td>
-                          <td>$${entry.hourlyRate}</td>
+                          <td>${entry.workedHours}</td>
+                          <td>${entry.performanceScore}</td>
                           <td>$${entry.amount}</td>
-                          <td>${getPaymentStatus(entry.status)}</td>
                       </tr>
                   `).join('')}
               `;
