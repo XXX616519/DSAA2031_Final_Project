@@ -869,6 +869,7 @@ else if (role == 0) {
 
           if (data.success && data.history.length > 0) {
             const table = document.createElement('table');
+            table.style.margin='auto';
             table.innerHTML = `
                   <tr>
                       <th>Payment Date</th>
