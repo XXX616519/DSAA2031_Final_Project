@@ -8,7 +8,8 @@ env_path = Path(__file__).parent / '.env'
 
 def write_env(user, pwd):
     with open(env_path, 'w', encoding='utf-8') as f:
-        f.write(f"MYSQL_USER={user}\nMYSQL_PASSWORD={pwd}\n")
+        f.write(
+            f"DB_HOST=localhost\nDB_USER={user}\nDB_PASSWORD={pwd}\nDB_NAME=payroll\n")
 
 
 # 获取MySQL账号和密码
