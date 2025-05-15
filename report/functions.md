@@ -1,4 +1,4 @@
-# **Login System**  
+# **Laboratory Project Payroll Management System**  
 
 **GitHub Website:** https://github.com/XXX616519/DSAA2031_Final_Project
 
@@ -12,8 +12,11 @@
    - Access participating projects with details:  
      - `project_id`  
      - `project_name`  
+     - `Leading Professor`
      - `base_hourly_pay` of the project  
-     - `payment_history`  
+     - `payment_history`
+     - `Description`
+     - `Start Date`  
 
 2. **Performance & Wage Tracking**  
    - After the teacher evaluates performance_score, students can view:  
@@ -21,7 +24,7 @@
      - `performance_score` from the teacher  
      - `final_wage` calculated as:  
        ```
-       wage = (performance_rating × performance_score) + (working_hours × base_hourly_pay)
+       wage = (performance_ratio × performance_score) + (working_hours × base_hourly_pay)
        ```  
    - **Editable Field**:  
      - Students can only submit/modify their own `working_hours`.  
@@ -38,10 +41,9 @@
      - `student_name`
 
 2. **Student Evaluation, Project Rating & Wage Configuration**  
-   - Assign a `performance_rating` to each project.
-   - When a teacher approves a student's working hours, they will assign a `performance_score​` to the student.  
+   - Before a teacher approves a student's working hours, they will assign a `performance_score​` to the student. When paying the wage, they need to confirm the performance_score and update the corresponding table.
    - ```
-     wage = (performance_rating × performance_score) + (working_hours × base_hourly_pay)
+     wage = (performance_ratio × performance_score) + (working_hours × base_hourly_pay)
      ```  
 
 ---
@@ -50,17 +52,26 @@
 1. **Project Oversight**  
    - View all projects with details and their participants:  
      - `project_id`  
-     - `project_name`  
+     - `project_name`
+     - `description`  
      - `project_budget`
      - `student_id`
      - `student_name`  
+     - `base hourly pay`
+     - `balance`
+     - `performance ratio`
+     - `leading professor`
+
 
 2. **Full Editing Privileges**  
    - Modify:  
-     - `project_budget`  
+     - `Balance`  
      - `base hourly pay` of projects
-     - `performance_rating` to each project  
+     - `performance_ratio` to each project  
      - Student-project assignments (add/remove students from projects).  
+   - Add and Delete:
+     - `Add a new project and give project a budget.`
+     - `Delete a project`
 
 3. **Reporting**  
    - Generate and view annual summary reports.  
@@ -90,7 +101,7 @@
 3. After approval, assigns a `performance_score` to the student.  
 4. The system automatically calculates the `final_wage` using the formula:  
    ```  
-   final_wage = (performance_rating × performance_score) + (working_hours × base_hourly_pay)  
+   final_wage = (performance_ratio × performance_score) + (working_hours × base_hourly_pay)  
    ```  
 **Expected Output**:  
 - Updates the student’s `performance_score` and associated `final_wage`.  
@@ -99,20 +110,31 @@
 
 ---
 
-### **3. Admin Manages Project Budget & Student Assignments**  
+### **3. Admin Manages Project Balance & Student Assignments**  
 **Initiator**: Admin  
 **Steps & Data**:  
-1. The Admin modifies `project_budget` (project budget), `base_hourly_pay` (base hourly rate), `performance_rating` in the project management interface.  
+1. The Admin modifies `balance`, `base_hourly_pay` (base hourly rate), `performance_ratio` in the project management interface.  
 2. Adds/removes students via the "Student-Project Assignment" module using `student_id` or `student_name`.  
-3. The system validates budget changes (e.g., ensuring the new budget does not fall below total wages already disbursed).  
+3. The system validates balance changes (e.g., ensuring the new balance does not fall below total wages already disbursed).  
 
 **Expected Output**:  
-- Updates project metadata (budget, hourly rate, performance_rating).  
+- Updates project metadata (balance, hourly rate, performance_ratio).  
 - Adjusts student enrollment relationships, which are reflected in Teacher/Student views.  
 
 ---
 
-### **4. Admin Generates Annual Summary Report**  
+### **4. Admin add and delete projects**  
+**Initiator**: Admin  
+**Steps & Data**:  
+1. The Admin can add and delete projects.  
+
+**Expected Output**:  
+- A new project with new budget
+- Delete a whole project
+
+---
+
+### **5. Admin Generates Annual Summary Report**  
 **Initiator**: Admin  
 **Steps & Data**:  
 1. The Admin selects a time range (e.g., fiscal year) and clicks "Generate Report" in the reporting interface.  
@@ -135,7 +157,7 @@
 ![alt text](image-2.png)
 
 ## 3. Data Flow Diagrams (DFDs)
-![alt text](image-3.png)
+![alt text](<image-3.png>)
 
 ## 4. ER Diagram
 ![alt text](image-4.jpg)

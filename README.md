@@ -95,8 +95,11 @@ DSAA2031_Final_Project/
 ├── .gitignore                 
 ├── create_db.sql            
 ├── group project specification.pdf
+├── init_database.py
 ├── README.md
-├── requirements.txt              
+├── requirements.txt
+├── start_server.py
+├── test_api_full.py              
 └── test_data.sql       
 ```
 
