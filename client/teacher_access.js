@@ -245,8 +245,8 @@ function fetchProjectDetails(projectId) {
     const projectDetailsDiv = document.getElementById('projectDetails');
     displayMgr.toggleDetails(projectId); // 切换项目详情区域的显示状态
     projectDetailsDiv.innerHTML = `
-  <h1>Project Participant Details</h1>
-  <p>Here are Project ${projectId} participant details:</p>
+  <h1>Working Hours Approval</h1>
+  <p>Here are Project ${projectId} participant working hours approval details:</p>
   `; // 清空原有内容
 
     // 创建并添加日期导航模块
